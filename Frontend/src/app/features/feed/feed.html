@@ -54,13 +54,13 @@
             <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(1) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
             {{ isPostLiked(1) ? '2.5k' : '2.4k' }}
           </button>
-          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(1)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-            128
+            {{ 128 + (comments()[1]?.length ?? 0) }}
           </button>
-          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+          <button [class]="socialState.isPostShared(1) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(1)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
-            45
+            {{ socialState.isPostShared(1) ? 'Partilhado' : '45' }}
           </button>
         </div>
         <button
@@ -96,9 +96,13 @@
           <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(2) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
           {{ isPostLiked(2) ? '869' : '868' }}
         </button>
-        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(2)">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-          64
+          {{ 64 + (comments()[2]?.length ?? 0) }}
+        </button>
+        <button [class]="socialState.isPostShared(2) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(2)">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+          {{ socialState.isPostShared(2) ? 'Partilhado' : '18' }}
         </button>
       </footer>
     </article>
@@ -132,9 +136,13 @@
             <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(3) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
             {{ isPostLiked(3) ? '1.3k' : '1.2k' }}
           </button>
-          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(3)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-            93
+            {{ 93 + (comments()[3]?.length ?? 0) }}
+          </button>
+          <button [class]="socialState.isPostShared(3) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(3)">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+            {{ socialState.isPostShared(3) ? 'Partilhado' : '31' }}
           </button>
         </div>
         <button class="grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Guardar nos favoritos">
@@ -170,9 +178,13 @@
           <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(4) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
           {{ isPostLiked(4) ? '414' : '413' }}
         </button>
-        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(4)">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-          29
+          {{ 29 + (comments()[4]?.length ?? 0) }}
+        </button>
+        <button [class]="socialState.isPostShared(4) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(4)">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+          {{ socialState.isPostShared(4) ? 'Partilhado' : '12' }}
         </button>
       </footer>
     </article>
@@ -237,6 +249,87 @@
 
   </aside>
 </div>
+
+@if (activeCommentPost(); as post) {
+  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/35 p-3 sm:p-4" (click)="closeComments()">
+    <section class="flex max-h-[calc(100dvh-24px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[8px] bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="comments-title" (click)="$event.stopPropagation()">
+      <header class="flex h-12 shrink-0 items-center justify-between border-b border-[#eef1f6] px-4">
+        <h2 id="comments-title" class="text-[14px] font-bold text-[#111827]">Comentários</h2>
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Fechar comentários" (click)="closeComments()">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      </header>
+
+      <div class="min-h-0 flex-1 overflow-y-auto p-4">
+        <article class="rounded-[8px] border border-[#edf1f6] p-3">
+          <header class="flex items-start gap-3">
+            <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+            <div class="min-w-0">
+              <h3 class="truncate text-[13px] font-bold text-[#111827]">{{ post.author }}</h3>
+              <p class="text-[10px] text-[#8b95a7]">{{ post.username }} · {{ post.time }}</p>
+            </div>
+          </header>
+          <p class="mt-3 text-[13px] leading-5 text-[#24304c]">{{ post.text }}</p>
+          @if (post.tags) {
+            <p class="mt-1 text-[12px] font-semibold text-[#1f6fff]">{{ post.tags }}</p>
+          }
+          @if (post.image) {
+            <img class="mt-3 h-[180px] w-full rounded-[6px] object-cover sm:h-[240px]" [src]="post.image" [alt]="post.imageAlt" />
+          }
+        </article>
+
+        <div class="mt-4 space-y-3">
+          @for (comment of activePostComments(); track comment.id) {
+            <article class="flex items-start gap-3">
+              <img class="size-9 rounded-full object-cover" [src]="comment.avatar" [alt]="comment.author" />
+              <div class="min-w-0 flex-1 rounded-[8px] bg-[#f5f7fb] px-3 py-2">
+                <div class="flex items-center gap-2">
+                  <h4 class="truncate text-[12px] font-bold text-[#111827]">{{ comment.author }}</h4>
+                  <span class="text-[9px] text-[#8b95a7]">{{ comment.time }}</span>
+                </div>
+                <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
+                @if (comment.attachment) {
+                  <span class="mt-2 inline-flex h-7 items-center rounded-[6px] bg-white px-2 text-[10px] font-bold text-[#1f6fff]">
+                    {{ attachmentLabel(comment.attachment) }}
+                  </span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+
+      <footer class="shrink-0 border-t border-[#edf1f6] p-3">
+        <div class="flex items-end gap-2">
+          <img class="size-9 shrink-0 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+          <div class="min-w-0 flex-1 rounded-[8px] border border-[#edf1f6] bg-white px-3 py-2">
+            <textarea #commentText class="h-12 w-full resize-none text-[12px] leading-5 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" placeholder="Escreve um comentário..."></textarea>
+            <div class="mt-2 flex flex-wrap items-center gap-1.5">
+              <button [class]="selectedCommentAttachment() === 'photo' ? 'grid size-7 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]'" type="button" aria-label="Comentar com foto" (click)="selectCommentAttachment('photo')">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="m8 13 2-2 4 4 1.5-1.5L19 17" /><circle cx="8.5" cy="9" r="1" /></svg>
+              </button>
+              <button [class]="selectedCommentAttachment() === 'video' ? 'grid size-7 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]'" type="button" aria-label="Comentar com vídeo" (click)="selectCommentAttachment('video')">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="11" height="12" rx="2" /><path d="m15 10 5-3v10l-5-3" /></svg>
+              </button>
+              <button [class]="selectedCommentAttachment() === 'sticker' ? 'grid size-7 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]'" type="button" aria-label="Comentar com sticker" (click)="selectCommentAttachment('sticker')">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /><path d="M14 3v5h5" /><path d="M9 14h.01M15 14h.01M10 17c1.2.9 2.8.9 4 0" /></svg>
+              </button>
+              <button [class]="selectedCommentAttachment() === 'emoji' ? 'grid size-7 place-items-center rounded-full bg-[#fff7ed] text-[#ff8a1f]' : 'grid size-7 place-items-center rounded-full text-[#ff8a1f] hover:bg-[#fff7ed]'" type="button" aria-label="Comentar com emoji" (click)="selectCommentAttachment('emoji')">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8" /><path d="M9 10h.01M15 10h.01M9 14c1.6 1.4 4.4 1.4 6 0" /></svg>
+              </button>
+              @if (selectedCommentAttachment()) {
+                <span class="ml-1 rounded-[6px] bg-[#f5f7fb] px-2 py-1 text-[10px] font-bold text-[#667085]">{{ attachmentLabel(selectedCommentAttachment()) }}</span>
+              }
+            </div>
+          </div>
+          <button class="h-9 shrink-0 rounded-[8px] bg-[#1f2944] px-4 text-[11px] font-bold text-white" type="button" (click)="submitComment(commentText.value); commentText.value = ''">
+            Comentar
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+}
 
 @if (isComposerOpen()) {
   <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/35 p-3 sm:p-4" (click)="closeComposer()">

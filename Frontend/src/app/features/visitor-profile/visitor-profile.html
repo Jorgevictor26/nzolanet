@@ -48,14 +48,14 @@
           <p class="text-[18px] font-bold text-[#111827]">1,284</p>
           <p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Publicações</p>
         </div>
-        <div>
-          <p class="text-[18px] font-bold text-[#111827]">48.2k</p>
-          <p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</p>
-        </div>
-        <div>
-          <p class="text-[18px] font-bold text-[#111827]">853</p>
-          <p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguindo</p>
-        </div>
+        <button class="text-center sm:text-left" type="button" (click)="openModal('followers')">
+          <span class="block text-[18px] font-bold text-[#111827]">48.2k</span>
+          <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
+        </button>
+        <button class="text-center sm:text-left" type="button" (click)="openModal('following')">
+          <span class="block text-[18px] font-bold text-[#111827]">853</span>
+          <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">A seguir</span>
+        </button>
       </div>
     </div>
   </section>
@@ -102,22 +102,18 @@
         </div>
 
         <div class="space-y-4">
-          <div class="flex items-center gap-3">
-            <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=5" alt="Sarah Connor" />
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-[11px] font-bold text-[#111827]">Sarah Connor</p>
-              <p class="truncate text-[10px] text-[#778295]">@sarah.c</p>
+          @for (profile of suggestedProfiles(); track profile.id) {
+            <div class="flex items-center gap-3">
+              <img class="size-9 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-[11px] font-bold text-[#111827]">{{ profile.name }}</p>
+                <p class="truncate text-[10px] text-[#778295]">{{ profile.username }}</p>
+              </div>
+              <button class="text-[10px] font-bold text-[#1f6fff]" type="button" (click)="toggleSuggestedFollow(profile.id)">
+                {{ profile.isFollowing ? prefs.t('following') : prefs.t('follow') }}
+              </button>
             </div>
-            <button class="text-[10px] font-bold text-[#1f6fff]" type="button">{{ prefs.t('follow') }}</button>
-          </div>
-          <div class="flex items-center gap-3">
-            <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=18" alt="David Miller" />
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-[11px] font-bold text-[#111827]">David Miller</p>
-              <p class="truncate text-[10px] text-[#778295]">@miller_design</p>
-            </div>
-            <button class="text-[10px] font-bold text-[#1f6fff]" type="button">{{ prefs.t('follow') }}</button>
-          </div>
+          }
         </div>
       </section>
 
@@ -131,3 +127,40 @@
     </aside>
   </div>
 </div>
+
+@if (activeModal()) {
+  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/35 p-3 sm:p-4" (click)="closeModal()">
+    <section class="flex max-h-[calc(100dvh-24px)] w-full max-w-[440px] flex-col overflow-hidden rounded-[8px] bg-white shadow-2xl" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="flex h-12 shrink-0 items-center justify-between border-b border-[#eef1f6] px-4">
+        <h2 class="text-[14px] font-bold text-[#111827]">{{ activeModal() === 'followers' ? 'Seguidores' : 'A seguir' }}</h2>
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Fechar modal" (click)="closeModal()">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      </header>
+
+      <div class="min-h-0 flex-1 overflow-y-auto p-3">
+        @if (activeModal() === 'followers') {
+          @for (profile of followers(); track profile.id) {
+            <article class="flex items-center gap-3 rounded-[8px] px-2 py-3 hover:bg-[#f4f7fb]">
+              <img class="size-11 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+              <div class="min-w-0 flex-1">
+                <h3 class="truncate text-[12px] font-bold text-[#111827]">{{ profile.name }}</h3>
+                <p class="truncate text-[10px] text-[#667085]">{{ profile.username }} · {{ profile.bio }}</p>
+              </div>
+            </article>
+          }
+        } @else {
+          @for (profile of following(); track profile.id) {
+            <article class="flex items-center gap-3 rounded-[8px] px-2 py-3 hover:bg-[#f4f7fb]">
+              <img class="size-11 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+              <div class="min-w-0 flex-1">
+                <h3 class="truncate text-[12px] font-bold text-[#111827]">{{ profile.name }}</h3>
+                <p class="truncate text-[10px] text-[#667085]">{{ profile.username }} · {{ profile.bio }}</p>
+              </div>
+            </article>
+          }
+        }
+      </div>
+    </section>
+  </div>
+}
