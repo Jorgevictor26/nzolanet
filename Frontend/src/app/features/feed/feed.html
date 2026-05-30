@@ -28,7 +28,7 @@
           <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=12" alt="Alex Rivera" />
           <div class="min-w-0">
             <div class="flex items-center gap-1">
-              <h2 class="truncate text-[14px] font-bold leading-5 text-[#111827]">Alex Rivera</h2>
+              <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">Alex Rivera</a>
               <svg class="size-3.5 shrink-0 text-[#1f6fff]" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 2.7 2.1 3.4-.2 1 3.3 2.8 1.9-1.3 3.2 1.3 3.2-2.8 1.9-1 3.3-3.4-.2L12 22l-2.7-2.1-3.4.2-1-3.3-2.8-1.9 1.3-3.2-1.3-3.2 2.8-1.9 1-3.3 3.4.2L12 2Zm-1.1 13.5 5.6-5.6-1.4-1.4-4.2 4.2-2-2-1.4 1.4 3.4 3.4Z" /></svg>
             </div>
             <p class="text-[11px] text-[#8b95a7]">&#64;arivera.nz &middot; 7h atr&aacute;s</p>
@@ -50,9 +50,9 @@
 
       <footer class="flex items-center justify-between px-5 py-4 text-[12px] text-[#1f2944]">
         <div class="flex items-center gap-5">
-          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
-            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-            2.4k
+          <button [class]="isPostLiked(1) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(1)">
+            <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(1) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+            {{ isPostLiked(1) ? '2.5k' : '2.4k' }}
           </button>
           <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
@@ -80,7 +80,7 @@
           <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=5" alt="Sarah Chen" />
           <div>
             <div class="flex items-center gap-1.5">
-              <h2 class="text-[14px] font-bold leading-5 text-[#111827]">Sarah Chen</h2>
+              <a class="text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">Sarah Chen</a>
               <span class="rounded-full bg-[#ff8a1f] px-1.5 py-0.5 text-[8px] font-bold text-white">Pro</span>
             </div>
             <p class="text-[11px] text-[#8b95a7]">&#64;schen.dev &middot; 4h atr&aacute;s</p>
@@ -91,6 +91,90 @@
         </button>
       </header>
       <p class="text-[13px] leading-6 text-[#24304c]">A conectividade nesta plataforma &eacute; incr&iacute;vel. Realmente aproveitando as vibra&ccedil;&otilde;es do glassmorphism e a navega&ccedil;&atilde;o fluida. Novas ideias a caminho.</p>
+      <footer class="mt-4 flex items-center gap-5 text-[12px] text-[#1f2944]">
+        <button [class]="isPostLiked(2) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(2)">
+          <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(2) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+          {{ isPostLiked(2) ? '869' : '868' }}
+        </button>
+        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
+          64
+        </button>
+      </footer>
+    </article>
+
+    <article class="mt-5 overflow-hidden rounded-[8px] bg-white shadow-sm">
+      <header class="flex items-start justify-between px-5 pt-4">
+        <div class="flex items-start gap-3">
+          <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=32" alt="Karina Ribeiro" />
+          <div class="min-w-0">
+            <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">Karina Ribeiro</a>
+            <p class="text-[11px] text-[#8b95a7]">&#64;karinaribeiro123_ &middot; 2h atr&aacute;s</p>
+          </div>
+        </div>
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opções">
+          <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+        </button>
+      </header>
+
+      <div class="px-5 py-3">
+        <p class="text-[13px] leading-5 text-[#24304c]">A tarde perfeita para respirar, fotografar e guardar memórias.</p>
+        <p class="mt-0.5 text-[13px] font-semibold leading-5 text-[#1f6fff]">#Luanda #cultura #NzolaNet</p>
+      </div>
+
+      <div class="px-5">
+        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1100&q=85" alt="Paisagem verde ao pôr do sol" />
+      </div>
+
+      <footer class="flex items-center justify-between px-5 py-4 text-[12px] text-[#1f2944]">
+        <div class="flex items-center gap-5">
+          <button [class]="isPostLiked(3) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(3)">
+            <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(3) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+            {{ isPostLiked(3) ? '1.3k' : '1.2k' }}
+          </button>
+          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
+            93
+          </button>
+        </div>
+        <button class="grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Guardar nos favoritos">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
+        </button>
+      </footer>
+    </article>
+
+    <article class="mt-5 overflow-hidden rounded-[8px] bg-white shadow-sm">
+      <header class="flex items-start justify-between px-5 pt-4">
+        <div class="flex items-start gap-3">
+          <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=18" alt="David Miller" />
+          <div class="min-w-0">
+            <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">David Miller</a>
+            <p class="text-[11px] text-[#8b95a7]">&#64;miller_design &middot; 1h atr&aacute;s</p>
+          </div>
+        </div>
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opções">
+          <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+        </button>
+      </header>
+
+      <div class="px-5 py-3">
+        <p class="text-[13px] leading-5 text-[#24304c]">Novo painel para organizar ideias antes da próxima reunião.</p>
+      </div>
+
+      <div class="px-5">
+        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1100&q=85" alt="Ambiente de tecnologia com computador" />
+      </div>
+
+      <footer class="flex items-center gap-5 px-5 py-4 text-[12px] text-[#1f2944]">
+        <button [class]="isPostLiked(4) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(4)">
+          <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(4) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+          {{ isPostLiked(4) ? '414' : '413' }}
+        </button>
+        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
+          29
+        </button>
+      </footer>
     </article>
   </section>
 
@@ -129,7 +213,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Marcus Vane</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;mrv_design</p>
           </div>
-          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">{{ prefs.t('follow') }}</button>
+          <button [class]="isFollowingProfile(15) ? 'h-8 rounded-full bg-[#eef3ff] px-4 text-[10px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(15)">{{ isFollowingProfile(15) ? prefs.t('following') : prefs.t('follow') }}</button>
         </div>
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=36" alt="Lia K." />
@@ -137,7 +221,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Lia K.</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;lia_connect</p>
           </div>
-          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">{{ prefs.t('follow') }}</button>
+          <button [class]="isFollowingProfile(36) ? 'h-8 rounded-full bg-[#eef3ff] px-4 text-[10px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(36)">{{ isFollowingProfile(36) ? prefs.t('following') : prefs.t('follow') }}</button>
         </div>
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=60" alt="Julian Thorne" />
@@ -145,7 +229,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Julian Thorne</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;jthorne_io</p>
           </div>
-          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">{{ prefs.t('follow') }}</button>
+          <button [class]="isFollowingProfile(60) ? 'h-8 rounded-full bg-[#eef3ff] px-4 text-[10px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(60)">{{ isFollowingProfile(60) ? prefs.t('following') : prefs.t('follow') }}</button>
         </div>
       </div>
       <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
