@@ -1,0 +1,34 @@
+.logo-mark {
+  position: relative;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  color: #f97316;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.logo-mark::before,
+.logo-mark::after {
+  position: absolute;
+  width: 14px;
+  height: 2px;
+  content: "";
+  background: #f97316;
+  border-radius: 999px;
+  transform: rotate(28deg);
+}
+
+.logo-mark::after {
+  width: 12px;
+  background: #2563eb;
+  transform: rotate(-28deg);
+}
+
+.logo-mark span {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-1px);
+}
