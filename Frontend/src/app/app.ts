@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 type NotificationItem = {
   id: number;
@@ -16,6 +16,8 @@ type NotificationItem = {
   styleUrl: './app.css'
 })
 export class App {
+  constructor(private readonly router: Router) {}
+
   protected readonly isNotificationsOpen = signal(false);
   protected readonly notifications = signal<NotificationItem[]>([
     {
@@ -56,5 +58,9 @@ export class App {
 
   protected clearNotifications(): void {
     this.notifications.set([]);
+  }
+
+  protected isLoginRoute(): boolean {
+    return this.router.url.startsWith('/login');
   }
 }
