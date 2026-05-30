@@ -5,8 +5,9 @@ import { Login } from './features/login/login';
 import { Profile } from './features/profile/profile';
 
 export const routes: Routes = [
-  { path: 'login', component: Login },
-  { path: '', component: Feed },
+  { path: '', component: Login },
+  { path: 'login', redirectTo: '', pathMatch: 'full' },
+  { path: 'home', component: Feed },
   { path: 'favorites', component: Favorites },
   { path: 'profile', component: Profile },
   { path: '**', redirectTo: '' }

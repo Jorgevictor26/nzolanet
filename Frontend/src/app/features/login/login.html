@@ -1,49 +1,171 @@
-<main class="relative min-h-dvh overflow-hidden bg-white text-[#111827]">
-  <div class="absolute -left-20 -top-28 size-[260px] rounded-full bg-[#28334b] shadow-[0_8px_18px_rgba(40,51,75,0.22)] sm:-left-16 sm:-top-24 sm:size-[330px] lg:-left-12 lg:-top-20 lg:size-[360px]"></div>
-  <div class="absolute bottom-[-76px] left-[8%] h-[220px] w-[220px] rotate-[36deg] rounded-[42px] bg-[#28334b] shadow-[0_8px_18px_rgba(40,51,75,0.2)] sm:bottom-[-96px] sm:left-[13%] sm:h-[270px] sm:w-[270px] lg:bottom-[-116px] lg:left-[10%] lg:h-[320px] lg:w-[320px]"></div>
-  <div class="absolute right-[-70px] top-[18%] hidden h-[230px] w-[330px] rotate-[28deg] rounded-[64px] bg-[#28334b] shadow-[0_8px_18px_rgba(40,51,75,0.2)] md:block lg:right-[8%] lg:h-[270px] lg:w-[390px] xl:right-[11%] xl:top-[15%] xl:h-[300px] xl:w-[430px]">
-    <div class="grid h-full place-items-center -rotate-[28deg] px-16 text-center">
-      <h2 class="text-[22px] font-extrabold leading-7 text-white">Fa&ccedil;a o Login em nossa<br />Plataforma</h2>
-    </div>
-  </div>
-  <div class="absolute bottom-0 left-0 right-0 h-12 bg-[#28334b] sm:h-14"></div>
-
-  <section class="relative z-10 flex min-h-dvh items-center justify-center px-4 py-16 sm:px-6 lg:justify-start lg:pl-[16%] xl:pl-[16%]">
-    <div class="w-full max-w-[360px] rounded-[8px] bg-white px-7 py-8 shadow-[0_4px_18px_rgba(15,23,42,0.24)] sm:max-w-[410px] sm:px-9 sm:py-10">
-      <header class="text-center">
-        <h1 class="text-[18px] font-extrabold text-[#4b5565]">
-          Bem vindo ao <span class="text-[#28334b]">LOGIN</span>
-        </h1>
-        <p class="mt-9 text-[11px] font-medium text-[#9aa4b2]">Preencha os dados do login para acessar</p>
-      </header>
-
-      <form class="mt-9 space-y-8">
-        <label class="block">
-          <span class="text-[11px] font-semibold text-[#647084]">Usu&aacute;rio</span>
-          <span class="mt-1 flex h-9 items-center border-b border-[#cfd5df]">
-            <input class="min-w-0 flex-1 bg-transparent text-[12px] font-medium text-[#111827] outline-none placeholder:text-[#aab4c4]" type="text" value="jhonasrodrigues" autocomplete="username" />
-            <svg class="size-4 shrink-0 text-[#6b7280]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4 0-7 2.2-7 5v1h14v-1c0-2.8-3-5-7-5Z" /></svg>
-          </span>
-        </label>
-
-        <label class="block">
-          <span class="text-[11px] font-semibold text-[#647084]">Senha</span>
-          <span class="mt-1 flex h-9 items-center border-b border-[#cfd5df]">
-            <input class="min-w-0 flex-1 bg-transparent text-[12px] font-medium text-[#111827] outline-none placeholder:text-[#aab4c4]" [type]="isPasswordVisible() ? 'text' : 'password'" value="senhadeacesso" autocomplete="current-password" />
-            <button class="grid size-7 shrink-0 place-items-center text-[#6b7280]" type="button" aria-label="Mostrar ou ocultar senha" (click)="togglePasswordVisibility()">
-              @if (isPasswordVisible()) {
-                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
-              } @else {
-                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18" /><path d="M10.6 10.6A2 2 0 0 0 12 14a2 2 0 0 0 1.4-.6" /><path d="M9.9 4.2A10.5 10.5 0 0 1 12 4c6.5 0 10 8 10 8a18.2 18.2 0 0 1-3.1 4.2" /><path d="M6.1 6.1C3.5 7.9 2 12 2 12s3.5 8 10 8a10.6 10.6 0 0 0 5.9-1.9" /></svg>
-              }
-            </button>
-          </span>
-        </label>
-
-        <a class="flex h-10 w-full items-center justify-center rounded-[3px] bg-[#28334b] text-[11px] font-bold text-white transition hover:bg-[#314061]" routerLink="/">
-          ENTRAR
-        </a>
-      </form>
-    </div>
+<main class="relative min-h-screen overflow-hidden bg-[#f3f6fb] text-[#101828]">
+  <section class="absolute inset-0" aria-hidden="true">
+    <div class="login-figure login-figure-one left-[8%] top-[12%] h-24 w-24 bg-[#28334b]"></div>
+    <div class="login-figure login-figure-two right-[9%] top-[16%] h-20 w-20 bg-[#18a058]"></div>
+    <div class="login-figure login-figure-three bottom-[13%] left-[14%] h-28 w-28 bg-[#f59e0b]"></div>
+    <div class="login-figure login-figure-four bottom-[18%] right-[16%] h-16 w-16 bg-[#ef4444]"></div>
   </section>
+
+  <div class="relative z-10 grid min-h-screen place-items-center px-4 py-8">
+    <section class="grid w-full max-w-[960px] overflow-hidden rounded-[8px] border border-[#e3e9f3] bg-white shadow-xl lg:grid-cols-[0.95fr_1.05fr]">
+      <aside class="hidden min-h-[620px] flex-col justify-between bg-[#28334b] p-8 text-white lg:flex">
+        <div>
+          <img class="size-12 rounded-full object-cover ring-2 ring-white/20" src="nzolanet_logo.png" alt="NzolaNet" />
+          <h1 class="mt-8 max-w-[360px] text-[34px] font-bold leading-[1.1]">NzolaNet</h1>
+          <p class="mt-4 max-w-[360px] text-[14px] leading-6 text-[#d8e0ef]">
+            Entra, cria o teu perfil e encontra pessoas com ideias, projetos e conversas que combinam contigo.
+          </p>
+        </div>
+
+        <div class="grid gap-3">
+          <article class="rounded-[8px] bg-white/10 p-4">
+            <p class="text-[12px] font-semibold text-[#eef4ff]">Comunidade ativa</p>
+            <p class="mt-1 text-[12px] leading-5 text-[#c9d4e8]">Segue perfis, guarda favoritos e acompanha novidades.</p>
+          </article>
+          <article class="rounded-[8px] bg-white/10 p-4">
+            <p class="text-[12px] font-semibold text-[#eef4ff]">Perfil completo</p>
+            <p class="mt-1 text-[12px] leading-5 text-[#c9d4e8]">Foto, biografia e primeiras conexoes logo no cadastro.</p>
+          </article>
+        </div>
+      </aside>
+
+      <div class="min-h-[620px] px-5 py-7 sm:px-8">
+        @if (authStep() === 'login') {
+          <form class="mx-auto flex h-full max-w-[410px] flex-col justify-center" (submit)="$event.preventDefault()">
+            <p class="text-center text-[12px] font-bold uppercase tracking-[0.16em] text-[#28334b]">Bem-vindo</p>
+            <h2 class="mt-2 text-center font-['Poppins'] text-[28px] font-bold leading-tight text-[#101828]">Entrar na conta</h2>
+            <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Acede ao teu feed e continua as conversas na NzolaNet.</p>
+
+            <label class="mt-8 text-[12px] font-bold text-[#344054]">
+              Email
+              <input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="email" placeholder="teuemail@exemplo.com" />
+            </label>
+
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">
+              Senha
+              <div class="mt-2 flex h-11 items-center rounded-[8px] border border-[#d7deea] focus-within:border-[#28334b]">
+                <input class="h-full min-w-0 flex-1 rounded-[8px] px-4 text-[14px] outline-none" [type]="isPasswordVisible() ? 'text' : 'password'" placeholder="A tua senha" />
+                <button class="grid size-10 place-items-center text-[#667085]" type="button" (click)="togglePasswordVisibility()" aria-label="Mostrar ou ocultar senha">
+                  @if (isPasswordVisible()) {
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18" /><path d="M10.6 10.6A2 2 0 0 0 13.4 13.4" /><path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c5 0 8.4 4.1 9.5 6a12 12 0 0 1-2.2 2.9" /><path d="M6.4 6.4A12.6 12.6 0 0 0 2.5 10c1.1 1.9 4.5 6 9.5 6a10.4 10.4 0 0 0 4-.8" /></svg>
+                  } @else {
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" /><circle cx="12" cy="12" r="3" /></svg>
+                  }
+                </button>
+              </div>
+            </label>
+
+            <button class="mt-3 self-end text-[12px] font-bold text-[#28334b]" type="button" (click)="goToStep('forgot')">Esqueci a senha</button>
+            <a class="mt-5 grid h-11 place-items-center rounded-[8px] bg-[#28334b] text-[14px] font-bold text-white" routerLink="/home">Entrar</a>
+            <p class="mt-5 text-center text-[13px] text-[#667085]">
+              Ainda nao tens conta?
+              <button class="font-bold text-[#28334b]" type="button" (click)="goToStep('register')">Criar perfil</button>
+            </p>
+          </form>
+        }
+
+        @if (authStep() === 'register') {
+          <form class="mx-auto flex h-full max-w-[430px] flex-col justify-center" (submit)="$event.preventDefault(); goToStep('photo')">
+            <button class="mb-6 flex items-center gap-2 text-[12px] font-bold text-[#667085]" type="button" (click)="goToStep('login')">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18 9 12l6-6" /></svg>
+              Voltar
+            </button>
+            <h2 class="text-center font-['Poppins'] text-[28px] font-bold leading-tight">Criar perfil</h2>
+            <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Preenche os teus dados para comecar a tua conta.</p>
+
+            <div class="mt-7 grid gap-4 sm:grid-cols-2">
+              <label class="text-[12px] font-bold text-[#344054]">Nome<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="Primeiro nome" /></label>
+              <label class="text-[12px] font-bold text-[#344054]">Sobrenome<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="Apelido" /></label>
+            </div>
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">Email<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="email" placeholder="teuemail@exemplo.com" /></label>
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">Nome de usuario<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="@teuusuario" /></label>
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">Senha<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="password" placeholder="Cria uma senha" /></label>
+            <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[14px] font-bold text-white" type="submit">Criar perfil</button>
+          </form>
+        }
+
+        @if (authStep() === 'photo') {
+          <section class="mx-auto flex h-full max-w-[420px] flex-col justify-center">
+            <h2 class="text-[28px] font-bold leading-tight">Adiciona uma foto</h2>
+            <p class="mt-2 text-[13px] leading-5 text-[#667085]">Ajuda as pessoas a reconhecerem o teu perfil. Tambem podes fazer isso depois.</p>
+            <div class="mt-8 grid place-items-center rounded-[8px] border border-dashed border-[#b8c4d8] bg-[#f8fbff] p-8">
+              @if (hasProfilePhoto()) {
+                <img class="size-28 rounded-full object-cover ring-4 ring-white shadow-md" src="https://i.pravatar.cc/160?img=32" alt="Foto escolhida" />
+              } @else {
+                <div class="grid size-28 place-items-center rounded-full bg-[#e9f0fb] text-[#28334b]">
+                  <svg class="size-10 text-[#28334b]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" /></svg>
+                </div>
+              }
+              <button class="mt-5 h-10 rounded-[8px] bg-[#28334b] px-5 text-[13px] font-bold text-white" type="button" (click)="chooseProfilePhoto()">Colocar foto</button>
+            </div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+              <button class="h-11 rounded-[8px] border border-[#d7deea] text-[13px] font-bold text-[#344054]" type="button" (click)="goToStep('bio')">Pular etapa</button>
+              <button class="h-11 rounded-[8px] bg-[#28334b] text-[13px] font-bold text-white" type="button" (click)="goToStep('bio')">Continuar</button>
+            </div>
+          </section>
+        }
+
+        @if (authStep() === 'bio') {
+          <form class="mx-auto flex h-full max-w-[430px] flex-col justify-center" (submit)="$event.preventDefault(); goToStep('follow')">
+            <h2 class="text-[28px] font-bold leading-tight">Conta um pouco sobre ti</h2>
+            <p class="mt-2 text-[13px] leading-5 text-[#667085]">A tua biografia aparece no perfil e ajuda outras pessoas a entenderem o que te interessa.</p>
+            <label class="mt-7 text-[12px] font-bold text-[#344054]">
+              Biografia
+              <textarea class="mt-2 min-h-32 w-full resize-none rounded-[8px] border border-[#d7deea] p-4 text-[14px] leading-6 outline-none focus:border-[#28334b]" maxlength="180" placeholder="Ex: Gosto de tecnologia, musica, negocios locais e novas conexoes."></textarea>
+            </label>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+              <button class="h-11 rounded-[8px] border border-[#d7deea] text-[13px] font-bold text-[#344054]" type="button" (click)="goToStep('follow')">Pular</button>
+              <button class="h-11 rounded-[8px] bg-[#28334b] text-[13px] font-bold text-white" type="submit">Continuar</button>
+            </div>
+          </form>
+        }
+
+        @if (authStep() === 'follow') {
+          <section class="mx-auto flex h-full max-w-[460px] flex-col justify-center">
+            <h2 class="text-[28px] font-bold leading-tight">Segue alguns perfis</h2>
+            <p class="mt-2 text-[13px] leading-5 text-[#667085]">Como a tua conta e nova, escolhe pessoas para deixar o feed mais vivo desde o inicio.</p>
+            <div class="mt-7 grid gap-3">
+              @for (profile of suggestedProfiles(); track profile.id) {
+                <article class="flex items-center gap-3 rounded-[8px] border border-[#e3e9f3] p-3">
+                  <img class="size-12 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+                  <div class="min-w-0 flex-1">
+                    <h3 class="truncate text-[13px] font-bold text-[#101828]">{{ profile.name }}</h3>
+                    <p class="truncate text-[11px] text-[#667085]">{{ profile.username }} · {{ profile.role }}</p>
+                  </div>
+                  <button [class]="profile.isFollowing ? 'h-9 rounded-[8px] bg-[#e8f8ef] px-4 text-[12px] font-bold text-[#157347]' : 'h-9 rounded-[8px] bg-[#28334b] px-4 text-[12px] font-bold text-white'" type="button" (click)="toggleFollow(profile.id)">
+                    {{ profile.isFollowing ? 'Seguindo' : 'Seguir' }}
+                  </button>
+                </article>
+              }
+            </div>
+            <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[13px] font-bold text-white" type="button" (click)="finishOnboarding()">Concluir</button>
+          </section>
+        }
+
+        @if (authStep() === 'forgot') {
+          <form class="mx-auto flex h-full max-w-[410px] flex-col justify-center" (submit)="$event.preventDefault(); goToStep('reset')">
+            <button class="mb-6 flex items-center gap-2 text-[12px] font-bold text-[#667085]" type="button" (click)="goToStep('login')">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18 9 12l6-6" /></svg>
+              Voltar
+            </button>
+            <h2 class="text-center font-['Poppins'] text-[28px] font-bold leading-tight">Esqueci a senha</h2>
+            <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Informa o email da conta para receberes o codigo de recuperacao.</p>
+            <label class="mt-7 text-[12px] font-bold text-[#344054]">Email<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="email" placeholder="teuemail@exemplo.com" /></label>
+            <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[14px] font-bold text-white" type="submit">Enviar codigo</button>
+          </form>
+        }
+
+        @if (authStep() === 'reset') {
+          <form class="mx-auto flex h-full max-w-[410px] flex-col justify-center" (submit)="$event.preventDefault(); goToStep('login')">
+            <h2 class="text-center font-['Poppins'] text-[28px] font-bold leading-tight">Redefinir senha</h2>
+            <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Cria uma nova senha para voltar a entrar na tua conta.</p>
+            <label class="mt-7 text-[12px] font-bold text-[#344054]">Codigo<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="000000" /></label>
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">Nova senha<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="password" placeholder="Nova senha" /></label>
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">Confirmar senha<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="password" placeholder="Repete a senha" /></label>
+            <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[14px] font-bold text-white" type="submit">Redefinir senha</button>
+          </form>
+        }
+      </div>
+    </section>
+  </div>
 </main>

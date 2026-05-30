@@ -33,3 +33,47 @@ input {
 button {
   cursor: pointer;
 }
+
+.login-figure {
+  position: absolute;
+  border-radius: 32% 68% 56% 44% / 42% 38% 62% 58%;
+  opacity: 0.2;
+  filter: blur(0.2px);
+  animation: login-figure-drift 7s ease-in-out infinite;
+}
+
+.login-figure-two {
+  animation-delay: -1.7s;
+  animation-duration: 8s;
+}
+
+.login-figure-three {
+  animation-delay: -3.1s;
+  animation-duration: 9s;
+}
+
+.login-figure-four {
+  animation-delay: -4.4s;
+  animation-duration: 6.5s;
+}
+
+@keyframes login-figure-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+
+  45% {
+    transform: translate3d(12px, -14px, 0) rotate(9deg) scale(1.06);
+  }
+
+  72% {
+    transform: translate3d(-7px, 9px, 0) rotate(-5deg) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-figure {
+    animation: none;
+  }
+}

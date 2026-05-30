@@ -61,6 +61,6 @@ export class App {
   }
 
   protected isLoginRoute(): boolean {
-    return this.router.url.startsWith('/login');
+    return this.router.url === '/' || this.router.url.startsWith('/login');
   }
 }
