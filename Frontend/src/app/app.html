@@ -14,14 +14,53 @@
       </label>
     </div>
 
-    <div class="flex items-center gap-5">
-      <button class="relative grid size-8 place-items-center text-[#1e2740]" aria-label="Notificacoes">
-        <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-          <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-        </svg>
-        <span class="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-[#1f6fff]"></span>
-      </button>
+    <div class="flex items-center gap-4 sm:gap-5">
+      <div class="relative">
+        <button class="relative grid size-8 place-items-center text-[#1e2740]" type="button" aria-label="Notificacoes" (click)="toggleNotifications()">
+          <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+            <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg>
+          @if (unreadNotifications() > 0) {
+            <span class="absolute right-0.5 top-0.5 grid min-w-4 place-items-center rounded-full bg-[#1f6fff] px-1 text-[9px] font-bold leading-4 text-white">{{ unreadNotifications() }}</span>
+          }
+        </button>
+
+        @if (isNotificationsOpen()) {
+          <section class="absolute right-[-44px] top-11 w-[calc(100vw-24px)] max-w-[360px] overflow-hidden rounded-[8px] border border-[#e6ebf3] bg-white shadow-xl sm:right-0" aria-label="Lista de notificacoes">
+            <header class="flex items-center justify-between border-b border-[#eef1f6] px-4 py-3">
+              <div>
+                <h2 class="text-[14px] font-bold text-[#111827]">Notifica&ccedil;&otilde;es</h2>
+                <p class="text-[10px] text-[#8b95a7]">{{ unreadNotifications() }} por ler</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button class="text-[10px] font-bold text-[#1f6fff]" type="button" (click)="markAllNotificationsAsRead()">Marcar lidas</button>
+                <button class="text-[10px] font-bold text-[#ef4444]" type="button" (click)="clearNotifications()">Limpar</button>
+              </div>
+            </header>
+
+            <div class="max-h-[340px] overflow-y-auto">
+              @if (notifications().length > 0) {
+                @for (notification of notifications(); track notification.id) {
+                  <article [class]="notification.isRead ? 'flex gap-3 border-b border-[#f1f4f8] px-4 py-3 last:border-b-0' : 'flex gap-3 border-b border-[#f1f4f8] bg-[#f8fbff] px-4 py-3 last:border-b-0'">
+                    <span [class]="notification.isRead ? 'mt-1 size-2 shrink-0 rounded-full bg-transparent' : 'mt-1 size-2 shrink-0 rounded-full bg-[#1f6fff]'"></span>
+                    <div class="min-w-0 flex-1">
+                      <h3 class="truncate text-[12px] font-bold text-[#111827]">{{ notification.title }}</h3>
+                      <p class="mt-0.5 text-[11px] leading-4 text-[#667085]">{{ notification.body }}</p>
+                      <p class="mt-1 text-[10px] font-semibold text-[#9aa4b2]">{{ notification.time }}</p>
+                    </div>
+                  </article>
+                }
+              } @else {
+                <div class="px-4 py-8 text-center">
+                  <p class="text-[12px] font-bold text-[#111827]">Sem notifica&ccedil;&otilde;es</p>
+                  <p class="mt-1 text-[11px] text-[#8b95a7]">Tudo limpo por aqui.</p>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      </div>
       <a routerLink="/profile" aria-label="Abrir perfil">
         <img class="size-8 rounded-full object-cover ring-2 ring-white" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
       </a>
@@ -43,7 +82,11 @@
         <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7" /><path d="m14.8 9.2-1.7 4-3.9 1.6 1.7-3.9 3.9-1.7Z" /></svg>
         Explorar
       </a>
-      <a class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]" href="#">
+      <a
+        class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+        routerLink="/favorites"
+        routerLinkActive="bg-[#314061] text-white"
+      >
         <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
         Favoritos
       </a>
@@ -81,7 +124,7 @@
       <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7" /><path d="m14.8 9.2-1.7 4-3.9 1.6 1.7-3.9 3.9-1.7Z" /></svg>
       Explorar
     </a>
-    <a class="flex flex-col items-center justify-center gap-1" href="#">
+    <a class="flex flex-col items-center justify-center gap-1" routerLink="/favorites" routerLinkActive="bg-[#314061] text-white">
       <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
       Favoritos
     </a>
