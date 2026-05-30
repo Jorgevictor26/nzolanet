@@ -19,6 +19,7 @@ export class App {
   constructor(private readonly router: Router) {}
 
   protected readonly isNotificationsOpen = signal(false);
+  protected readonly isProfileMenuOpen = signal(false);
   protected readonly notifications = signal<NotificationItem[]>([
     {
       id: 1,
@@ -48,6 +49,12 @@ export class App {
 
   protected toggleNotifications(): void {
     this.isNotificationsOpen.update((isOpen) => !isOpen);
+    this.isProfileMenuOpen.set(false);
+  }
+
+  protected toggleProfileMenu(): void {
+    this.isProfileMenuOpen.update((isOpen) => !isOpen);
+    this.isNotificationsOpen.set(false);
   }
 
   protected markAllNotificationsAsRead(): void {
@@ -58,6 +65,11 @@ export class App {
 
   protected clearNotifications(): void {
     this.notifications.set([]);
+  }
+
+  protected logout(): void {
+    this.isProfileMenuOpen.set(false);
+    this.router.navigateByUrl('/');
   }
 
   protected isLoginRoute(): boolean {
