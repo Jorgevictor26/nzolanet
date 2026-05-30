@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Preferences } from './core/preferences';
 
 type NotificationItem = {
   id: number;
@@ -16,21 +17,24 @@ type NotificationItem = {
   styleUrl: './app.css'
 })
 export class App {
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    protected readonly prefs: Preferences
+  ) {}
 
   protected readonly isNotificationsOpen = signal(false);
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly notifications = signal<NotificationItem[]>([
     {
       id: 1,
-      title: 'Nova reacao',
-      body: 'Sarah Chen gostou da tua publicacao.',
+      title: 'Nova reação',
+      body: 'Sarah Chen gostou da tua publicação.',
       time: '2 min',
       isRead: false
     },
     {
       id: 2,
-      title: 'Comentario recente',
+      title: 'Comentário recente',
       body: 'Alex Rivera comentou no teu post.',
       time: '18 min',
       isRead: false
@@ -38,7 +42,7 @@ export class App {
     {
       id: 3,
       title: 'Novo seguidor',
-      body: 'Marcus Vane comecou a seguir-te.',
+      body: 'Marcus Vane começou a seguir-te.',
       time: '1 h',
       isRead: true
     }

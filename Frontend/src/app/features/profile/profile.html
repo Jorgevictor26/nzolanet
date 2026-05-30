@@ -19,7 +19,7 @@
         <div class="flex items-center gap-2 sm:pt-0">
           <button class="inline-flex h-9 items-center gap-2 rounded-[8px] bg-[#f4f7fb] px-4 text-[12px] font-bold text-[#24304c]" type="button" (click)="openProfileEditor()">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
-            Editar Perfil
+            {{ prefs.t('editProfile') }}
           </button>
           <button class="grid size-9 place-items-center rounded-[8px] bg-[#f4f7fb] text-[#24304c]" type="button" aria-label="Mais opcoes">
             <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
@@ -67,12 +67,12 @@
     <section class="min-w-0">
       <div class="grid grid-cols-4 rounded-[8px] bg-white px-2 text-[12px] font-bold text-[#b2bbca] shadow-sm sm:px-5">
         <button class="relative h-11 text-[#1f6fff]" type="button">
-          Posts
+          {{ prefs.t('posts') }}
           <span class="absolute bottom-0 left-1/2 h-0.5 w-24 max-w-[80%] -translate-x-1/2 rounded-full bg-[#1f6fff]"></span>
         </button>
-        <button class="h-11" type="button">Fotos</button>
-        <button class="h-11" type="button">V&iacute;deos</button>
-        <button class="h-11" type="button">Marcados</button>
+        <button class="h-11" type="button">{{ prefs.t('photos') }}</button>
+        <button class="h-11" type="button">{{ prefs.t('videos') }}</button>
+        <button class="h-11" type="button">{{ prefs.t('tagged') }}</button>
       </div>
 
       <div class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -100,8 +100,8 @@
     <aside class="hidden min-w-0 space-y-4 lg:block">
       <section class="rounded-[8px] bg-white p-4 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-[13px] font-bold text-[#111827]">Sugest&otilde;es para ti</h2>
-          <button class="text-[11px] font-bold text-[#1f6fff]" type="button">Ver todos</button>
+          <h2 class="text-[13px] font-bold text-[#111827]">{{ prefs.t('suggestionsForYou') }}</h2>
+          <button class="text-[11px] font-bold text-[#1f6fff]" type="button">{{ prefs.t('seeAll') }}</button>
         </div>
 
         <div class="space-y-4">
@@ -111,7 +111,7 @@
               <p class="truncate text-[11px] font-bold text-[#111827]">Sarah Connor</p>
               <p class="truncate text-[10px] text-[#778295]">@sarah.c</p>
             </div>
-            <button class="text-[10px] font-bold text-[#1f6fff]" type="button">Seguir</button>
+            <button class="text-[10px] font-bold text-[#1f6fff]" type="button">{{ prefs.t('follow') }}</button>
           </div>
           <div class="flex items-center gap-3">
             <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=18" alt="David Miller" />
@@ -119,13 +119,13 @@
               <p class="truncate text-[11px] font-bold text-[#111827]">David Miller</p>
               <p class="truncate text-[10px] text-[#778295]">@david.m</p>
             </div>
-            <button class="text-[10px] font-bold text-[#1f6fff]" type="button">Seguir</button>
+            <button class="text-[10px] font-bold text-[#1f6fff]" type="button">{{ prefs.t('follow') }}</button>
           </div>
         </div>
       </section>
 
       <section class="rounded-[8px] bg-white p-4 shadow-sm">
-        <h2 class="mb-4 text-[13px] font-bold text-[#111827]">Atividade recente</h2>
+        <h2 class="mb-4 text-[13px] font-bold text-[#111827]">{{ prefs.t('recentActivity') }}</h2>
         <div class="space-y-4 text-[11px] leading-5 text-[#596579]">
           <p><span class="font-bold text-[#111827]">Maria</span> publicou um novo post.</p>
           <p><span class="font-bold text-[#111827]">32 pessoas</span> reagiram &agrave; tua fotografia.</p>
@@ -143,7 +143,7 @@
         <button class="grid size-7 place-items-center rounded-full text-[#1f2937] hover:bg-[#f3f5f8]" type="button" aria-label="Fechar editor de perfil" (click)="closeProfileEditor()">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
         </button>
-        <h2 id="profile-editor-title" class="text-[13px] font-bold text-[#111827]">Editar Perfil</h2>
+        <h2 id="profile-editor-title" class="text-[13px] font-bold text-[#111827]">{{ prefs.t('editProfile') }}</h2>
       </header>
 
       <div class="min-h-0 flex-1 overflow-y-auto">
@@ -202,7 +202,7 @@
             </div>
 
             <button class="inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-[6px] bg-white px-3 text-[10px] font-semibold text-[#334155] sm:justify-start" type="button">
-              Conta P&uacute;blica
+              {{ prefs.t('publicAccount') }}
               <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
             </button>
           </div>
@@ -210,8 +210,8 @@
       </div>
 
       <footer class="flex shrink-0 items-center justify-end gap-4 border-t border-[#eef1f6] px-4 py-3 sm:px-5">
-        <button class="h-9 px-3 text-[12px] font-semibold text-[#b2bbca]" type="button" (click)="closeProfileEditor()">Cancelar</button>
-        <button class="h-9 rounded-[8px] bg-[#202a45] px-6 text-[12px] font-bold text-white" type="button" (click)="closeProfileEditor()">Salvar Altera&ccedil;&otilde;es</button>
+        <button class="h-9 px-3 text-[12px] font-semibold text-[#b2bbca]" type="button" (click)="closeProfileEditor()">{{ prefs.t('cancel') }}</button>
+        <button class="h-9 rounded-[8px] bg-[#202a45] px-6 text-[12px] font-bold text-white" type="button" (click)="closeProfileEditor()">{{ prefs.t('saveProfile') }}</button>
       </footer>
     </section>
   </div>

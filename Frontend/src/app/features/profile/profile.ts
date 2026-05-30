@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { Preferences } from '../../core/preferences';
 
 @Component({
   selector: 'app-profile',
@@ -6,6 +7,8 @@ import { Component, signal } from '@angular/core';
   templateUrl: './profile.html'
 })
 export class Profile {
+  constructor(protected readonly prefs: Preferences) {}
+
   protected readonly isProfileEditorOpen = signal(false);
 
   protected openProfileEditor(): void {

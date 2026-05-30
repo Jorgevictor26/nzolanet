@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { SocialState } from '../../core/social-state';
+import { Preferences } from '../../core/preferences';
 
 @Component({
   selector: 'app-feed',
@@ -9,7 +10,10 @@ import { SocialState } from '../../core/social-state';
 export class Feed {
   protected readonly isComposerOpen = signal(false);
 
-  constructor(protected readonly socialState: SocialState) {}
+  constructor(
+    protected readonly socialState: SocialState,
+    protected readonly prefs: Preferences
+  ) {}
 
   protected openComposer(): void {
     this.isComposerOpen.set(true);

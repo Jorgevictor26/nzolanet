@@ -34,6 +34,70 @@ button {
   cursor: pointer;
 }
 
+.dark-mode {
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+}
+
+.dark-mode .bg-white {
+  background-color: #182033 !important;
+}
+
+.dark-mode .bg-\[\#eef2f7\],
+.dark-mode .bg-\[\#f4f7fb\],
+.dark-mode .bg-\[\#fbfcff\],
+.dark-mode .bg-\[\#f8fbff\],
+.dark-mode .bg-\[\#fafbfe\],
+.dark-mode .bg-\[\#eef3ff\],
+.dark-mode .bg-\[\#edf1f6\] {
+  background-color: #111827 !important;
+}
+
+.dark-mode .border-\[\#e2e8f0\],
+.dark-mode .border-\[\#e4eaf3\],
+.dark-mode .border-\[\#e6ebf3\],
+.dark-mode .border-\[\#eef1f6\],
+.dark-mode .border-\[\#edf1f6\],
+.dark-mode .border-\[\#d7deea\] {
+  border-color: #334155 !important;
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode p,
+.dark-mode span,
+.dark-mode label,
+.dark-mode button,
+.dark-mode a {
+  color: #e5e7eb;
+}
+
+.dark-mode .text-\[\#111827\],
+.dark-mode .text-\[\#101828\],
+.dark-mode .text-\[\#24304c\],
+.dark-mode .text-\[\#1f2944\],
+.dark-mode .text-\[\#344054\],
+.dark-mode .text-\[\#334155\] {
+  color: #e5e7eb !important;
+}
+
+.dark-mode .text-\[\#667085\],
+.dark-mode .text-\[\#8b95a7\],
+.dark-mode .text-\[\#9aa4b2\],
+.dark-mode .text-\[\#a2abbb\],
+.dark-mode .text-\[\#b2bbca\] {
+  color: #aab4c8 !important;
+}
+
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background-color: #111827 !important;
+  border-color: #334155 !important;
+  color: #e5e7eb !important;
+}
+
 .login-figure {
   position: absolute;
   border-radius: 32% 68% 56% 44% / 42% 38% 62% 58%;

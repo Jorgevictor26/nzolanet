@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Preferences } from '../../core/preferences';
 
 type ExploreItem = {
   id: number;
@@ -15,6 +16,8 @@ type ExploreItem = {
   templateUrl: './explore.html'
 })
 export class Explore {
+  constructor(protected readonly prefs: Preferences) {}
+
   protected readonly exploreItems: ExploreItem[] = [
     {
       id: 1,

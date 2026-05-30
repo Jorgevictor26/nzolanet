@@ -1,12 +1,12 @@
 <div class="mx-auto grid w-full max-w-[1180px] grid-cols-1 gap-4 px-3 py-4 min-[380px]:px-4 sm:gap-5 sm:py-5 lg:grid-cols-[minmax(0,620px)_260px] lg:px-6 xl:grid-cols-[minmax(0,680px)_290px] 2xl:grid-cols-[minmax(0,730px)_310px]">
   <section class="min-w-0">
-    <h1 class="mb-5 text-[18px] font-bold text-[#111827]">P&aacute;gina inicial</h1>
+    <h1 class="mb-5 text-[18px] font-bold text-[#111827]">{{ prefs.t('home') }}</h1>
 
     <section class="mb-4 rounded-[8px] bg-white p-3 shadow-sm">
       <div class="flex items-center gap-2 min-[380px]:gap-3">
         <img class="size-9 shrink-0 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
         <button class="h-9 min-w-0 flex-1 rounded-full bg-[#f5f7fb] px-3 text-left text-[11px] font-medium text-[#b7bfcd] min-[380px]:px-4 min-[380px]:text-[12px]" type="button" (click)="openComposer()">
-          Em que est&aacute;s a pensar?
+          {{ prefs.language() === 'pt' ? 'Em que estás a pensar?' : 'What are you thinking?' }}
         </button>
         <div class="flex shrink-0 items-center gap-1 text-[#1f2944] min-[380px]:gap-2 sm:gap-3">
           <button class="grid size-7 place-items-center rounded-full hover:bg-[#f5f7fb]" type="button" aria-label="Adicionar imagem">
@@ -97,7 +97,7 @@
   <aside class="hidden space-y-5 lg:block">
     <section class="rounded-[8px] bg-white p-5 shadow-sm">
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-[15px] font-bold text-[#111827]">Em alta</h2>
+        <h2 class="text-[15px] font-bold text-[#111827]">{{ prefs.language() === 'pt' ? 'Em alta' : 'Trending' }}</h2>
         <svg class="size-4 text-[#1f6fff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 14 6-6 4 4 6-6" /><path d="M14 6h6v6" /></svg>
       </div>
       <div class="space-y-4">
@@ -117,11 +117,11 @@
           <p class="mt-0.5 text-[10px] text-[#8b95a7]">892 posts</p>
         </div>
       </div>
-      <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">Mostrar mais</button>
+      <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
     </section>
 
     <section class="rounded-[8px] bg-white p-5 shadow-sm">
-      <h2 class="mb-4 text-[15px] font-bold text-[#111827]">Sugest&otilde;es para voc&ecirc;</h2>
+      <h2 class="mb-4 text-[15px] font-bold text-[#111827]">{{ prefs.t('suggestionsForYou') }}</h2>
       <div class="space-y-4">
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=15" alt="Marcus Vane" />
@@ -129,7 +129,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Marcus Vane</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;mrv_design</p>
           </div>
-          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">Seguir</button>
+          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">{{ prefs.t('follow') }}</button>
         </div>
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=36" alt="Lia K." />
@@ -137,7 +137,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Lia K.</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;lia_connect</p>
           </div>
-          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">Seguir</button>
+          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">{{ prefs.t('follow') }}</button>
         </div>
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=60" alt="Julian Thorne" />
@@ -145,17 +145,12 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Julian Thorne</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;jthorne_io</p>
           </div>
-          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">Seguir</button>
+          <button class="h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white" type="button">{{ prefs.t('follow') }}</button>
         </div>
       </div>
-      <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">Mostrar mais</button>
+      <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
     </section>
 
-    <footer class="px-2 text-[10px] leading-5 text-[#8b95a7]">
-      Termos de Servi&ccedil;o&nbsp;&nbsp; Pol&iacute;tica de Privacidade<br />
-      Pol&iacute;tica de Cookies&nbsp;&nbsp; Info de An&uacute;ncios<br />
-      Mais... &copy; 2024 NzolaNet Corp.
-    </footer>
   </aside>
 </div>
 
@@ -168,7 +163,7 @@
           <div class="min-w-0">
             <h2 id="composer-title" class="truncate text-[13px] font-bold leading-5 text-[#111827]">Maria Guilhermina</h2>
             <button class="inline-flex items-center gap-1 text-[10px] font-semibold text-[#667085]" type="button">
-              P&uacute;blico
+              {{ prefs.t('publicAccount') }}
               <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
             </button>
           </div>
@@ -179,21 +174,21 @@
       </header>
 
       <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-        <textarea class="h-24 w-full resize-none text-[13px] leading-6 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" placeholder="O que est&aacute;s a pensar?"></textarea>
+        <textarea class="h-24 w-full resize-none text-[13px] leading-6 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" [placeholder]="prefs.language() === 'pt' ? 'O que estás a pensar?' : 'What are you thinking?'"></textarea>
 
         <button class="mt-4 grid h-[170px] w-full place-items-center rounded-[8px] border border-dashed border-[#d8deea] bg-white text-center hover:bg-[#fafbfe]" type="button">
           <span class="flex flex-col items-center">
             <span class="mb-3 grid size-10 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]">
               <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>
             </span>
-            <span class="text-[12px] font-bold text-[#111827]">Arraste e solte para fazer o upload.</span>
-            <span class="mt-1 text-[10px] text-[#b7bfcd]">Suporte de JPG, PNG, MP4 at&eacute; 50Mb</span>
+            <span class="text-[12px] font-bold text-[#111827]">{{ prefs.language() === 'pt' ? 'Arrasta e solta para fazer o upload.' : 'Drag and drop to upload.' }}</span>
+            <span class="mt-1 text-[10px] text-[#b7bfcd]">{{ prefs.language() === 'pt' ? 'Suporte de JPG, PNG, MP4 até 50Mb' : 'Supports JPG, PNG, MP4 up to 50Mb' }}</span>
           </span>
         </button>
 
         <div class="mt-5">
           <div class="mb-2 flex items-center justify-between">
-            <span class="text-[9px] font-bold uppercase text-[#1f6fff]">Visualiza&ccedil;&atilde;o ao vivo</span>
+            <span class="text-[9px] font-bold uppercase text-[#1f6fff]">{{ prefs.language() === 'pt' ? 'Visualização ao vivo' : 'Live preview' }}</span>
             <button class="grid size-6 place-items-center rounded-full text-[#b7bfcd] hover:bg-[#f5f7fb]" type="button" aria-label="Ver visualizacao">
               <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
             </button>
@@ -211,11 +206,11 @@
         <div class="mt-4 flex flex-wrap items-center gap-2">
           <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button">
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="m8 13 2-2 4 4 1.5-1.5L19 17" /></svg>
-            Imagem
+            {{ prefs.language() === 'pt' ? 'Imagem' : 'Image' }}
           </button>
           <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button">
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="11" height="12" rx="2" /><path d="m15 10 5-3v10l-5-3" /></svg>
-            V&iacute;deo
+            {{ prefs.t('videos') }}
           </button>
           <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button">
             <span>#</span>
@@ -223,7 +218,7 @@
           </button>
           <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button">
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-            Localiza&ccedil;&atilde;o
+            {{ prefs.language() === 'pt' ? 'Localização' : 'Location' }}
           </button>
           <button class="ml-auto grid size-8 place-items-center rounded-full text-[#ff8a1f] hover:bg-[#fff7ed]" type="button" aria-label="Adicionar emoji">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8" /><path d="M9 10h.01M15 10h.01M9 14c1.6 1.4 4.4 1.4 6 0" /></svg>
@@ -239,9 +234,9 @@
           <span class="text-[10px] font-semibold text-[#8b95a7]">64 / 280</span>
         </div>
         <div class="flex items-center justify-between gap-3">
-          <button class="h-9 rounded-[6px] border border-[#edf1f6] px-4 text-[11px] font-semibold text-[#1f2944]" type="button">Salvar rascunho</button>
+          <button class="h-9 rounded-[6px] border border-[#edf1f6] px-4 text-[11px] font-semibold text-[#1f2944]" type="button">{{ prefs.language() === 'pt' ? 'Salvar rascunho' : 'Save draft' }}</button>
           <button class="inline-flex h-10 items-center gap-2 rounded-[8px] bg-[#1f2944] px-5 text-[12px] font-bold text-white" type="button" (click)="closeComposer()">
-            Publicar Post
+            {{ prefs.language() === 'pt' ? 'Publicar Post' : 'Publish Post' }}
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
           </button>
         </div>

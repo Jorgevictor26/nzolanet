@@ -1,11 +1,11 @@
 <div class="mx-auto w-full max-w-[1180px] px-3 py-4 min-[380px]:px-4 sm:py-5 lg:px-6">
   <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-[18px] font-bold text-[#111827]">Favoritos</h1>
-      <p class="mt-1 text-[12px] text-[#667085]">Publica&ccedil;&otilde;es guardadas para veres mais tarde.</p>
+      <h1 class="text-[18px] font-bold text-[#111827]">{{ prefs.t('favorites') }}</h1>
+      <p class="mt-1 text-[12px] text-[#667085]">{{ prefs.t('savedPosts') }}</p>
     </div>
     <a class="inline-flex h-9 w-max items-center rounded-[8px] bg-white px-4 text-[12px] font-bold text-[#1f2944] shadow-sm" routerLink="/home">
-      Voltar ao feed
+      {{ prefs.t('backToFeed') }}
     </a>
   </div>
 
@@ -20,7 +20,7 @@
                 <h2 class="truncate text-[14px] font-bold leading-5 text-[#111827]">Alex Rivera</h2>
                 <svg class="size-3.5 shrink-0 text-[#1f6fff]" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 2.7 2.1 3.4-.2 1 3.3 2.8 1.9-1.3 3.2 1.3 3.2-2.8 1.9-1 3.3-3.4-.2L12 22l-2.7-2.1-3.4.2-1-3.3-2.8-1.9 1.3-3.2-1.3-3.2 2.8-1.9 1-3.3 3.4.2L12 2Zm-1.1 13.5 5.6-5.6-1.4-1.4-4.2 4.2-2-2-1.4 1.4 3.4 3.4Z" /></svg>
               </div>
-              <p class="text-[11px] text-[#8b95a7]">&#64;arivera.nz &middot; guardado agora</p>
+              <p class="text-[11px] text-[#8b95a7]">&#64;arivera.nz &middot; {{ prefs.t('savedNow') }}</p>
             </div>
           </div>
           <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opcoes">
@@ -52,7 +52,7 @@
               45
             </span>
           </div>
-          <button class="grid size-7 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff] hover:bg-[#e4edff]" type="button" aria-label="Remover dos favoritos" (click)="removeWorkspacePostFavorite()">
+          <button class="grid size-7 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff] hover:bg-[#e4edff]" type="button" [attr.aria-label]="prefs.t('removeFavorite')" (click)="removeWorkspacePostFavorite()">
             <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
           </button>
         </footer>
@@ -60,11 +60,11 @@
 
       <aside class="hidden space-y-5 lg:block">
         <section class="rounded-[8px] bg-white p-5 shadow-sm">
-          <h2 class="mb-3 text-[15px] font-bold text-[#111827]">Cole&ccedil;&otilde;es</h2>
+          <h2 class="mb-3 text-[15px] font-bold text-[#111827]">{{ prefs.t('collections') }}</h2>
           <div class="space-y-3 text-[12px] text-[#667085]">
-            <p class="flex items-center justify-between"><span>Todos</span><span class="font-bold text-[#111827]">1</span></p>
-            <p class="flex items-center justify-between"><span>Trabalho</span><span class="font-bold text-[#111827]">1</span></p>
-            <p class="flex items-center justify-between"><span>Inspira&ccedil;&atilde;o</span><span class="font-bold text-[#111827]">0</span></p>
+            <p class="flex items-center justify-between"><span>{{ prefs.t('all') }}</span><span class="font-bold text-[#111827]">1</span></p>
+            <p class="flex items-center justify-between"><span>{{ prefs.t('work') }}</span><span class="font-bold text-[#111827]">1</span></p>
+            <p class="flex items-center justify-between"><span>{{ prefs.t('inspiration') }}</span><span class="font-bold text-[#111827]">0</span></p>
           </div>
         </section>
       </aside>
@@ -75,9 +75,9 @@
         <span class="mx-auto grid size-12 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]">
           <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
         </span>
-        <h2 class="mt-4 text-[16px] font-bold text-[#111827]">Ainda n&atilde;o guardaste nada</h2>
-        <p class="mt-2 text-[12px] leading-5 text-[#667085]">Quando tocares no &iacute;cone de favorito numa publica&ccedil;&atilde;o, ela aparece aqui.</p>
-        <a class="mt-5 inline-flex h-10 items-center rounded-[8px] bg-[#1f2944] px-5 text-[12px] font-bold text-white" routerLink="/home">Explorar feed</a>
+        <h2 class="mt-4 text-[16px] font-bold text-[#111827]">{{ prefs.t('nothingSaved') }}</h2>
+        <p class="mt-2 text-[12px] leading-5 text-[#667085]">{{ prefs.t('saveHint') }}</p>
+        <a class="mt-5 inline-flex h-10 items-center rounded-[8px] bg-[#1f2944] px-5 text-[12px] font-bold text-white" routerLink="/home">{{ prefs.t('exploreFeed') }}</a>
       </div>
     </section>
   }
