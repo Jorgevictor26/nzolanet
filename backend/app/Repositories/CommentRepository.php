@@ -3,9 +3,22 @@
 namespace App\Repositories;
 
 use App\Models\Comment;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CommentRepository
 {
+    /**
+     * @return LengthAwarePaginator<int, Comment>
+     */
+    public function paginateByPostId(int $postId, int $perPage): LengthAwarePaginator
+    {
+        return Comment::query()
+            ->with('user:id,name,profile_photo')
+            ->where('post_id', $postId)
+            ->oldest()
+            ->paginate($perPage);
+    }
+
     /**
      * @param  array{user_id: int, post_id: int, content: string}  $data
      */
