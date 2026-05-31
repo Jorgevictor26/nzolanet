@@ -28,7 +28,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::put('users/profile', [UserController::class, 'updateProfile']);
     Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);
 
-    Route::apiResource('posts', PostController::class);
+    Route::get('posts', [PostController::class, 'index']);
+    Route::post('posts', [PostController::class, 'store']);
+    Route::put('posts/{id}', [PostController::class, 'update'])->whereNumber('id');
+    Route::delete('posts/{id}', [PostController::class, 'destroy'])->whereNumber('id');
     Route::apiResource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('likes', LikeController::class)->only(['store', 'destroy']);
     Route::apiResource('notifications', NotificationController::class)->only(['index', 'show', 'update']);
