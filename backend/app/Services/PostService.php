@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Repositories\PostRepository;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -19,6 +20,16 @@ class PostService
         private readonly PostRepository $posts,
     ) {}
 
+    /**
+     * @return array{data: array<int, array<string, mixed>>, meta: array<string, int>}
+     */
+    public function feed(int $perPage): array
+    {
+        return $this->formatPaginatedPosts(
+            $this->posts->paginateFeed($this->normalizePerPage($perPage))
+        );
+    }
+
     public function create(User $author, CreatePostDTO $dto): PostDTO
     {
         $post = $this->posts->create([
@@ -28,7 +39,10 @@ class PostService
             'video' => $this->storeFile($dto->video, 'post-videos'),
         ]);
 
-        return PostDTO::fromModel($post);
+        return PostDTO::fromModel(
+            $post->load('user:id,name,profile_photo')
+                ->loadCount(['likes', 'comments'])
+        );
     }
 
     public function update(User $author, int $postId, UpdatePostDTO $dto): PostDTO
@@ -94,5 +108,30 @@ class PostService
         if ($path) {
             Storage::disk('public')->delete($path);
         }
+    }
+
+    private function normalizePerPage(int $perPage): int
+    {
+        return max(1, min($perPage, 50));
+    }
+
+    /**
+     * @param  LengthAwarePaginator<int, Post>  $paginator
+     * @return array{data: array<int, array<string, mixed>>, meta: array<string, int>}
+     */
+    private function formatPaginatedPosts(LengthAwarePaginator $paginator): array
+    {
+        return [
+            'data' => $paginator->getCollection()
+                ->map(fn (Post $post): array => PostDTO::fromModel($post)->toArray())
+                ->values()
+                ->all(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ];
     }
 }

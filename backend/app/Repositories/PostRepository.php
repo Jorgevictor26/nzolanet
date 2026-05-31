@@ -3,9 +3,22 @@
 namespace App\Repositories;
 
 use App\Models\Post;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PostRepository
 {
+    /**
+     * @return LengthAwarePaginator<int, Post>
+     */
+    public function paginateFeed(int $perPage): LengthAwarePaginator
+    {
+        return Post::query()
+            ->with('user:id,name,profile_photo')
+            ->withCount(['likes', 'comments'])
+            ->latest()
+            ->paginate($perPage);
+    }
+
     /**
      * @param  array{user_id: int, content: string, image?: ?string, video?: ?string}  $data
      */
@@ -16,7 +29,10 @@ class PostRepository
 
     public function findById(int $id): ?Post
     {
-        return Post::query()->find($id);
+        return Post::query()
+            ->with('user:id,name,profile_photo')
+            ->withCount(['likes', 'comments'])
+            ->find($id);
     }
 
     /**
@@ -26,7 +42,9 @@ class PostRepository
     {
         $post->fill($data)->save();
 
-        return $post->refresh();
+        return $post->refresh()
+            ->load('user:id,name,profile_photo')
+            ->loadCount(['likes', 'comments']);
     }
 
     public function delete(Post $post): void

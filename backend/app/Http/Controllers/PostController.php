@@ -16,6 +16,13 @@ class PostController extends Controller
         private readonly PostService $postService,
     ) {}
 
+    public function index(Request $request): JsonResponse
+    {
+        return response()->json(
+            $this->postService->feed((int) $request->integer('per_page', 15))
+        );
+    }
+
     public function store(StorePostRequest $request): JsonResponse
     {
         $post = $this->postService->create(

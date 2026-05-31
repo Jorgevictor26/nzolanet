@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::put('users/profile', [UserController::class, 'updateProfile']);
     Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);
 
+    Route::get('posts', [PostController::class, 'index']);
     Route::post('posts', [PostController::class, 'store']);
     Route::put('posts/{id}', [PostController::class, 'update'])->whereNumber('id');
     Route::delete('posts/{id}', [PostController::class, 'destroy'])->whereNumber('id');

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Comment;
+use App\Models\Like;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,6 +14,60 @@ use Tests\TestCase;
 class PostTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_authenticated_user_can_list_feed_paginated_with_author_and_counters(): void
+    {
+        $viewer = User::factory()->create();
+        $author = User::factory()->create([
+            'name' => 'Autor Nzola',
+            'profile_photo' => 'profile-photos/author.png',
+        ]);
+        $oldPost = Post::create([
+            'user_id' => $author->id,
+            'content' => 'Publicação antiga.',
+        ]);
+        $oldPost->forceFill([
+            'created_at' => now()->subDay(),
+            'updated_at' => now()->subDay(),
+        ])->save();
+
+        $newPost = Post::create([
+            'user_id' => $author->id,
+            'content' => 'Publicação recente.',
+            'image' => 'post-images/recent.png',
+            'video' => 'post-videos/recent.mp4',
+        ]);
+        $newPost->forceFill([
+            'created_at' => now(),
+            'updated_at' => now(),
+        ])->save();
+
+        Like::create(['user_id' => $viewer->id, 'post_id' => $newPost->id]);
+        Comment::create(['user_id' => $viewer->id, 'post_id' => $newPost->id, 'content' => 'Comentário']);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson('/api/posts?per_page=1');
+
+        $response
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $newPost->id)
+            ->assertJsonPath('data.0.author.name', 'Autor Nzola')
+            ->assertJsonPath('data.0.author.profile_photo', 'profile-photos/author.png')
+            ->assertJsonPath('data.0.content', 'Publicação recente.')
+            ->assertJsonPath('data.0.image', 'post-images/recent.png')
+            ->assertJsonPath('data.0.video', 'post-videos/recent.mp4')
+            ->assertJsonPath('data.0.likes_count', 1)
+            ->assertJsonPath('data.0.comments_count', 1)
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonPath('meta.total', 2);
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $oldPost->id,
+        ]);
+    }
 
     public function test_authenticated_user_can_create_post(): void
     {
