@@ -90,19 +90,27 @@ export class Profile {
   ]);
   protected readonly suggestedProfiles = signal<ProfileListItem[]>([
     {
-      id: 7,
-      name: 'Sarah Connor',
-      username: '@sarah.c',
-      avatar: 'https://i.pravatar.cc/80?img=32',
-      bio: 'Fotografia documental',
+      id: 15,
+      name: 'Marcus Vane',
+      username: '@mrv_design',
+      avatar: 'https://i.pravatar.cc/80?img=15',
+      bio: 'Branding e identidade visual',
       isFollowing: false
     },
     {
-      id: 8,
-      name: 'David Miller',
-      username: '@david.m',
-      avatar: 'https://i.pravatar.cc/80?img=18',
-      bio: 'Design e produto',
+      id: 36,
+      name: 'Lia K.',
+      username: '@lia_connect',
+      avatar: 'https://i.pravatar.cc/80?img=36',
+      bio: 'Comunidade NzolaNet',
+      isFollowing: false
+    },
+    {
+      id: 60,
+      name: 'Julian Thorne',
+      username: '@jthorne_io',
+      avatar: 'https://i.pravatar.cc/80?img=60',
+      bio: 'Tecnologia e startups',
       isFollowing: false
     }
   ]);

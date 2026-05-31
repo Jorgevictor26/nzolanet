@@ -74,8 +74,8 @@
             <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Preenche os teus dados para começar a tua conta.</p>
 
             <div class="mt-7 grid gap-4 sm:grid-cols-2">
-              <label class="text-[12px] font-bold text-[#344054]">Nome<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="Primeiro nome" /></label>
-              <label class="text-[12px] font-bold text-[#344054]">Sobrenome<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="Apelido" /></label>
+              <label class="text-[12px] font-bold text-[#344054]">Nome<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" name="firstName" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" placeholder="Primeiro nome" /></label>
+              <label class="text-[12px] font-bold text-[#344054]">Sobrenome<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" name="lastName" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" placeholder="Apelido" /></label>
             </div>
             <label class="mt-4 text-[12px] font-bold text-[#344054]">Email<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="email" placeholder="teuemail@exemplo.com" /></label>
             <label class="mt-4 text-[12px] font-bold text-[#344054]">Nome de usuário<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" placeholder="@teuusuario" /></label>
@@ -89,14 +89,15 @@
             <h2 class="text-[28px] font-bold leading-tight">Adiciona uma foto</h2>
             <p class="mt-2 text-[13px] leading-5 text-[#667085]">Ajuda as pessoas a reconhecerem o teu perfil. Também podes fazer isso depois.</p>
             <div class="mt-8 grid place-items-center rounded-[8px] border border-dashed border-[#b8c4d8] bg-[#f8fbff] p-8">
-              @if (hasProfilePhoto()) {
-                <img class="size-28 rounded-full object-cover ring-4 ring-white shadow-md" src="https://i.pravatar.cc/160?img=32" alt="Foto escolhida" />
+              @if (profilePhotoPreview()) {
+                <img class="size-28 rounded-full object-cover ring-4 ring-white shadow-md" [src]="profilePhotoPreview()" alt="Foto escolhida" />
               } @else {
-                <div class="grid size-28 place-items-center rounded-full bg-[#e9f0fb] text-[#28334b]">
-                  <svg class="size-10 text-[#28334b]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" /></svg>
+                <div class="grid size-28 place-items-center rounded-full bg-[#e9f0fb] text-[28px] font-bold text-[#28334b] shadow-sm">
+                  {{ profileInitials() }}
                 </div>
               }
-              <button class="mt-5 h-10 rounded-[8px] bg-[#28334b] px-5 text-[13px] font-bold text-white" type="button" (click)="chooseProfilePhoto()">Colocar foto</button>
+              <input #profilePhotoInput class="hidden" type="file" accept="image/*" (change)="uploadProfilePhoto($event)" />
+              <button class="mt-5 h-10 rounded-[8px] bg-[#28334b] px-5 text-[13px] font-bold text-white" type="button" (click)="chooseProfilePhoto(profilePhotoInput)">Colocar foto</button>
             </div>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
               <button class="h-11 rounded-[8px] border border-[#d7deea] text-[13px] font-bold text-[#344054]" type="button" (click)="goToStep('bio')">Pular</button>
@@ -111,7 +112,7 @@
             <p class="mt-2 text-[13px] leading-5 text-[#667085]">A tua biografia aparece no perfil e ajuda outras pessoas a entenderem o que te interessa.</p>
             <label class="mt-7 text-[12px] font-bold text-[#344054]">
               Biografia
-              <textarea class="mt-2 min-h-32 w-full resize-none rounded-[8px] border border-[#d7deea] p-4 text-[14px] leading-6 outline-none focus:border-[#28334b]" maxlength="180" placeholder="Ex: Gosto de tecnologia, música, negócios locais e novas conexões."></textarea>
+              <textarea class="mt-2 min-h-32 w-full resize-none rounded-[8px] border border-[#d7deea] p-4 text-[14px] leading-6 outline-none focus:border-[#28334b]" maxlength="180" name="bio" [ngModel]="bio()" (ngModelChange)="bio.set($event)" placeholder="Ex: Gosto de tecnologia, música, negócios locais e novas conexões."></textarea>
             </label>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
               <button class="h-11 rounded-[8px] border border-[#d7deea] text-[13px] font-bold text-[#344054]" type="button" (click)="goToStep('follow')">Pular</button>
@@ -126,13 +127,13 @@
             <p class="mt-2 text-[13px] leading-5 text-[#667085]">Como a tua conta é nova, escolhe pessoas para deixar o feed mais vivo desde o início.</p>
             <div class="mt-7 grid gap-3">
               @for (profile of suggestedProfiles(); track profile.id) {
-                <article class="flex items-center gap-3 rounded-[8px] border border-[#e3e9f3] p-3">
-                  <img class="size-12 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+                <article class="flex items-center gap-3 rounded-[8px] border border-[#e3e9f3] bg-white p-3">
+                  <img class="size-10 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
                   <div class="min-w-0 flex-1">
-                    <h3 class="truncate text-[13px] font-bold text-[#101828]">{{ profile.name }}</h3>
-                    <p class="truncate text-[11px] text-[#667085]">{{ profile.username }} · {{ profile.role }}</p>
+                    <h3 class="truncate text-[12px] font-bold leading-4 text-[#101828]">{{ profile.name }}</h3>
+                    <p class="truncate text-[10px] text-[#667085]">{{ profile.username }}</p>
                   </div>
-                  <button [class]="profile.isFollowing ? 'h-9 rounded-[8px] bg-[#e8f8ef] px-4 text-[12px] font-bold text-[#157347]' : 'h-9 rounded-[8px] bg-[#28334b] px-4 text-[12px] font-bold text-white'" type="button" (click)="toggleFollow(profile.id)">
+                  <button [class]="profile.isFollowing ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleFollow(profile.id)">
                     {{ profile.isFollowing ? 'Seguindo' : 'Seguir' }}
                   </button>
                 </article>

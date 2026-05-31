@@ -95,26 +95,24 @@
     </section>
 
     <aside class="hidden min-w-0 space-y-4 lg:block">
-      <section class="rounded-[8px] bg-white p-4 shadow-sm">
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-[13px] font-bold text-[#111827]">Sugestão para si</h2>
-          <button class="text-[11px] font-bold text-[#1f6fff]" type="button">Ver tudo</button>
-        </div>
+      <section class="rounded-[8px] border border-[#dfe6f0] bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-[15px] font-bold text-[#111827]">{{ prefs.t('suggestionsForYou') }}</h2>
 
         <div class="space-y-4">
           @for (profile of suggestedProfiles(); track profile.id) {
             <div class="flex items-center gap-3">
               <img class="size-9 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
               <div class="min-w-0 flex-1">
-                <p class="truncate text-[11px] font-bold text-[#111827]">{{ profile.name }}</p>
+                <p class="truncate text-[12px] font-bold leading-4 text-[#111827]">{{ profile.name }}</p>
                 <p class="truncate text-[10px] text-[#778295]">{{ profile.username }}</p>
               </div>
-              <button class="text-[10px] font-bold text-[#1f6fff]" type="button" (click)="toggleSuggestedFollow(profile.id)">
+              <button [class]="profile.isFollowing ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(profile.id)">
                 {{ profile.isFollowing ? prefs.t('following') : prefs.t('follow') }}
               </button>
             </div>
           }
         </div>
+        <button class="mt-5 text-[14px] font-normal text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
       </section>
 
       <section class="rounded-[8px] bg-white p-4 shadow-sm">

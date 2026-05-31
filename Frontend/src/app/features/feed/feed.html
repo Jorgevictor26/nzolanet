@@ -191,7 +191,7 @@
   </section>
 
   <aside class="hidden space-y-5 lg:block">
-    <section class="rounded-[8px] bg-white p-5 shadow-sm">
+    <section class="rounded-[8px] border border-[#dfe6f0] bg-white p-5 shadow-sm">
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-[15px] font-bold text-[#111827]">{{ prefs.language() === 'pt' ? 'Em alta' : 'Trending' }}</h2>
         <svg class="size-4 text-[#1f6fff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 14 6-6 4 4 6-6" /><path d="M14 6h6v6" /></svg>
@@ -216,7 +216,7 @@
       <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
     </section>
 
-    <section class="rounded-[8px] bg-white p-5 shadow-sm">
+    <section class="rounded-[8px] border border-[#dfe6f0] bg-white p-5 shadow-sm">
       <h2 class="mb-4 text-[15px] font-bold text-[#111827]">{{ prefs.t('suggestionsForYou') }}</h2>
       <div class="space-y-4">
         <div class="flex items-center gap-3">
@@ -225,7 +225,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Marcus Vane</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;mrv_design</p>
           </div>
-          <button [class]="isFollowingProfile(15) ? 'h-8 rounded-full bg-[#eef3ff] px-4 text-[10px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(15)">{{ isFollowingProfile(15) ? prefs.t('following') : prefs.t('follow') }}</button>
+          <button [class]="isFollowingProfile(15) ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(15)">{{ isFollowingProfile(15) ? prefs.t('following') : prefs.t('follow') }}</button>
         </div>
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=36" alt="Lia K." />
@@ -233,7 +233,7 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Lia K.</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;lia_connect</p>
           </div>
-          <button [class]="isFollowingProfile(36) ? 'h-8 rounded-full bg-[#eef3ff] px-4 text-[10px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(36)">{{ isFollowingProfile(36) ? prefs.t('following') : prefs.t('follow') }}</button>
+          <button [class]="isFollowingProfile(36) ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(36)">{{ isFollowingProfile(36) ? prefs.t('following') : prefs.t('follow') }}</button>
         </div>
         <div class="flex items-center gap-3">
           <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/80?img=60" alt="Julian Thorne" />
@@ -241,10 +241,10 @@
             <h3 class="truncate text-[12px] font-bold leading-4 text-[#111827]">Julian Thorne</h3>
             <p class="truncate text-[10px] text-[#8b95a7]">&#64;jthorne_io</p>
           </div>
-          <button [class]="isFollowingProfile(60) ? 'h-8 rounded-full bg-[#eef3ff] px-4 text-[10px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-4 text-[10px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(60)">{{ isFollowingProfile(60) ? prefs.t('following') : prefs.t('follow') }}</button>
+          <button [class]="isFollowingProfile(60) ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleSuggestedFollow(60)">{{ isFollowingProfile(60) ? prefs.t('following') : prefs.t('follow') }}</button>
         </div>
       </div>
-      <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
+      <button class="mt-5 text-[14px] font-normal text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
     </section>
 
   </aside>
