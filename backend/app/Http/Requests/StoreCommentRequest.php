@@ -13,6 +13,8 @@ class StoreCommentRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'content' => ['required', 'string'],
+        ];
     }
 }

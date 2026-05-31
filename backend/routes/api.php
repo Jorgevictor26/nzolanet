@@ -32,7 +32,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('posts', [PostController::class, 'store']);
     Route::put('posts/{id}', [PostController::class, 'update'])->whereNumber('id');
     Route::delete('posts/{id}', [PostController::class, 'destroy'])->whereNumber('id');
-    Route::apiResource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
+    Route::post('posts/{postId}/comments', [CommentController::class, 'store'])->whereNumber('postId');
+    Route::put('comments/{id}', [CommentController::class, 'update'])->whereNumber('id');
+    Route::delete('comments/{id}', [CommentController::class, 'destroy'])->whereNumber('id');
     Route::apiResource('likes', LikeController::class)->only(['store', 'destroy']);
     Route::apiResource('notifications', NotificationController::class)->only(['index', 'show', 'update']);
 });
