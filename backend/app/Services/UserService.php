@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\ChangeProfilePhotoDTO;
+use App\DTOs\CurrentUserDTO;
 use App\DTOs\UpdateProfileDTO;
 use App\DTOs\UserDTO;
 use App\Models\User;
@@ -32,19 +33,19 @@ class UserService
         return UserDTO::fromModel($profile);
     }
 
-    public function getAuthenticatedProfile(User $user): UserDTO
+    public function getAuthenticatedProfile(User $user): CurrentUserDTO
     {
-        return UserDTO::fromModel($user);
+        return CurrentUserDTO::fromModel($user);
     }
 
-    public function updateProfile(User $user, UpdateProfileDTO $dto): UserDTO
+    public function updateProfile(User $user, UpdateProfileDTO $dto): CurrentUserDTO
     {
         $updatedUser = $this->users->updateProfile($user, $dto->toArray());
 
-        return UserDTO::fromModel($updatedUser);
+        return CurrentUserDTO::fromModel($updatedUser);
     }
 
-    public function changeProfilePhoto(User $user, ChangeProfilePhotoDTO $dto): UserDTO
+    public function changeProfilePhoto(User $user, ChangeProfilePhotoDTO $dto): CurrentUserDTO
     {
         if ($user->profile_photo) {
             Storage::disk('public')->delete($user->profile_photo);
@@ -53,6 +54,6 @@ class UserService
         $path = $dto->photo->store('profile-photos', 'public');
         $updatedUser = $this->users->updateProfilePhoto($user, $path);
 
-        return UserDTO::fromModel($updatedUser);
+        return CurrentUserDTO::fromModel($updatedUser);
     }
 }

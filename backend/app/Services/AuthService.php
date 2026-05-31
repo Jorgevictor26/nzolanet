@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\CurrentUserDTO;
 use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
@@ -35,7 +36,7 @@ class AuthService
     }
 
     /**
-     * @return array{user: UserDTO, token: string}
+     * @return array{user: CurrentUserDTO, token: string}
      */
     public function login(LoginDTO $dto): array
     {
@@ -48,7 +49,7 @@ class AuthService
         }
 
         return [
-            'user' => UserDTO::fromModel($user),
+            'user' => CurrentUserDTO::fromModel($user),
             'token' => $user->createToken('nzolanet-api-token')->plainTextToken,
         ];
     }

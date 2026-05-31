@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Auth } from './core/auth';
 import { Feedback } from './core/feedback';
 import { Preferences } from './core/preferences';
 
@@ -20,6 +21,7 @@ type NotificationItem = {
 export class App {
   constructor(
     private readonly router: Router,
+    protected readonly auth: Auth,
     protected readonly feedback: Feedback,
     protected readonly prefs: Preferences
   ) {}
@@ -77,8 +79,17 @@ export class App {
 
   protected logout(): void {
     this.isProfileMenuOpen.set(false);
-    this.feedback.show('Sessão terminada.');
-    this.router.navigateByUrl('/');
+    this.auth.logout().subscribe({
+      next: () => {
+        this.feedback.show('Sessão terminada.');
+        this.router.navigateByUrl('/');
+      },
+      error: () => {
+        this.auth.clearSession();
+        this.feedback.show('Sessão terminada localmente.', 'info');
+        this.router.navigateByUrl('/');
+      }
+    });
   }
 
   protected isLoginRoute(): boolean {
