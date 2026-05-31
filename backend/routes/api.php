@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('posts', [PostController::class, 'store']);
     Route::put('posts/{id}', [PostController::class, 'update'])->whereNumber('id');
     Route::delete('posts/{id}', [PostController::class, 'destroy'])->whereNumber('id');
+    Route::get('posts/{postId}/comments', [CommentController::class, 'index'])->whereNumber('postId');
     Route::post('posts/{postId}/comments', [CommentController::class, 'store'])->whereNumber('postId');
     Route::put('comments/{id}', [CommentController::class, 'update'])->whereNumber('id');
     Route::delete('comments/{id}', [CommentController::class, 'destroy'])->whereNumber('id');

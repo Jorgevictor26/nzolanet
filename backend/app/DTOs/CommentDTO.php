@@ -41,6 +41,7 @@ readonly class CommentDTO
             'user_id' => $this->userId,
             'post_id' => $this->postId,
             'author' => [
+                'id' => $this->userId,
                 'name' => $this->authorName,
                 'profile_photo' => $this->authorProfilePhoto,
             ],

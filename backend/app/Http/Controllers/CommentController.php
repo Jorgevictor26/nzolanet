@@ -16,6 +16,13 @@ class CommentController extends Controller
         private readonly CommentService $commentService,
     ) {}
 
+    public function index(Request $request, int $postId): JsonResponse
+    {
+        return response()->json(
+            $this->commentService->listByPost($postId, (int) $request->integer('per_page', 15))
+        );
+    }
+
     public function store(StoreCommentRequest $request, int $postId): JsonResponse
     {
         $comment = $this->commentService->create(
