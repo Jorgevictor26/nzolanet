@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Feedback } from '../../core/feedback';
 import { SocialState } from '../../core/social-state';
 import { Preferences } from '../../core/preferences';
 
@@ -138,6 +139,7 @@ export class Feed {
   });
 
   constructor(
+    private readonly feedback: Feedback,
     protected readonly socialState: SocialState,
     protected readonly prefs: Preferences
   ) {}
@@ -152,10 +154,17 @@ export class Feed {
 
   protected toggleWorkspacePostFavorite(): void {
     this.socialState.toggleWorkspacePostFavorite();
+    this.feedback.show(
+      this.socialState.isWorkspacePostFavorite()
+        ? 'Publicação guardada nos favoritos.'
+        : 'Publicação removida dos favoritos.',
+      this.socialState.isWorkspacePostFavorite() ? 'success' : 'info'
+    );
   }
 
   protected sharePost(postId: number): void {
     this.socialState.sharePost(postId);
+    this.feedback.show('Publicação partilhada.');
   }
 
   protected openComments(postId: number): void {
@@ -197,6 +206,7 @@ export class Feed {
       [postId]: [...(comments[postId] ?? []), nextComment]
     }));
     this.selectedCommentAttachment.set(null);
+    this.feedback.show('Comentário publicado.');
   }
 
   protected attachmentLabel(attachment: CommentAttachment): string {
@@ -224,6 +234,7 @@ export class Feed {
       nextPostIds.has(postId) ? nextPostIds.delete(postId) : nextPostIds.add(postId);
       return nextPostIds;
     });
+    this.feedback.show(this.isPostLiked(postId) ? 'Deste baze nesta publicação.' : 'Baze removido.', this.isPostLiked(postId) ? 'success' : 'info');
   }
 
   protected isFollowingProfile(profileId: number): boolean {
@@ -236,5 +247,6 @@ export class Feed {
       nextProfileIds.has(profileId) ? nextProfileIds.delete(profileId) : nextProfileIds.add(profileId);
       return nextProfileIds;
     });
+    this.feedback.show(this.isFollowingProfile(profileId) ? 'Agora estás a seguir este perfil.' : 'Deixaste de seguir este perfil.', this.isFollowingProfile(profileId) ? 'success' : 'info');
   }
 }

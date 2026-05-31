@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { Preferences } from '../../core/preferences';
 
 type ProfileListModal = 'followers' | 'following' | null;
@@ -12,6 +12,15 @@ type ProfileListItem = {
   isFollowing: boolean;
 };
 
+type ProfileContentFilter = 'posts' | 'photos' | 'videos' | 'tagged';
+
+type ProfileMediaItem = {
+  id: number;
+  kind: ProfileContentFilter;
+  image: string;
+  alt: string;
+};
+
 @Component({
   selector: 'app-visitor-profile',
   imports: [],
@@ -20,6 +29,7 @@ type ProfileListItem = {
 export class VisitorProfile {
   protected readonly isFollowing = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
+  protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
     {
       id: 1,
@@ -98,11 +108,59 @@ export class VisitorProfile {
       isFollowing: false
     }
   ]);
+  protected readonly mediaItems: ProfileMediaItem[] = [
+    {
+      id: 1,
+      kind: 'photos',
+      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+      alt: 'Arte abstrata colorida'
+    },
+    {
+      id: 2,
+      kind: 'posts',
+      image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=600&q=80',
+      alt: 'Espaço de trabalho'
+    },
+    {
+      id: 3,
+      kind: 'videos',
+      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80',
+      alt: 'Paisagem natural'
+    },
+    {
+      id: 4,
+      kind: 'tagged',
+      image: 'https://images.unsplash.com/photo-1520975682031-a1c877bc1e15?auto=format&fit=crop&w=600&q=80',
+      alt: 'Retrato editorial'
+    },
+    {
+      id: 5,
+      kind: 'photos',
+      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80',
+      alt: 'Moda urbana'
+    },
+    {
+      id: 6,
+      kind: 'posts',
+      image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=600&q=80',
+      alt: 'Cidade ao anoitecer'
+    }
+  ];
+  protected readonly filteredMediaItems = computed(() => {
+    const filter = this.activeContentFilter();
+    return filter === 'posts'
+      ? this.mediaItems
+      : this.mediaItems.filter((item) => item.kind === filter);
+  });
 
   constructor(protected readonly prefs: Preferences) {}
 
   protected toggleFollow(): void {
     this.isFollowing.update((value) => !value);
+  }
+
+  protected setContentFilter(filter: ProfileContentFilter): void {
+    this.activeContentFilter.set(filter);
   }
 
   protected openModal(modal: Exclude<ProfileListModal, null>): void {

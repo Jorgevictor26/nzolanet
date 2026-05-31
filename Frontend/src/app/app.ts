@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Feedback } from './core/feedback';
 import { Preferences } from './core/preferences';
 
 type NotificationItem = {
@@ -19,6 +20,7 @@ type NotificationItem = {
 export class App {
   constructor(
     private readonly router: Router,
+    protected readonly feedback: Feedback,
     protected readonly prefs: Preferences
   ) {}
 
@@ -65,14 +67,17 @@ export class App {
     this.notifications.update((notifications) =>
       notifications.map((notification) => ({ ...notification, isRead: true }))
     );
+    this.feedback.show('Notificações marcadas como lidas.');
   }
 
   protected clearNotifications(): void {
     this.notifications.set([]);
+    this.feedback.show('Notificações limpas.', 'info');
   }
 
   protected logout(): void {
     this.isProfileMenuOpen.set(false);
+    this.feedback.show('Sessão terminada.');
     this.router.navigateByUrl('/');
   }
 

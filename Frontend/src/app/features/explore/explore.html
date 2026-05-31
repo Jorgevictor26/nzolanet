@@ -1,17 +1,26 @@
 <section class="mx-auto w-full max-w-[1180px] px-3 py-4 min-[380px]:px-4 sm:py-5 lg:px-6">
-  <header class="mb-4 flex items-center justify-between gap-4">
+  <header class="mb-4">
     <div>
       <h1 class="text-[18px] font-bold text-[#111827]">{{ prefs.t('explore') }}</h1>
       <p class="mt-1 text-[12px] text-[#667085]">{{ prefs.t('recentCommunity') }}</p>
     </div>
-    <button class="grid size-9 place-items-center rounded-full bg-white text-[#28334b] shadow-sm" type="button" [attr.aria-label]="prefs.t('filterExplore')">
-      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M7 12h10M10 17h4" /></svg>
-    </button>
   </header>
 
+  <div class="mb-4 flex items-center gap-2 overflow-x-auto pb-1 min-[380px]:gap-3">
+    <button class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-[#1f2944] shadow-sm ring-1 ring-[#dfe6f0]" type="button" [attr.aria-label]="prefs.t('filterExplore')" [attr.aria-expanded]="areFiltersOpen()" (click)="toggleFilters()">
+      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14" /><path d="M8 12h8" /><path d="M11 17h2" /></svg>
+    </button>
+    @if (areFiltersOpen()) {
+      <button [class]="activeFilter() === 'all' ? 'h-8 shrink-0 rounded-full bg-[#1f2944] px-4 text-[12px] font-bold text-white shadow-sm' : 'h-8 shrink-0 rounded-full bg-white px-4 text-[12px] font-semibold text-[#667085] shadow-sm ring-1 ring-[#e7edf5] hover:text-[#1f6fff]'" type="button" (click)="setFilter('all')">{{ prefs.t('all') }}</button>
+      <button [class]="activeFilter() === 'image' ? 'h-8 shrink-0 rounded-full bg-[#1f2944] px-4 text-[12px] font-bold text-white shadow-sm' : 'h-8 shrink-0 rounded-full bg-white px-4 text-[12px] font-semibold text-[#667085] shadow-sm ring-1 ring-[#e7edf5] hover:text-[#1f6fff]'" type="button" (click)="setFilter('image')">{{ prefs.t('photos') }}</button>
+      <button [class]="activeFilter() === 'video' ? 'h-8 shrink-0 rounded-full bg-[#1f2944] px-4 text-[12px] font-bold text-white shadow-sm' : 'h-8 shrink-0 rounded-full bg-white px-4 text-[12px] font-semibold text-[#667085] shadow-sm ring-1 ring-[#e7edf5] hover:text-[#1f6fff]'" type="button" (click)="setFilter('video')">{{ prefs.t('videos') }}</button>
+      <button [class]="activeFilter() === 'album' ? 'h-8 shrink-0 rounded-full bg-[#1f2944] px-4 text-[12px] font-bold text-white shadow-sm' : 'h-8 shrink-0 rounded-full bg-white px-4 text-[12px] font-semibold text-[#667085] shadow-sm ring-1 ring-[#e7edf5] hover:text-[#1f6fff]'" type="button" (click)="setFilter('album')">&Aacute;lbuns</button>
+    }
+  </div>
+
   <div class="grid auto-rows-[170px] grid-cols-2 gap-1 overflow-hidden rounded-[8px] bg-white p-1 shadow-sm sm:auto-rows-[220px] md:grid-cols-6 md:auto-rows-[255px]">
-    @for (item of exploreItems; track item.id) {
-      <article class="group relative min-h-0 overflow-hidden bg-[#d9dee8] {{ item.className }}">
+    @for (item of filteredExploreItems(); track item.id) {
+      <button class="group relative min-h-0 overflow-hidden bg-[#d9dee8] text-left {{ item.className }}" type="button" (click)="openItemDetails(item.id)">
         <img class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" [src]="item.image" [alt]="item.title" />
         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent p-3 opacity-0 transition duration-200 group-hover:opacity-100">
           <h2 class="truncate text-[13px] font-bold text-white">{{ item.title }}</h2>
@@ -27,7 +36,87 @@
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="12" height="12" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" /></svg>
           </span>
         }
-      </article>
+      </button>
     }
   </div>
 </section>
+
+@if (activeItem(); as item) {
+  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/40 p-3 sm:p-4" (click)="closeItemDetails()">
+    <section class="grid max-h-[calc(100dvh-24px)] w-full max-w-[980px] overflow-hidden rounded-[8px] bg-white shadow-2xl md:grid-cols-[minmax(0,1.25fr)_360px]" role="dialog" aria-modal="true" aria-labelledby="explore-detail-title" (click)="$event.stopPropagation()">
+      <div class="relative min-h-[280px] bg-[#111827] md:min-h-[620px]">
+        <img class="h-full max-h-[48dvh] w-full object-cover md:max-h-none" [src]="item.image" [alt]="item.title" />
+        @if (item.kind === 'video') {
+          <div class="absolute inset-0 grid place-items-center bg-black/10">
+            <span class="grid size-14 place-items-center rounded-full bg-white/95 text-[#1f2944] shadow-lg">
+              <svg class="ml-0.5 size-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7L8 5Z" /></svg>
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="flex min-h-0 flex-col">
+        <header class="flex shrink-0 items-start justify-between gap-3 border-b border-[#edf1f6] px-4 py-4">
+          <div class="flex min-w-0 items-start gap-3">
+            <img class="size-10 rounded-full object-cover" [src]="item.avatar" [alt]="item.author" />
+            <div class="min-w-0">
+              <h2 id="explore-detail-title" class="truncate text-[14px] font-bold text-[#111827]">{{ item.title }}</h2>
+              <p class="mt-0.5 text-[11px] font-semibold text-[#8b95a7]">{{ item.author }} · {{ item.time }}</p>
+            </div>
+          </div>
+          <button class="grid size-8 shrink-0 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Fechar detalhes" (click)="closeItemDetails()">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </header>
+
+        <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          <p class="text-[13px] leading-5 text-[#24304c]">{{ item.description }}</p>
+          <div class="mt-4 flex items-center gap-4 text-[12px] font-semibold text-[#667085]">
+            <span>{{ itemBazeCount(item) }} baze</span>
+            <span>{{ itemCommentsCount(item) }} comentários</span>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2 border-y border-[#edf1f6] py-3">
+            <button [class]="socialState.hasPostBaze(item.id) ? 'inline-flex h-9 items-center gap-2 rounded-full bg-[#1f2944] px-4 text-[12px] font-bold text-white' : 'inline-flex h-9 items-center gap-2 rounded-full bg-[#f5f7fb] px-4 text-[12px] font-bold text-[#1f2944] hover:bg-[#eef3ff]'" type="button" (click)="toggleBaze(item.id)">
+              <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.hasPostBaze(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+              Dar baze
+            </button>
+            <button [class]="socialState.isPostShared(item.id) ? 'inline-flex h-9 items-center gap-2 rounded-full bg-[#eef3ff] px-4 text-[12px] font-bold text-[#1f6fff]' : 'inline-flex h-9 items-center gap-2 rounded-full bg-[#f5f7fb] px-4 text-[12px] font-bold text-[#1f2944] hover:bg-[#eef3ff]'" type="button" (click)="shareItem(item.id)">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+              Partilhar
+            </button>
+            <button [class]="socialState.isPostFavorite(item.id) ? 'inline-flex h-9 items-center gap-2 rounded-full bg-[#eef3ff] px-4 text-[12px] font-bold text-[#1f6fff]' : 'inline-flex h-9 items-center gap-2 rounded-full bg-[#f5f7fb] px-4 text-[12px] font-bold text-[#1f2944] hover:bg-[#eef3ff]'" type="button" (click)="toggleFavorite(item.id)">
+              <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.isPostFavorite(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
+              Guardar
+            </button>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            @for (comment of activeItemComments(); track comment.id) {
+              <article class="flex items-start gap-3">
+                <img class="size-8 rounded-full object-cover" [src]="comment.avatar" [alt]="comment.author" />
+                <div class="min-w-0 flex-1 rounded-[8px] bg-[#f5f7fb] px-3 py-2">
+                  <div class="flex items-center gap-2">
+                    <h3 class="truncate text-[12px] font-bold text-[#111827]">{{ comment.author }}</h3>
+                    <span class="text-[9px] font-semibold text-[#8b95a7]">{{ comment.time }}</span>
+                  </div>
+                  <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
+                </div>
+              </article>
+            } @empty {
+              <p class="rounded-[8px] bg-[#f8fafc] px-3 py-4 text-center text-[12px] font-semibold text-[#8b95a7]">Ainda não há comentários.</p>
+            }
+          </div>
+        </div>
+
+        <footer class="shrink-0 border-t border-[#edf1f6] p-3">
+          <div class="flex items-end gap-2">
+            <img class="size-9 shrink-0 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+            <textarea #exploreComment class="h-10 min-w-0 flex-1 resize-none rounded-[8px] border border-[#edf1f6] px-3 py-2 text-[12px] leading-5 text-[#1f2944] outline-none placeholder:text-[#b7bfcd] focus:border-[#1f6fff]" placeholder="Escreve um comentário..."></textarea>
+            <button class="h-10 shrink-0 rounded-[8px] bg-[#1f2944] px-4 text-[11px] font-bold text-white" type="button" (click)="submitComment(exploreComment.value); exploreComment.value = ''">Comentar</button>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </div>
+}

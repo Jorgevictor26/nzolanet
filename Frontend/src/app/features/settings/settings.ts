@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Feedback } from '../../core/feedback';
 import { LanguageCode, Preferences } from '../../core/preferences';
 
 @Component({
@@ -7,14 +8,19 @@ import { LanguageCode, Preferences } from '../../core/preferences';
   templateUrl: './settings.html'
 })
 export class Settings {
-  constructor(protected readonly prefs: Preferences) {}
+  constructor(
+    private readonly feedback: Feedback,
+    protected readonly prefs: Preferences
+  ) {}
 
   protected changeLanguage(value: string): void {
     this.prefs.setLanguage(value === 'en' ? 'en' : 'pt');
+    this.feedback.show('Idioma atualizado.');
   }
 
   protected changeTheme(value: string): void {
     this.prefs.setTheme(value === 'dark' ? 'dark' : 'light');
+    this.feedback.show('Tema atualizado.');
   }
 
   protected currentLanguage(): LanguageCode {

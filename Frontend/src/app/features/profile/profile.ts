@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
+import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
 import { SocialState } from '../../core/social-state';
 
@@ -23,6 +24,15 @@ type SharedProfilePost = {
   imageAlt?: string;
 };
 
+type ProfileContentFilter = 'posts' | 'photos' | 'videos' | 'tagged';
+
+type ProfileMediaItem = {
+  id: number;
+  kind: ProfileContentFilter;
+  image: string;
+  alt: string;
+};
+
 @Component({
   selector: 'app-profile',
   imports: [],
@@ -30,12 +40,14 @@ type SharedProfilePost = {
 })
 export class Profile {
   constructor(
+    private readonly feedback: Feedback,
     protected readonly prefs: Preferences,
     protected readonly socialState: SocialState
   ) {}
 
   protected readonly isProfileEditorOpen = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
+  protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
     {
       id: 1,
@@ -150,6 +162,50 @@ export class Profile {
       imageAlt: 'Ambiente de tecnologia com computador'
     }
   ];
+  protected readonly mediaItems: ProfileMediaItem[] = [
+    {
+      id: 1,
+      kind: 'photos',
+      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+      alt: 'Arte abstrata colorida'
+    },
+    {
+      id: 2,
+      kind: 'posts',
+      image: 'https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=600&q=80',
+      alt: 'Ambiente de tecnologia'
+    },
+    {
+      id: 3,
+      kind: 'videos',
+      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80',
+      alt: 'Paisagem natural'
+    },
+    {
+      id: 4,
+      kind: 'tagged',
+      image: 'https://images.unsplash.com/photo-1520975682031-a1c877bc1e15?auto=format&fit=crop&w=600&q=80',
+      alt: 'Retrato editorial'
+    },
+    {
+      id: 5,
+      kind: 'photos',
+      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80',
+      alt: 'Moda urbana'
+    },
+    {
+      id: 6,
+      kind: 'posts',
+      image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=600&q=80',
+      alt: 'Cidade ao anoitecer'
+    }
+  ];
+  protected readonly filteredMediaItems = computed(() => {
+    const filter = this.activeContentFilter();
+    return filter === 'posts'
+      ? this.mediaItems
+      : this.mediaItems.filter((item) => item.kind === filter);
+  });
 
   protected openProfileEditor(): void {
     this.isProfileEditorOpen.set(true);
@@ -157,6 +213,16 @@ export class Profile {
 
   protected closeProfileEditor(): void {
     this.isProfileEditorOpen.set(false);
+  }
+
+  protected saveProfile(): void {
+    this.isProfileEditorOpen.set(false);
+    this.feedback.show('Perfil atualizado.');
+  }
+
+  protected setContentFilter(filter: ProfileContentFilter): void {
+    this.activeContentFilter.set(filter);
+    this.feedback.show('Filtro do perfil aplicado.', 'info');
   }
 
   protected openModal(modal: Exclude<ProfileListModal, null>): void {
@@ -173,6 +239,7 @@ export class Profile {
         profile.id === profileId ? { ...profile, isFollowing: !profile.isFollowing } : profile
       )
     );
+    this.feedback.show('Estado de seguimento atualizado.');
   }
 
   protected unfollowProfile(profileId: number): void {
@@ -181,6 +248,7 @@ export class Profile {
         profile.id === profileId ? { ...profile, isFollowing: false } : profile
       )
     );
+    this.feedback.show('Perfil removido da lista a seguir.', 'info');
   }
 
   protected toggleSuggestedFollow(profileId: number): void {
@@ -189,5 +257,6 @@ export class Profile {
         profile.id === profileId ? { ...profile, isFollowing: !profile.isFollowing } : profile
       )
     );
+    this.feedback.show('Sugestão atualizada.');
   }
 }
