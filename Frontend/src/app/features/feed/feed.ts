@@ -16,6 +16,8 @@ type FeedPost = {
   tags?: string;
   image?: string;
   imageAlt?: string;
+  video?: string;
+  videoAlt?: string;
 };
 
 type PostComment = {
@@ -38,6 +40,14 @@ export class Feed {
   protected readonly selectedCommentAttachment = signal<CommentAttachment>(null);
   protected readonly likedPostIds = signal<Set<number>>(new Set());
   protected readonly followedProfileIds = signal<Set<number>>(new Set());
+  protected readonly createdPosts = signal<FeedPost[]>([]);
+  protected readonly composerText = signal('');
+  protected readonly composerMediaUrl = signal<string | null>(null);
+  protected readonly composerMediaKind = signal<'image' | 'video' | null>(null);
+  protected readonly composerMediaName = signal('');
+  protected readonly composerLocation = signal('');
+  protected readonly savedDraft = signal('');
+  protected readonly composerLimit = 280;
   protected readonly posts: FeedPost[] = [
     {
       id: 1,
@@ -130,13 +140,21 @@ export class Feed {
       }
     ]
   });
+  protected readonly allPosts = computed(() => [...this.createdPosts(), ...this.posts]);
   protected readonly activeCommentPost = computed(() =>
-    this.posts.find((post) => post.id === this.activeCommentPostId()) ?? null
+    this.allPosts().find((post) => post.id === this.activeCommentPostId()) ?? null
   );
   protected readonly activePostComments = computed(() => {
     const postId = this.activeCommentPostId();
     return postId ? this.comments()[postId] ?? [] : [];
   });
+  protected readonly composerCharacterCount = computed(() => this.composerText().length);
+  protected readonly composerProgress = computed(() =>
+    Math.min(100, (this.composerCharacterCount() / this.composerLimit) * 100)
+  );
+  protected readonly canPublishComposer = computed(() =>
+    this.composerText().trim().length > 0 || Boolean(this.composerMediaUrl())
+  );
 
   constructor(
     private readonly feedback: Feedback,
@@ -145,11 +163,85 @@ export class Feed {
   ) {}
 
   protected openComposer(): void {
+    if (!this.composerText() && this.savedDraft()) {
+      this.composerText.set(this.savedDraft());
+    }
     this.isComposerOpen.set(true);
   }
 
   protected closeComposer(): void {
     this.isComposerOpen.set(false);
+  }
+
+  protected updateComposerText(text: string): void {
+    this.composerText.set(text.slice(0, this.composerLimit));
+  }
+
+  protected chooseComposerFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    this.applyComposerFile(file);
+    input.value = '';
+  }
+
+  protected handleComposerDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.applyComposerFile(event.dataTransfer?.files?.[0]);
+  }
+
+  protected clearComposerMedia(): void {
+    this.revokeComposerMedia();
+    this.composerMediaUrl.set(null);
+    this.composerMediaKind.set(null);
+    this.composerMediaName.set('');
+  }
+
+  protected insertComposerHashtag(): void {
+    const currentText = this.composerText().trimEnd();
+    const separator = currentText ? ' ' : '';
+    this.updateComposerText(`${currentText}${separator}#NzolaNet`);
+  }
+
+  protected toggleComposerLocation(): void {
+    this.composerLocation.update((location) => location ? '' : 'Luanda, Angola');
+    this.feedback.show(this.composerLocation() ? 'Localização adicionada.' : 'Localização removida.', 'info');
+  }
+
+  protected addComposerEmoji(): void {
+    this.updateComposerText(`${this.composerText()} :)`);
+  }
+
+  protected saveComposerDraft(): void {
+    this.savedDraft.set(this.composerText());
+    this.feedback.show('Rascunho guardado.', 'success');
+  }
+
+  protected publishComposerPost(): void {
+    if (!this.canPublishComposer()) {
+      this.feedback.show('Escreve algo ou adiciona uma imagem/vídeo antes de publicar.', 'info');
+      return;
+    }
+
+    const text = this.composerText().trim() || (this.composerMediaKind() === 'video' ? 'Novo vídeo partilhado.' : 'Nova imagem partilhada.');
+    const nextPost: FeedPost = {
+      id: Date.now(),
+      author: 'Maria Guilhermina',
+      username: this.composerLocation() ? `@maria.g · ${this.composerLocation()}` : '@maria.g',
+      avatar: 'https://i.pravatar.cc/96?img=47',
+      time: 'Agora',
+      text,
+      image: this.composerMediaKind() === 'image' ? this.composerMediaUrl() ?? undefined : undefined,
+      imageAlt: this.composerMediaName() || 'Imagem publicada por Maria Guilhermina',
+      video: this.composerMediaKind() === 'video' ? this.composerMediaUrl() ?? undefined : undefined,
+      videoAlt: this.composerMediaName() || 'Vídeo publicado por Maria Guilhermina'
+    };
+
+    this.createdPosts.update((posts) => [nextPost, ...posts]);
+    this.comments.update((comments) => ({ ...comments, [nextPost.id]: [] }));
+    this.savedDraft.set('');
+    this.resetComposer();
+    this.closeComposer();
+    this.feedback.show('Publicação criada.', 'success');
   }
 
   protected openPostDetails(postId: number): void {
@@ -273,5 +365,43 @@ export class Feed {
       return nextProfileIds;
     });
     this.feedback.show(this.isFollowingProfile(profileId) ? 'Agora estás a seguir este perfil.' : 'Deixaste de seguir este perfil.', this.isFollowingProfile(profileId) ? 'success' : 'info');
+  }
+
+  private applyComposerFile(file: File | undefined): void {
+    if (!file) {
+      return;
+    }
+
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      this.feedback.show('Escolhe uma imagem ou um vídeo.', 'info');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      this.feedback.show('O ficheiro deve ter no máximo 50MB.', 'info');
+      return;
+    }
+
+    this.clearComposerMedia();
+    this.composerMediaKind.set(isImage ? 'image' : 'video');
+    this.composerMediaName.set(file.name);
+    this.composerMediaUrl.set(URL.createObjectURL(file));
+    this.feedback.show(isImage ? 'Imagem pronta para publicar.' : 'Vídeo pronto para publicar.', 'success');
+  }
+
+  private resetComposer(): void {
+    this.composerText.set('');
+    this.composerLocation.set('');
+    this.clearComposerMedia();
+  }
+
+  private revokeComposerMedia(): void {
+    const mediaUrl = this.composerMediaUrl();
+    if (mediaUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(mediaUrl);
+    }
   }
 }
