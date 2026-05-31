@@ -17,7 +17,7 @@ const translations: Record<LanguageCode, Record<string, string>> = {
     allClean: 'Tudo limpo por aqui.',
     viewProfile: 'Ver perfil',
     logout: 'Sair',
-    home: 'Início',
+    home: 'Página Inicial',
     explore: 'Explorar',
     favorites: 'Favoritos',
     profile: 'Perfil',
