@@ -45,10 +45,10 @@ export class Feed {
       username: '@arivera.nz',
       avatar: 'https://i.pravatar.cc/96?img=12',
       time: '7h atrás',
-      text: 'Acabei de configurar meu novo espaço de trabalho! 🚀',
-      tags: '#produtividade #NzolaNet',
-      image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1100&q=85',
-      imageAlt: 'Espaço de trabalho com plantas e portátil'
+      text: 'A equipa da Meza esteve no terreno a apresentar a plataforma e ouvir sugestões dos visitantes.',
+      tags: '#Meza #Membros #NzolaNet',
+      image: 'meza-membros/meza-06.jpeg',
+      imageAlt: 'Membros da Meza no stand do evento'
     },
     {
       id: 2,
@@ -64,10 +64,10 @@ export class Feed {
       username: '@karinaribeiro123_',
       avatar: 'https://i.pravatar.cc/96?img=32',
       time: '2h atrás',
-      text: 'A tarde perfeita para respirar, fotografar e guardar memórias.',
-      tags: '#Luanda #cultura #NzolaNet',
-      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1100&q=85',
-      imageAlt: 'Paisagem verde ao pôr do sol'
+      text: 'Boas conversas, demonstrações rápidas e muita curiosidade à volta da Meza.',
+      tags: '#Meza #comunidade #NzolaNet',
+      image: 'meza-membros/meza-01.jpeg',
+      imageAlt: 'Membros da Meza em conversa com visitantes'
     },
     {
       id: 4,
@@ -75,9 +75,9 @@ export class Feed {
       username: '@miller_design',
       avatar: 'https://i.pravatar.cc/96?img=18',
       time: '1h atrás',
-      text: 'Novo painel para organizar ideias antes da próxima reunião.',
-      image: 'https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1100&q=85',
-      imageAlt: 'Ambiente de tecnologia com computador'
+      text: 'Mais um registo do stand, com a equipa a explicar como a experiência funciona.',
+      image: 'meza-membros/meza-07.jpeg',
+      imageAlt: 'Demonstração da Meza durante o evento'
     }
   ];
   protected readonly comments = signal<Record<number, PostComment[]>>({
@@ -152,6 +152,10 @@ export class Feed {
     this.isComposerOpen.set(false);
   }
 
+  protected openPostDetails(postId: number): void {
+    this.openComments(postId);
+  }
+
   protected toggleWorkspacePostFavorite(): void {
     this.socialState.toggleWorkspacePostFavorite();
     this.feedback.show(
@@ -159,6 +163,27 @@ export class Feed {
         ? 'Publicação guardada nos favoritos.'
         : 'Publicação removida dos favoritos.',
       this.socialState.isWorkspacePostFavorite() ? 'success' : 'info'
+    );
+  }
+
+  protected isPostSaved(postId: number): boolean {
+    return postId === 1
+      ? this.socialState.isWorkspacePostFavorite()
+      : this.socialState.isPostFavorite(postId);
+  }
+
+  protected togglePostFavorite(postId: number): void {
+    const isFavorite = postId === 1
+      ? !this.socialState.isWorkspacePostFavorite()
+      : this.socialState.togglePostFavorite(postId);
+
+    if (postId === 1) {
+      this.socialState.isWorkspacePostFavorite.set(isFavorite);
+    }
+
+    this.feedback.show(
+      isFavorite ? 'Publicação guardada nos favoritos.' : 'Publicação removida dos favoritos.',
+      isFavorite ? 'success' : 'info'
     );
   }
 

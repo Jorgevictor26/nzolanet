@@ -133,8 +133,8 @@ export class Profile {
       username: '@arivera.nz',
       avatar: 'https://i.pravatar.cc/96?img=12',
       text: 'Acabei de configurar meu novo espaço de trabalho! 🚀',
-      image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1100&q=85',
-      imageAlt: 'Espaço de trabalho com plantas e portátil'
+      image: 'meza-membros/meza-06.jpeg',
+      imageAlt: 'Membros da Meza no stand do evento'
     },
     {
       id: 2,
@@ -149,8 +149,8 @@ export class Profile {
       username: '@karinaribeiro123_',
       avatar: 'https://i.pravatar.cc/96?img=32',
       text: 'A tarde perfeita para respirar, fotografar e guardar memórias.',
-      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1100&q=85',
-      imageAlt: 'Paisagem verde ao pôr do sol'
+      image: 'meza-membros/meza-01.jpeg',
+      imageAlt: 'Membros da Meza em conversa com visitantes'
     },
     {
       id: 4,
@@ -158,46 +158,46 @@ export class Profile {
       username: '@miller_design',
       avatar: 'https://i.pravatar.cc/96?img=18',
       text: 'Novo painel para organizar ideias antes da próxima reunião.',
-      image: 'https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1100&q=85',
-      imageAlt: 'Ambiente de tecnologia com computador'
+      image: 'meza-membros/meza-07.jpeg',
+      imageAlt: 'Demonstração da Meza durante o evento'
     }
   ];
   protected readonly mediaItems: ProfileMediaItem[] = [
     {
       id: 1,
       kind: 'photos',
-      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-      alt: 'Arte abstrata colorida'
+      image: 'meza-membros/meza-02.jpeg',
+      alt: 'Registo de membros da Meza'
     },
     {
       id: 2,
       kind: 'posts',
-      image: 'https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=600&q=80',
-      alt: 'Ambiente de tecnologia'
+      image: 'meza-membros/meza-03.jpeg',
+      alt: 'Momento da equipa Meza'
     },
     {
       id: 3,
       kind: 'videos',
-      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80',
-      alt: 'Paisagem natural'
+      image: 'meza-membros/meza-09.jpeg',
+      alt: 'Vídeo da apresentação Meza'
     },
     {
       id: 4,
       kind: 'tagged',
-      image: 'https://images.unsplash.com/photo-1520975682031-a1c877bc1e15?auto=format&fit=crop&w=600&q=80',
-      alt: 'Retrato editorial'
+      image: 'meza-membros/meza-04.jpeg',
+      alt: 'Visitante no stand da Meza'
     },
     {
       id: 5,
       kind: 'photos',
-      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80',
-      alt: 'Moda urbana'
+      image: 'meza-membros/meza-05.jpeg',
+      alt: 'Interação com membros da Meza'
     },
     {
       id: 6,
       kind: 'posts',
-      image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=600&q=80',
-      alt: 'Cidade ao anoitecer'
+      image: 'meza-membros/meza-10.jpeg',
+      alt: 'Stand da Meza no evento'
     }
   ];
   protected readonly filteredMediaItems = computed(() => {

@@ -22,169 +22,165 @@
       </div>
     </section>
 
-    <article class="mb-5 overflow-hidden rounded-[8px] bg-white shadow-sm">
+    <article class="mb-5 overflow-hidden rounded-[8px] bg-white shadow-sm cursor-pointer" (click)="openPostDetails(1)">
       <header class="flex items-start justify-between px-5 pt-4">
         <div class="flex items-start gap-3">
           <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=12" alt="Alex Rivera" />
           <div class="min-w-0">
             <div class="flex items-center gap-1">
-              <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">Alex Rivera</a>
+              <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile" (click)="$event.stopPropagation()">Alex Rivera</a>
               <svg class="size-3.5 shrink-0 text-[#1f6fff]" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 2.7 2.1 3.4-.2 1 3.3 2.8 1.9-1.3 3.2 1.3 3.2-2.8 1.9-1 3.3-3.4-.2L12 22l-2.7-2.1-3.4.2-1-3.3-2.8-1.9 1.3-3.2-1.3-3.2 2.8-1.9 1-3.3 3.4.2L12 2Zm-1.1 13.5 5.6-5.6-1.4-1.4-4.2 4.2-2-2-1.4 1.4 3.4 3.4Z" /></svg>
             </div>
             <p class="text-[11px] text-[#8b95a7]">&#64;arivera.nz &middot; 7h atr&aacute;s</p>
           </div>
         </div>
-        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opcoes">
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opcoes" (click)="$event.stopPropagation()">
           <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
         </button>
       </header>
 
       <div class="px-5 pb-3 pt-3">
-        <p class="text-[13px] leading-5 text-[#24304c]">Acabei de configurar meu novo espa&ccedil;o de trabalho! &#128640;</p>
-        <p class="mt-0.5 text-[13px] font-semibold leading-5 text-[#1f6fff]">#produtividade #NzolaNet</p>
+        <p class="text-[13px] leading-5 text-[#24304c]">A equipa da Meza esteve no terreno a apresentar a plataforma e ouvir sugest&otilde;es dos visitantes.</p>
+        <p class="mt-0.5 text-[13px] font-semibold leading-5 text-[#1f6fff]">#Meza #Membros #NzolaNet</p>
       </div>
 
       <div class="px-5">
-        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1100&q=85" alt="Espaco de trabalho com plantas e portatil" />
+        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="meza-membros/meza-06.jpeg" alt="Membros da Meza no stand do evento" />
       </div>
 
       <footer class="flex items-center justify-between px-5 py-4 text-[12px] text-[#1f2944]">
         <div class="flex items-center gap-5">
-          <button [class]="isPostLiked(1) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(1)">
+          <button [class]="isPostLiked(1) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="$event.stopPropagation(); togglePostLike(1)">
             <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(1) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-            Baze {{ isPostLiked(1) ? '2.5k' : '2.4k' }}
           </button>
-          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(1)">
+          <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="$event.stopPropagation(); openComments(1)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-            {{ 128 + (comments()[1]?.length ?? 0) }}
           </button>
-          <button [class]="socialState.isPostShared(1) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(1)">
+          <button [class]="socialState.isPostShared(1) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="$event.stopPropagation(); sharePost(1)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
-            {{ socialState.isPostShared(1) ? 'Partilhado' : '45' }}
           </button>
         </div>
         <button
           [class]="socialState.isWorkspacePostFavorite() ? 'grid size-7 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff] hover:bg-[#e4edff]' : 'grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]'"
           type="button"
           [attr.aria-label]="socialState.isWorkspacePostFavorite() ? 'Remover dos favoritos' : 'Guardar nos favoritos'"
-          (click)="toggleWorkspacePostFavorite()"
+          (click)="$event.stopPropagation(); toggleWorkspacePostFavorite()"
         >
           <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.isWorkspacePostFavorite() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
         </button>
       </footer>
     </article>
 
-    <article class="rounded-[8px] bg-white p-5 shadow-sm">
+    <article class="cursor-pointer rounded-[8px] bg-white p-5 shadow-sm" (click)="openPostDetails(2)">
       <header class="mb-3 flex items-start justify-between">
         <div class="flex items-start gap-3">
           <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=5" alt="Sarah Chen" />
           <div>
             <div class="flex items-center gap-1.5">
-              <a class="text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">Sarah Chen</a>
+              <a class="text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile" (click)="$event.stopPropagation()">Sarah Chen</a>
               <span class="rounded-full bg-[#ff8a1f] px-1.5 py-0.5 text-[8px] font-bold text-white">Pro</span>
             </div>
             <p class="text-[11px] text-[#8b95a7]">&#64;schen.dev &middot; 4h atr&aacute;s</p>
           </div>
         </div>
-        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opcoes">
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opcoes" (click)="$event.stopPropagation()">
           <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
         </button>
       </header>
       <p class="text-[13px] leading-6 text-[#24304c]">A conectividade nesta plataforma &eacute; incr&iacute;vel. Realmente aproveitando as vibra&ccedil;&otilde;es do glassmorphism e a navega&ccedil;&atilde;o fluida. Novas ideias a caminho.</p>
       <footer class="mt-4 flex items-center gap-5 text-[12px] text-[#1f2944]">
-        <button [class]="isPostLiked(2) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(2)">
+        <button [class]="isPostLiked(2) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="$event.stopPropagation(); togglePostLike(2)">
           <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(2) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-          Baze {{ isPostLiked(2) ? '869' : '868' }}
         </button>
-        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(2)">
+        <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="$event.stopPropagation(); openComments(2)">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-          {{ 64 + (comments()[2]?.length ?? 0) }}
         </button>
-        <button [class]="socialState.isPostShared(2) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(2)">
+        <button [class]="socialState.isPostShared(2) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="$event.stopPropagation(); sharePost(2)">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
-          {{ socialState.isPostShared(2) ? 'Partilhado' : '18' }}
+        </button>
+        <button [class]="isPostSaved(2) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="$event.stopPropagation(); togglePostFavorite(2)">
+          <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostSaved(2) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
         </button>
       </footer>
     </article>
 
-    <article class="mt-5 overflow-hidden rounded-[8px] bg-white shadow-sm">
+    <article class="mt-5 cursor-pointer overflow-hidden rounded-[8px] bg-white shadow-sm" (click)="openPostDetails(3)">
       <header class="flex items-start justify-between px-5 pt-4">
         <div class="flex items-start gap-3">
           <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=32" alt="Karina Ribeiro" />
           <div class="min-w-0">
-            <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">Karina Ribeiro</a>
+            <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile" (click)="$event.stopPropagation()">Karina Ribeiro</a>
             <p class="text-[11px] text-[#8b95a7]">&#64;karinaribeiro123_ &middot; 2h atr&aacute;s</p>
           </div>
         </div>
-        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opções">
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opções" (click)="$event.stopPropagation()">
           <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
         </button>
       </header>
 
       <div class="px-5 py-3">
-        <p class="text-[13px] leading-5 text-[#24304c]">A tarde perfeita para respirar, fotografar e guardar memórias.</p>
-        <p class="mt-0.5 text-[13px] font-semibold leading-5 text-[#1f6fff]">#Luanda #cultura #NzolaNet</p>
+        <p class="text-[13px] leading-5 text-[#24304c]">Boas conversas, demonstra&ccedil;&otilde;es r&aacute;pidas e muita curiosidade &agrave; volta da Meza.</p>
+        <p class="mt-0.5 text-[13px] font-semibold leading-5 text-[#1f6fff]">#Meza #comunidade #NzolaNet</p>
       </div>
 
       <div class="px-5">
-        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1100&q=85" alt="Paisagem verde ao pôr do sol" />
+        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="meza-membros/meza-01.jpeg" alt="Membros da Meza em conversa com visitantes" />
       </div>
 
       <footer class="flex items-center justify-between px-5 py-4 text-[12px] text-[#1f2944]">
         <div class="flex items-center gap-5">
-          <button [class]="isPostLiked(3) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(3)">
+          <button [class]="isPostLiked(3) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="$event.stopPropagation(); togglePostLike(3)">
             <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(3) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-            Baze {{ isPostLiked(3) ? '1.3k' : '1.2k' }}
           </button>
-          <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(3)">
+          <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="$event.stopPropagation(); openComments(3)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-            {{ 93 + (comments()[3]?.length ?? 0) }}
           </button>
-          <button [class]="socialState.isPostShared(3) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(3)">
+          <button [class]="socialState.isPostShared(3) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="$event.stopPropagation(); sharePost(3)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
-            {{ socialState.isPostShared(3) ? 'Partilhado' : '31' }}
           </button>
         </div>
-        <button class="grid size-7 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Guardar nos favoritos">
-          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
+        <button [class]="isPostSaved(3) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="$event.stopPropagation(); togglePostFavorite(3)">
+          <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostSaved(3) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
         </button>
       </footer>
     </article>
 
-    <article class="mt-5 overflow-hidden rounded-[8px] bg-white shadow-sm">
+    <article class="mt-5 cursor-pointer overflow-hidden rounded-[8px] bg-white shadow-sm" (click)="openPostDetails(4)">
       <header class="flex items-start justify-between px-5 pt-4">
         <div class="flex items-start gap-3">
           <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=18" alt="David Miller" />
           <div class="min-w-0">
-            <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile">David Miller</a>
+            <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile" (click)="$event.stopPropagation()">David Miller</a>
             <p class="text-[11px] text-[#8b95a7]">&#64;miller_design &middot; 1h atr&aacute;s</p>
           </div>
         </div>
-        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opções">
+        <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opções" (click)="$event.stopPropagation()">
           <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
         </button>
       </header>
 
       <div class="px-5 py-3">
-        <p class="text-[13px] leading-5 text-[#24304c]">Novo painel para organizar ideias antes da próxima reunião.</p>
+        <p class="text-[13px] leading-5 text-[#24304c]">Mais um registo do stand, com a equipa a explicar como a experi&ecirc;ncia funciona.</p>
       </div>
 
       <div class="px-5">
-        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1100&q=85" alt="Ambiente de tecnologia com computador" />
+        <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" src="meza-membros/meza-07.jpeg" alt="Demonstra&ccedil;&atilde;o da Meza durante o evento" />
       </div>
 
-      <footer class="flex items-center gap-5 px-5 py-4 text-[12px] text-[#1f2944]">
-        <button [class]="isPostLiked(4) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="togglePostLike(4)">
+      <footer class="flex items-center justify-between px-5 py-4 text-[12px] text-[#1f2944]">
+        <div class="flex items-center gap-5">
+        <button [class]="isPostLiked(4) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="$event.stopPropagation(); togglePostLike(4)">
           <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(4) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-          Baze {{ isPostLiked(4) ? '414' : '413' }}
         </button>
-        <button class="inline-flex items-center gap-1.5 hover:text-[#1f6fff]" type="button" (click)="openComments(4)">
+        <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="$event.stopPropagation(); openPostDetails(4)">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-          {{ 29 + (comments()[4]?.length ?? 0) }}
         </button>
-        <button [class]="socialState.isPostShared(4) ? 'inline-flex items-center gap-1.5 text-[#1f6fff]' : 'inline-flex items-center gap-1.5 hover:text-[#1f6fff]'" type="button" (click)="sharePost(4)">
+        <button [class]="socialState.isPostShared(4) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="$event.stopPropagation(); sharePost(4)">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
-          {{ socialState.isPostShared(4) ? 'Partilhado' : '12' }}
+        </button>
+        </div>
+        <button [class]="isPostSaved(4) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="$event.stopPropagation(); togglePostFavorite(4)">
+          <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostSaved(4) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
         </button>
       </footer>
     </article>
@@ -251,10 +247,21 @@
 </div>
 
 @if (activeCommentPost(); as post) {
-  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/35 p-3 sm:p-4" (click)="closeComments()">
-    <section class="flex max-h-[calc(100dvh-24px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[8px] bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="comments-title" (click)="$event.stopPropagation()">
+  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/40 p-3 sm:p-4" (click)="closeComments()">
+    <section class="grid max-h-[calc(100dvh-24px)] w-full max-w-[980px] overflow-hidden rounded-[8px] bg-white shadow-2xl md:grid-cols-[minmax(0,1.15fr)_380px]" role="dialog" aria-modal="true" aria-labelledby="comments-title" (click)="$event.stopPropagation()">
+      <div class="relative min-h-[260px] bg-[#111827] md:min-h-[620px]">
+        @if (post.image) {
+          <img class="h-full max-h-[46dvh] w-full object-cover md:max-h-none" [src]="post.image" [alt]="post.imageAlt" />
+        } @else {
+          <div class="flex h-full min-h-[260px] items-center bg-[#f8fafc] px-8 py-10 md:min-h-[620px]">
+            <p class="text-[22px] font-bold leading-8 text-[#111827] sm:text-[26px] sm:leading-9">{{ post.text }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="flex min-h-0 flex-col">
       <header class="flex h-12 shrink-0 items-center justify-between border-b border-[#eef1f6] px-4">
-        <h2 id="comments-title" class="text-[14px] font-bold text-[#111827]">Comentários</h2>
+        <h2 id="comments-title" class="text-[14px] font-bold text-[#111827]">Publicação</h2>
         <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Fechar comentários" (click)="closeComments()">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
         </button>
@@ -273,10 +280,27 @@
           @if (post.tags) {
             <p class="mt-1 text-[12px] font-semibold text-[#1f6fff]">{{ post.tags }}</p>
           }
-          @if (post.image) {
-            <img class="mt-3 h-[180px] w-full rounded-[6px] object-cover sm:h-[240px]" [src]="post.image" [alt]="post.imageAlt" />
-          }
         </article>
+
+        <div class="mt-4 flex items-center gap-4 text-[12px] font-semibold text-[#667085]">
+          <span>{{ isPostLiked(post.id) ? '1' : '0' }} baze</span>
+          <span>{{ activePostComments().length }} comentários</span>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between border-y border-[#edf1f6] py-3 text-[#1f2944]">
+          <button [class]="isPostLiked(post.id) ? 'grid size-9 place-items-center rounded-full bg-[#1f2944] text-white' : 'grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="togglePostLike(post.id)">
+            <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(post.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+          </button>
+          <button class="grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="commentText.focus()">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
+          </button>
+          <button [class]="socialState.isPostShared(post.id) ? 'grid size-9 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="sharePost(post.id)">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+          </button>
+          <button [class]="isPostSaved(post.id) ? 'grid size-9 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="togglePostFavorite(post.id)">
+            <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostSaved(post.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
+          </button>
+        </div>
 
         <div class="mt-4 space-y-3">
           @for (comment of activePostComments(); track comment.id) {
@@ -322,11 +346,12 @@
               }
             </div>
           </div>
-          <button class="h-9 shrink-0 rounded-[8px] bg-[#1f2944] px-4 text-[11px] font-bold text-white" type="button" (click)="submitComment(commentText.value); commentText.value = ''">
-            Comentar
+          <button class="grid size-10 shrink-0 place-items-center rounded-[8px] bg-[#1f2944] text-white" type="button" aria-label="Publicar comentário" (click)="submitComment(commentText.value); commentText.value = ''">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
           </button>
         </div>
       </footer>
+      </div>
     </section>
   </div>
 }
