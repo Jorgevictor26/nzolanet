@@ -22,6 +22,30 @@ class UserRepository
             ->first();
     }
 
+    public function findById(int $id): ?User
+    {
+        return User::query()->find($id);
+    }
+
+    /**
+     * @param  array{name?: string, bio?: ?string, privacy?: string}  $data
+     */
+    public function updateProfile(User $user, array $data): User
+    {
+        $user->fill($data)->save();
+
+        return $user->refresh();
+    }
+
+    public function updateProfilePhoto(User $user, string $path): User
+    {
+        $user->forceFill([
+            'profile_photo' => $path,
+        ])->save();
+
+        return $user->refresh();
+    }
+
     public function updatePassword(User $user, string $hashedPassword): User
     {
         $user->forceFill([

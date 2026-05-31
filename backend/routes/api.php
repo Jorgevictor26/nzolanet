@@ -19,7 +19,11 @@ Route::prefix('auth')->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('users', UserController::class)->only(['index', 'show', 'update']);
+    Route::get('users/me', [UserController::class, 'me']);
+    Route::get('users/{id}', [UserController::class, 'show'])->whereNumber('id');
+    Route::put('users/profile', [UserController::class, 'updateProfile']);
+    Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);
+
     Route::apiResource('posts', PostController::class);
     Route::apiResource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('likes', LikeController::class)->only(['store', 'destroy']);
