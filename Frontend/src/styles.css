@@ -30,8 +30,27 @@ input {
   font: inherit;
 }
 
+button,
+a {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease;
+}
+
 button {
   cursor: pointer;
+}
+
+button:not(:disabled):hover,
+a:hover {
+  filter: brightness(0.98);
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 .dark-mode {

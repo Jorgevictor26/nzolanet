@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Preferences } from '../../core/preferences';
 
 type ProfileListModal = 'followers' | 'following' | null;
@@ -23,12 +24,13 @@ type ProfileMediaItem = {
 
 @Component({
   selector: 'app-visitor-profile',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './visitor-profile.html'
 })
 export class VisitorProfile {
   protected readonly isFollowing = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
+  protected readonly activeMediaItemId = signal<number | null>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
     {
@@ -152,6 +154,9 @@ export class VisitorProfile {
       ? this.mediaItems
       : this.mediaItems.filter((item) => item.kind === filter);
   });
+  protected readonly activeMediaItem = computed(() =>
+    this.mediaItems.find((item) => item.id === this.activeMediaItemId()) ?? null
+  );
 
   constructor(protected readonly prefs: Preferences) {}
 
@@ -169,6 +174,14 @@ export class VisitorProfile {
 
   protected closeModal(): void {
     this.activeModal.set(null);
+  }
+
+  protected openMediaItem(itemId: number): void {
+    this.activeMediaItemId.set(itemId);
+  }
+
+  protected closeMediaItem(): void {
+    this.activeMediaItemId.set(null);
   }
 
   protected toggleSuggestedFollow(profileId: number): void {

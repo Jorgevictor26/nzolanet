@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Auth, CurrentUser } from '../../core/auth';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
@@ -31,7 +32,7 @@ type ProfileMediaItem = {
 
 @Component({
   selector: 'app-profile',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './profile.html'
 })
 export class Profile implements OnInit {
@@ -53,6 +54,7 @@ export class Profile implements OnInit {
   protected readonly editPrivacy = signal<'public' | 'private'>('public');
   protected readonly isLoadingPosts = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
+  protected readonly activeMediaItemId = signal<number | null>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
     {
@@ -147,6 +149,9 @@ export class Profile implements OnInit {
 
     return items.filter((item) => item.kind === filter);
   });
+  protected readonly activeMediaItem = computed(() =>
+    this.mediaItems().find((item) => item.id === this.activeMediaItemId()) ?? null
+  );
   protected readonly postsCount = computed(() => this.mediaItems().length);
   protected readonly currentUser = computed(() => this.auth.currentUser());
 
@@ -240,6 +245,14 @@ export class Profile implements OnInit {
 
   protected closeModal(): void {
     this.activeModal.set(null);
+  }
+
+  protected openMediaItem(itemId: number): void {
+    this.activeMediaItemId.set(itemId);
+  }
+
+  protected closeMediaItem(): void {
+    this.activeMediaItemId.set(null);
   }
 
   protected toggleFollowerFollow(profileId: number): void {
