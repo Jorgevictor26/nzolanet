@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class UserRepository
 {
     /**
-     * @param  array{name: string, email: string, password: string, bio?: ?string, profile_photo?: ?string, privacy?: string}  $data
+     * @param  array{name: string, username?: ?string, email: string, phone_number?: ?string, password: string, bio?: ?string, profile_photo?: ?string, privacy?: string}  $data
      */
     public function create(array $data): User
     {
@@ -28,7 +28,7 @@ class UserRepository
     }
 
     /**
-     * @param  array{name?: string, bio?: ?string, privacy?: string}  $data
+     * @param  array{name?: string, username?: ?string, phone_number?: ?string, bio?: ?string, privacy?: string}  $data
      */
     public function updateProfile(User $user, array $data): User
     {

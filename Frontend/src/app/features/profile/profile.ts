@@ -1,6 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Auth, CurrentUser } from '../../core/auth';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
+import { ApiPost, Posts } from '../../core/posts';
 import { SocialState } from '../../core/social-state';
 
 type ProfileListModal = 'followers' | 'following' | null;
@@ -14,38 +18,40 @@ type ProfileListItem = {
   isFollowing: boolean;
 };
 
-type SharedProfilePost = {
-  id: number;
-  author: string;
-  username: string;
-  avatar: string;
-  text: string;
-  image?: string;
-  imageAlt?: string;
-};
-
 type ProfileContentFilter = 'posts' | 'photos' | 'videos' | 'tagged';
 
 type ProfileMediaItem = {
   id: number;
   kind: ProfileContentFilter;
-  image: string;
+  text: string;
+  image?: string;
+  video?: string;
   alt: string;
 };
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './profile.html'
 })
-export class Profile {
+export class Profile implements OnInit {
   constructor(
+    protected readonly auth: Auth,
     private readonly feedback: Feedback,
+    private readonly postsService: Posts,
     protected readonly prefs: Preferences,
     protected readonly socialState: SocialState
   ) {}
 
   protected readonly isProfileEditorOpen = signal(false);
+  protected readonly isSavingProfile = signal(false);
+  protected readonly profileError = signal<string | null>(null);
+  protected readonly editName = signal('');
+  protected readonly editUsername = signal('');
+  protected readonly editPhoneNumber = signal('');
+  protected readonly editBio = signal('');
+  protected readonly editPrivacy = signal<'public' | 'private'>('public');
+  protected readonly isLoadingPosts = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
@@ -126,88 +132,42 @@ export class Profile {
       isFollowing: false
     }
   ]);
-  protected readonly sharedPosts: SharedProfilePost[] = [
-    {
-      id: 1,
-      author: 'Alex Rivera',
-      username: '@arivera.nz',
-      avatar: 'https://i.pravatar.cc/96?img=12',
-      text: 'Acabei de configurar meu novo espaço de trabalho! 🚀',
-      image: 'meza-membros/meza-06.jpeg',
-      imageAlt: 'Membros da Meza no stand do evento'
-    },
-    {
-      id: 2,
-      author: 'Sarah Chen',
-      username: '@schen.dev',
-      avatar: 'https://i.pravatar.cc/96?img=5',
-      text: 'A conectividade nesta plataforma é incrível. Realmente aproveitando as vibrações do glassmorphism e a navegação fluida.'
-    },
-    {
-      id: 3,
-      author: 'Karina Ribeiro',
-      username: '@karinaribeiro123_',
-      avatar: 'https://i.pravatar.cc/96?img=32',
-      text: 'A tarde perfeita para respirar, fotografar e guardar memórias.',
-      image: 'meza-membros/meza-01.jpeg',
-      imageAlt: 'Membros da Meza em conversa com visitantes'
-    },
-    {
-      id: 4,
-      author: 'David Miller',
-      username: '@miller_design',
-      avatar: 'https://i.pravatar.cc/96?img=18',
-      text: 'Novo painel para organizar ideias antes da próxima reunião.',
-      image: 'meza-membros/meza-07.jpeg',
-      imageAlt: 'Demonstração da Meza durante o evento'
-    }
-  ];
-  protected readonly mediaItems: ProfileMediaItem[] = [
-    {
-      id: 1,
-      kind: 'photos',
-      image: 'meza-membros/meza-02.jpeg',
-      alt: 'Registo de membros da Meza'
-    },
-    {
-      id: 2,
-      kind: 'posts',
-      image: 'meza-membros/meza-03.jpeg',
-      alt: 'Momento da equipa Meza'
-    },
-    {
-      id: 3,
-      kind: 'videos',
-      image: 'meza-membros/meza-09.jpeg',
-      alt: 'Vídeo da apresentação Meza'
-    },
-    {
-      id: 4,
-      kind: 'tagged',
-      image: 'meza-membros/meza-04.jpeg',
-      alt: 'Visitante no stand da Meza'
-    },
-    {
-      id: 5,
-      kind: 'photos',
-      image: 'meza-membros/meza-05.jpeg',
-      alt: 'Interação com membros da Meza'
-    },
-    {
-      id: 6,
-      kind: 'posts',
-      image: 'meza-membros/meza-10.jpeg',
-      alt: 'Stand da Meza no evento'
-    }
-  ];
+  protected readonly mediaItems = signal<ProfileMediaItem[]>([]);
   protected readonly filteredMediaItems = computed(() => {
     const filter = this.activeContentFilter();
-    return filter === 'posts'
-      ? this.mediaItems
-      : this.mediaItems.filter((item) => item.kind === filter);
+    const items = this.mediaItems();
+
+    if (filter === 'posts') {
+      return items;
+    }
+
+    if (filter === 'tagged') {
+      return [];
+    }
+
+    return items.filter((item) => item.kind === filter);
   });
+  protected readonly postsCount = computed(() => this.mediaItems().length);
+  protected readonly currentUser = computed(() => this.auth.currentUser());
+
+  ngOnInit(): void {
+    this.auth.me().subscribe({
+      next: ({ data }) => {
+        this.syncEditor(data);
+        this.loadUserPosts(data.id);
+      },
+      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
+    });
+  }
 
   protected openProfileEditor(): void {
+    const user = this.currentUser();
+
+    if (user) {
+      this.syncEditor(user);
+    }
+
+    this.profileError.set(null);
     this.isProfileEditorOpen.set(true);
   }
 
@@ -216,8 +176,57 @@ export class Profile {
   }
 
   protected saveProfile(): void {
-    this.isProfileEditorOpen.set(false);
-    this.feedback.show('Perfil atualizado.');
+    this.profileError.set(null);
+    this.isSavingProfile.set(true);
+    this.auth.updateProfile({
+      name: this.editName().trim(),
+      username: this.normalizeUsername(this.editUsername()),
+      phone_number: this.editPhoneNumber().trim() || null,
+      bio: this.editBio().trim() || null,
+      privacy: this.editPrivacy()
+    }).subscribe({
+      next: () => {
+        this.isSavingProfile.set(false);
+        this.isProfileEditorOpen.set(false);
+        this.feedback.show('Perfil atualizado.');
+      },
+      error: (error: unknown) => {
+        this.isSavingProfile.set(false);
+        this.profileError.set(this.errorMessage(error));
+      }
+    });
+  }
+
+  protected chooseProfilePhoto(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  protected changeProfilePhoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const photo = input.files?.[0];
+
+    if (!photo) {
+      return;
+    }
+
+    this.profileError.set(null);
+    this.auth.changeProfilePhoto(photo).subscribe({
+      next: () => this.feedback.show('Foto de perfil atualizada.'),
+      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
+    });
+    input.value = '';
+  }
+
+  protected profilePhotoUrl(user: CurrentUser | null = this.currentUser()): string {
+    return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/180?img=47';
+  }
+
+  protected username(user: CurrentUser | null = this.currentUser()): string {
+    if (user?.username) {
+      return `@${user.username}`;
+    }
+
+    return user?.email ? `@${user.email.split('@')[0]}` : '@utilizador';
   }
 
   protected setContentFilter(filter: ProfileContentFilter): void {
@@ -258,5 +267,63 @@ export class Profile {
       )
     );
     this.feedback.show('Sugestão atualizada.');
+  }
+
+  private loadUserPosts(userId: number): void {
+    this.isLoadingPosts.set(true);
+    this.postsService.feed(50).subscribe({
+      next: (response) => {
+        this.mediaItems.set(
+          response.data
+            .filter((post) => post.user_id === userId)
+            .map((post) => this.mapPostToMediaItem(post))
+        );
+        this.isLoadingPosts.set(false);
+      },
+      error: (error: unknown) => {
+        this.profileError.set(this.errorMessage(error));
+        this.isLoadingPosts.set(false);
+      }
+    });
+  }
+
+  private mapPostToMediaItem(post: ApiPost): ProfileMediaItem {
+    return {
+      id: post.id,
+      kind: post.video ? 'videos' : post.image ? 'photos' : 'posts',
+      text: post.content,
+      image: post.image ? `/storage/${post.image}` : undefined,
+      video: post.video ? `/storage/${post.video}` : undefined,
+      alt: `Publicação de ${post.author.name ?? 'utilizador'}`
+    };
+  }
+
+  private syncEditor(user: CurrentUser): void {
+    this.editName.set(user.name);
+    this.editUsername.set(user.username ?? '');
+    this.editPhoneNumber.set(user.phone_number ?? '');
+    this.editBio.set(user.bio ?? '');
+    this.editPrivacy.set(user.privacy);
+  }
+
+  private normalizeUsername(username: string): string | null {
+    const normalizedUsername = username.trim().replace(/^@+/, '');
+
+    return normalizedUsername || null;
+  }
+
+  private errorMessage(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse)) {
+      return 'Não foi possível concluir a operação.';
+    }
+
+    const validationErrors = error.error?.errors;
+    const firstValidationError = validationErrors ? Object.values(validationErrors)[0] : null;
+
+    if (Array.isArray(firstValidationError) && firstValidationError[0]) {
+      return String(firstValidationError[0]);
+    }
+
+    return error.error?.message || 'Não foi possível concluir a operação.';
   }
 }

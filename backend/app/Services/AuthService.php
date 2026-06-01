@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\DTOs\CurrentUserDTO;
 use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
 use App\DTOs\ResetPasswordDTO;
-use App\DTOs\UserDTO;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
@@ -20,22 +20,24 @@ class AuthService
         private readonly UserRepository $users,
     ) {}
 
-    public function register(RegisterDTO $dto): UserDTO
+    public function register(RegisterDTO $dto): CurrentUserDTO
     {
         $user = $this->users->create([
             'name' => $dto->name,
+            'username' => $dto->username,
             'email' => $dto->email,
+            'phone_number' => $dto->phoneNumber,
             'password' => Hash::make($dto->password),
             'bio' => null,
             'profile_photo' => null,
             'privacy' => 'public',
         ]);
 
-        return UserDTO::fromModel($user);
+        return CurrentUserDTO::fromModel($user);
     }
 
     /**
-     * @return array{user: UserDTO, token: string}
+     * @return array{user: CurrentUserDTO, token: string}
      */
     public function login(LoginDTO $dto): array
     {
@@ -48,7 +50,7 @@ class AuthService
         }
 
         return [
-            'user' => UserDTO::fromModel($user),
+            'user' => CurrentUserDTO::fromModel($user),
             'token' => $user->createToken('nzolanet-api-token')->plainTextToken,
         ];
     }

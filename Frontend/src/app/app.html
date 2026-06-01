@@ -84,17 +84,17 @@
       </div>
       <div class="relative">
         <button class="flex items-center gap-2" type="button" aria-label="Abrir menu do perfil" (click)="toggleProfileMenu()">
-          <img class="size-8 rounded-full object-cover ring-2 ring-white" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+          <img class="size-8 rounded-full object-cover ring-2 ring-white" [src]="auth.currentUser()?.profile_photo ? '/storage/' + auth.currentUser()?.profile_photo : 'https://i.pravatar.cc/96?img=47'" [alt]="auth.currentUser()?.name || 'Perfil'" />
           <svg class="hidden size-3.5 text-[#667085] sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
         </button>
 
         @if (isProfileMenuOpen()) {
           <section class="absolute right-0 top-11 w-[230px] overflow-hidden rounded-[8px] border border-[#e4eaf3] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]" aria-label="Menu do perfil">
             <div class="flex items-center gap-3 border-b border-[#eef1f6] bg-[#fbfcff] px-4 py-3">
-              <img class="size-10 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+              <img class="size-10 rounded-full object-cover" [src]="auth.currentUser()?.profile_photo ? '/storage/' + auth.currentUser()?.profile_photo : 'https://i.pravatar.cc/96?img=47'" [alt]="auth.currentUser()?.name || 'Perfil'" />
               <div class="min-w-0">
-                <p class="truncate text-[12px] font-bold text-[#111827]">Maria Guilhermina</p>
-                <p class="truncate text-[10px] text-[#8b95a7]">@gui123_</p>
+                <p class="truncate text-[12px] font-bold text-[#111827]">{{ auth.currentUser()?.name || 'Utilizador' }}</p>
+                <p class="truncate text-[10px] text-[#8b95a7]">{{ auth.currentUser()?.email || 'Sessão ativa' }}</p>
               </div>
             </div>
             <a class="flex h-11 items-center gap-3 px-4 text-[12px] font-bold text-[#28334b] hover:bg-[#f4f7fb]" routerLink="/profile" (click)="toggleProfileMenu()">

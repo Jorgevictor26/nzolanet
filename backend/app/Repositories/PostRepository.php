@@ -13,7 +13,7 @@ class PostRepository
     public function paginateFeed(int $perPage): LengthAwarePaginator
     {
         return Post::query()
-            ->with('user:id,name,profile_photo')
+            ->with('user:id,name,username,profile_photo')
             ->withCount(['likes', 'comments'])
             ->latest()
             ->paginate($perPage);
@@ -30,7 +30,7 @@ class PostRepository
     public function findById(int $id): ?Post
     {
         return Post::query()
-            ->with('user:id,name,profile_photo')
+            ->with('user:id,name,username,profile_photo')
             ->withCount(['likes', 'comments'])
             ->find($id);
     }
@@ -43,7 +43,7 @@ class PostRepository
         $post->fill($data)->save();
 
         return $post->refresh()
-            ->load('user:id,name,profile_photo')
+            ->load('user:id,name,username,profile_photo')
             ->loadCount(['likes', 'comments']);
     }
 
