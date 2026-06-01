@@ -1,4 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Auth, CurrentUser } from '../../core/auth';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
 import { SocialState } from '../../core/social-state';
@@ -35,17 +38,23 @@ type ProfileMediaItem = {
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './profile.html'
 })
-export class Profile {
+export class Profile implements OnInit {
   constructor(
+    protected readonly auth: Auth,
     private readonly feedback: Feedback,
     protected readonly prefs: Preferences,
     protected readonly socialState: SocialState
   ) {}
 
   protected readonly isProfileEditorOpen = signal(false);
+  protected readonly isSavingProfile = signal(false);
+  protected readonly profileError = signal<string | null>(null);
+  protected readonly editName = signal('');
+  protected readonly editBio = signal('');
+  protected readonly editPrivacy = signal<'public' | 'private'>('public');
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
@@ -206,8 +215,23 @@ export class Profile {
       ? this.mediaItems
       : this.mediaItems.filter((item) => item.kind === filter);
   });
+  protected readonly currentUser = computed(() => this.auth.currentUser());
+
+  ngOnInit(): void {
+    this.auth.me().subscribe({
+      next: ({ data }) => this.syncEditor(data),
+      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
+    });
+  }
 
   protected openProfileEditor(): void {
+    const user = this.currentUser();
+
+    if (user) {
+      this.syncEditor(user);
+    }
+
+    this.profileError.set(null);
     this.isProfileEditorOpen.set(true);
   }
 
@@ -216,8 +240,51 @@ export class Profile {
   }
 
   protected saveProfile(): void {
-    this.isProfileEditorOpen.set(false);
-    this.feedback.show('Perfil atualizado.');
+    this.profileError.set(null);
+    this.isSavingProfile.set(true);
+    this.auth.updateProfile({
+      name: this.editName().trim(),
+      bio: this.editBio().trim() || null,
+      privacy: this.editPrivacy()
+    }).subscribe({
+      next: () => {
+        this.isSavingProfile.set(false);
+        this.isProfileEditorOpen.set(false);
+        this.feedback.show('Perfil atualizado.');
+      },
+      error: (error: unknown) => {
+        this.isSavingProfile.set(false);
+        this.profileError.set(this.errorMessage(error));
+      }
+    });
+  }
+
+  protected chooseProfilePhoto(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  protected changeProfilePhoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const photo = input.files?.[0];
+
+    if (!photo) {
+      return;
+    }
+
+    this.profileError.set(null);
+    this.auth.changeProfilePhoto(photo).subscribe({
+      next: () => this.feedback.show('Foto de perfil atualizada.'),
+      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
+    });
+    input.value = '';
+  }
+
+  protected profilePhotoUrl(user: CurrentUser | null = this.currentUser()): string {
+    return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/180?img=47';
+  }
+
+  protected username(user: CurrentUser | null = this.currentUser()): string {
+    return user?.email ? `@${user.email.split('@')[0]}` : '@utilizador';
   }
 
   protected setContentFilter(filter: ProfileContentFilter): void {
@@ -258,5 +325,26 @@ export class Profile {
       )
     );
     this.feedback.show('Sugestão atualizada.');
+  }
+
+  private syncEditor(user: CurrentUser): void {
+    this.editName.set(user.name);
+    this.editBio.set(user.bio ?? '');
+    this.editPrivacy.set(user.privacy);
+  }
+
+  private errorMessage(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse)) {
+      return 'Não foi possível concluir a operação.';
+    }
+
+    const validationErrors = error.error?.errors;
+    const firstValidationError = validationErrors ? Object.values(validationErrors)[0] : null;
+
+    if (Array.isArray(firstValidationError) && firstValidationError[0]) {
+      return String(firstValidationError[0]);
+    }
+
+    return error.error?.message || 'Não foi possível concluir a operação.';
   }
 }

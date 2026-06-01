@@ -40,6 +40,12 @@ export class Auth {
     return this.tokenState();
   }
 
+  me(): Observable<UserResponse> {
+    return this.http.get<UserResponse>(`${environment.apiUrl}/users/me`).pipe(
+      tap((response) => this.storeUser(response.data))
+    );
+  }
+
   register(payload: { name: string; email: string; password: string }): Observable<{ data: PublicUser }> {
     return this.http.post<{ data: PublicUser }>(`${environment.apiUrl}/auth/register`, payload);
   }

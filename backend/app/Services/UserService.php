@@ -47,12 +47,13 @@ class UserService
 
     public function changeProfilePhoto(User $user, ChangeProfilePhotoDTO $dto): CurrentUserDTO
     {
-        if ($user->profile_photo) {
-            Storage::disk('public')->delete($user->profile_photo);
-        }
-
         $path = $dto->photo->store('profile-photos', 'public');
+        $previousPhoto = $user->profile_photo;
         $updatedUser = $this->users->updateProfilePhoto($user, $path);
+
+        if ($previousPhoto) {
+            Storage::disk('public')->delete($previousPhoto);
+        }
 
         return CurrentUserDTO::fromModel($updatedUser);
     }

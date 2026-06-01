@@ -50,7 +50,7 @@ class UserController extends Controller
     {
         $user = $this->userService->changeProfilePhoto(
             $request->user(),
-            new ChangeProfilePhotoDTO($request->file('photo')),
+            ChangeProfilePhotoDTO::fromArray($request->validated()),
         );
 
         return response()->json([
