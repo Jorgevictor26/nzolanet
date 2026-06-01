@@ -7,7 +7,6 @@ use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
 use App\DTOs\ResetPasswordDTO;
-use App\DTOs\UserDTO;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
@@ -21,18 +20,20 @@ class AuthService
         private readonly UserRepository $users,
     ) {}
 
-    public function register(RegisterDTO $dto): UserDTO
+    public function register(RegisterDTO $dto): CurrentUserDTO
     {
         $user = $this->users->create([
             'name' => $dto->name,
+            'username' => $dto->username,
             'email' => $dto->email,
+            'phone_number' => $dto->phoneNumber,
             'password' => Hash::make($dto->password),
             'bio' => null,
             'profile_photo' => null,
             'privacy' => 'public',
         ]);
 
-        return UserDTO::fromModel($user);
+        return CurrentUserDTO::fromModel($user);
     }
 
     /**

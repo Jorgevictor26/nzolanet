@@ -53,6 +53,8 @@ export class Profile implements OnInit {
   protected readonly isSavingProfile = signal(false);
   protected readonly profileError = signal<string | null>(null);
   protected readonly editName = signal('');
+  protected readonly editUsername = signal('');
+  protected readonly editPhoneNumber = signal('');
   protected readonly editBio = signal('');
   protected readonly editPrivacy = signal<'public' | 'private'>('public');
   protected readonly activeModal = signal<ProfileListModal>(null);
@@ -244,6 +246,8 @@ export class Profile implements OnInit {
     this.isSavingProfile.set(true);
     this.auth.updateProfile({
       name: this.editName().trim(),
+      username: this.normalizeUsername(this.editUsername()),
+      phone_number: this.editPhoneNumber().trim() || null,
       bio: this.editBio().trim() || null,
       privacy: this.editPrivacy()
     }).subscribe({
@@ -284,6 +288,10 @@ export class Profile implements OnInit {
   }
 
   protected username(user: CurrentUser | null = this.currentUser()): string {
+    if (user?.username) {
+      return `@${user.username}`;
+    }
+
     return user?.email ? `@${user.email.split('@')[0]}` : '@utilizador';
   }
 
@@ -329,8 +337,16 @@ export class Profile implements OnInit {
 
   private syncEditor(user: CurrentUser): void {
     this.editName.set(user.name);
+    this.editUsername.set(user.username ?? '');
+    this.editPhoneNumber.set(user.phone_number ?? '');
     this.editBio.set(user.bio ?? '');
     this.editPrivacy.set(user.privacy);
+  }
+
+  private normalizeUsername(username: string): string | null {
+    const normalizedUsername = username.trim().replace(/^@+/, '');
+
+    return normalizedUsername || null;
   }
 
   private errorMessage(error: unknown): string {

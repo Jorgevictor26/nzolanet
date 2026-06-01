@@ -187,6 +187,8 @@ export class Login {
     this.runRequest(() =>
       this.auth.updateProfile({
         name: user.name,
+        username: user.username,
+        phone_number: user.phone_number,
         bio: this.bio().trim() || null,
         privacy: user.privacy
       }).subscribe({

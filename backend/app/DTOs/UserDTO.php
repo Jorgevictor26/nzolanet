@@ -9,6 +9,7 @@ readonly class UserDTO
     public function __construct(
         public int $id,
         public string $name,
+        public ?string $username,
         public ?string $bio,
         public ?string $profilePhoto,
         public string $privacy,
@@ -19,6 +20,7 @@ readonly class UserDTO
         return new self(
             id: $user->id,
             name: $user->name,
+            username: $user->username,
             bio: $user->bio,
             profilePhoto: $user->profile_photo,
             privacy: $user->privacy,
@@ -33,6 +35,7 @@ readonly class UserDTO
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'username' => $this->username,
             'bio' => $this->bio,
             'profile_photo' => $this->profilePhoto,
             'privacy' => $this->privacy,

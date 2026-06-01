@@ -6,13 +6,13 @@ import { environment } from '../../environments/environment';
 export type CurrentUser = {
   id: number;
   name: string;
+  username: string | null;
   email: string;
+  phone_number: string | null;
   bio: string | null;
   profile_photo: string | null;
   privacy: 'public' | 'private';
 };
-
-type PublicUser = Omit<CurrentUser, 'email'>;
 
 type AuthResponse = {
   data: CurrentUser;
@@ -46,8 +46,14 @@ export class Auth {
     );
   }
 
-  register(payload: { name: string; email: string; password: string }): Observable<{ data: PublicUser }> {
-    return this.http.post<{ data: PublicUser }>(`${environment.apiUrl}/auth/register`, payload);
+  register(payload: {
+    name: string;
+    username?: string | null;
+    email: string;
+    phone_number?: string | null;
+    password: string;
+  }): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${environment.apiUrl}/auth/register`, payload);
   }
 
   login(payload: { email: string; password: string }): Observable<AuthResponse> {
@@ -75,7 +81,13 @@ export class Auth {
     return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, payload);
   }
 
-  updateProfile(payload: { name: string; bio: string | null; privacy: 'public' | 'private' }): Observable<UserResponse> {
+  updateProfile(payload: {
+    name: string;
+    username: string | null;
+    phone_number: string | null;
+    bio: string | null;
+    privacy: 'public' | 'private';
+  }): Observable<UserResponse> {
     return this.http.put<UserResponse>(`${environment.apiUrl}/users/profile`, payload).pipe(
       tap((response) => this.storeUser(response.data))
     );

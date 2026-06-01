@@ -19,14 +19,18 @@ class AuthTest extends TestCase
     {
         $response = $this->postJson('/api/auth/register', [
             'name' => 'Jorge Victor',
+            'username' => 'jorge.victor',
             'email' => 'jorge@example.com',
+            'phone_number' => '+244 921 000 000',
             'password' => 'password',
         ]);
 
         $response
             ->assertCreated()
             ->assertJsonPath('data.name', 'Jorge Victor')
+            ->assertJsonPath('data.username', 'jorge.victor')
             ->assertJsonPath('data.email', 'jorge@example.com')
+            ->assertJsonPath('data.phone_number', '+244 921 000 000')
             ->assertJsonPath('data.bio', null)
             ->assertJsonPath('data.profile_photo', null)
             ->assertJsonPath('data.privacy', 'public')
@@ -34,6 +38,8 @@ class AuthTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'jorge@example.com',
+            'username' => 'jorge.victor',
+            'phone_number' => '+244 921 000 000',
             'privacy' => 'public',
             'bio' => null,
             'profile_photo' => null,

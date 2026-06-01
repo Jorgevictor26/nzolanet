@@ -16,6 +16,8 @@ class UserProfileTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => 'Jorge Victor',
+            'username' => 'jorge.victor',
+            'phone_number' => '+244 921 000 000',
             'privacy' => 'private',
         ]);
 
@@ -27,6 +29,8 @@ class UserProfileTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.id', $user->id)
             ->assertJsonPath('data.name', 'Jorge Victor')
+            ->assertJsonPath('data.username', 'jorge.victor')
+            ->assertJsonPath('data.phone_number', '+244 921 000 000')
             ->assertJsonPath('data.privacy', 'private')
             ->assertJsonMissing(['password']);
     }
@@ -36,6 +40,8 @@ class UserProfileTest extends TestCase
         $viewer = User::factory()->create();
         $profile = User::factory()->create([
             'name' => 'Public User',
+            'username' => 'public.user',
+            'phone_number' => '+244 921 111 111',
             'privacy' => 'public',
         ]);
 
@@ -46,7 +52,9 @@ class UserProfileTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('data.id', $profile->id)
-            ->assertJsonPath('data.name', 'Public User');
+            ->assertJsonPath('data.name', 'Public User')
+            ->assertJsonPath('data.username', 'public.user')
+            ->assertJsonMissing(['phone_number']);
     }
 
     public function test_authenticated_user_cannot_view_private_profile_from_another_user(): void
@@ -67,6 +75,8 @@ class UserProfileTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => 'Old Name',
+            'username' => 'old.name',
+            'phone_number' => '+244 921 222 222',
             'bio' => null,
             'privacy' => 'public',
         ]);
@@ -75,6 +85,8 @@ class UserProfileTest extends TestCase
             ->actingAs($user, 'sanctum')
             ->putJson('/api/users/profile', [
                 'name' => 'New Name',
+                'username' => 'new.name',
+                'phone_number' => '+244 921 333 333',
                 'bio' => 'Backend engineer at NzolaNet.',
                 'privacy' => 'private',
             ]);
@@ -82,12 +94,16 @@ class UserProfileTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('data.name', 'New Name')
+            ->assertJsonPath('data.username', 'new.name')
+            ->assertJsonPath('data.phone_number', '+244 921 333 333')
             ->assertJsonPath('data.bio', 'Backend engineer at NzolaNet.')
             ->assertJsonPath('data.privacy', 'private');
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'New Name',
+            'username' => 'new.name',
+            'phone_number' => '+244 921 333 333',
             'bio' => 'Backend engineer at NzolaNet.',
             'privacy' => 'private',
         ]);

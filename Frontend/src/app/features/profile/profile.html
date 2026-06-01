@@ -238,7 +238,7 @@
 
             <label class="block">
               <span class="text-[9px] font-bold text-[#a2abbb]">Nome de Utilizador</span>
-              <input class="mt-1 h-9 w-full rounded-[8px] bg-[#eef2f7] px-3 text-[12px] font-semibold text-[#667085] outline-none" [value]="username()" readonly />
+              <input class="mt-1 h-9 w-full rounded-[8px] bg-[#f5f3ff] px-3 text-[12px] font-semibold text-[#334155] outline-none" name="editUsername" placeholder="ex: jorge.victor" [ngModel]="editUsername()" (ngModelChange)="editUsername.set($event)" />
             </label>
 
             <label class="block sm:col-span-2">
@@ -253,7 +253,7 @@
 
             <label class="block">
               <span class="text-[9px] font-bold text-[#a2abbb]">N&uacute;mero de telefone</span>
-              <input class="mt-1 h-9 w-full rounded-[8px] bg-[#f5f3ff] px-3 text-[12px] font-semibold text-[#334155] outline-none" value="+244 921 552 231" />
+              <input class="mt-1 h-9 w-full rounded-[8px] bg-[#f5f3ff] px-3 text-[12px] font-semibold text-[#334155] outline-none" name="editPhoneNumber" placeholder="+244 900 000 000" [ngModel]="editPhoneNumber()" (ngModelChange)="editPhoneNumber.set($event)" />
             </label>
 
             <label class="block">
