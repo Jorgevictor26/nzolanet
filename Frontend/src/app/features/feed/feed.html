@@ -51,7 +51,17 @@
             <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
           </button>
           @if (openPostMenuId() === post.id) {
-            <div class="absolute right-5 top-12 z-10 w-36 rounded-[8px] border border-[#edf1f6] bg-white p-1 shadow-xl">
+            <div class="absolute right-5 top-12 z-10 w-40 rounded-[8px] border border-[#edf1f6] bg-white p-1 shadow-xl">
+              @if (canManagePost(post)) {
+                <button class="flex h-9 w-full items-center gap-2 rounded-[6px] px-3 text-left text-[12px] font-semibold text-[#1f2944] hover:bg-[#f5f7fb]" type="button" (click)="$event.stopPropagation(); editPost(post.id)">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" /></svg>
+                  Editar post
+                </button>
+                <button class="flex h-9 w-full items-center gap-2 rounded-[6px] px-3 text-left text-[12px] font-semibold text-[#be123c] hover:bg-[#fff1f2]" type="button" [disabled]="isPostDeleting(post.id)" (click)="$event.stopPropagation(); deletePost(post.id)">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v5M14 11v5" /></svg>
+                  {{ isPostDeleting(post.id) ? 'A apagar...' : 'Apagar post' }}
+                </button>
+              }
               <button class="flex h-9 w-full items-center gap-2 rounded-[6px] px-3 text-left text-[12px] font-semibold text-[#1f2944] hover:bg-[#f5f7fb]" type="button" (click)="$event.stopPropagation(); hidePost(post.id)">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18" /><path d="M10.6 10.6A2 2 0 0 0 12 14a2 2 0 0 0 1.4-.6" /><path d="M9.9 4.2A10.4 10.4 0 0 1 12 4c6.5 0 10 8 10 8a15.3 15.3 0 0 1-3 4.2" /><path d="M6.6 6.6C3.6 8.6 2 12 2 12s3.5 8 10 8a10 10 0 0 0 4.1-.9" /></svg>
                 Ocultar post
@@ -420,6 +430,14 @@
         </div>
 
         <div class="mt-4 space-y-3">
+          @if (isLoadingComments()) {
+            <p class="rounded-[8px] bg-[#f5f7fb] px-3 py-2 text-[12px] font-semibold text-[#667085]">A carregar comentários...</p>
+          } @else if (commentsError()) {
+            <div class="rounded-[8px] border border-[#fecdd3] bg-[#fff1f2] px-3 py-2 text-[12px] font-semibold text-[#be123c]">
+              {{ commentsError() }}
+              <button class="ml-2 text-[#1f6fff]" type="button" (click)="loadComments(post.id)">Tentar novamente</button>
+            </div>
+          }
           @for (comment of activePostComments(); track comment.id) {
             <article class="flex items-start gap-3">
               <img class="size-9 rounded-full object-cover" [src]="comment.avatar" [alt]="comment.author" />
@@ -427,15 +445,17 @@
                 <div class="flex items-center gap-2">
                   <h4 class="truncate text-[12px] font-bold text-[#111827]">{{ comment.author }}</h4>
                   <span class="text-[9px] text-[#8b95a7]">{{ comment.time }}</span>
+                  @if (canManageComment(comment)) {
+                    <button class="ml-auto text-[10px] font-bold text-[#be123c] hover:text-[#9f1239]" type="button" (click)="deleteComment(comment)">Apagar</button>
+                  }
                 </div>
                 <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
-                @if (comment.attachment) {
-                  <span class="mt-2 inline-flex h-7 items-center rounded-[6px] bg-white px-2 text-[10px] font-bold text-[#1f6fff]">
-                    {{ attachmentLabel(comment.attachment) }}
-                  </span>
-                }
               </div>
             </article>
+          } @empty {
+            @if (!isLoadingComments() && !commentsError()) {
+              <p class="rounded-[8px] bg-[#f5f7fb] px-3 py-2 text-[12px] font-semibold text-[#667085]">Ainda não há comentários.</p>
+            }
           }
         </div>
       </div>
@@ -463,7 +483,7 @@
               }
             </div>
           </div>
-          <button class="grid size-10 shrink-0 place-items-center rounded-[8px] bg-[#1f2944] text-white" type="button" aria-label="Publicar comentário" (click)="submitComment(commentText.value); commentText.value = ''">
+          <button class="grid size-10 shrink-0 place-items-center rounded-[8px] bg-[#1f2944] text-white disabled:cursor-not-allowed disabled:opacity-60" type="button" aria-label="Publicar comentário" [disabled]="isSubmittingComment()" (click)="submitComment(commentText)">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
           </button>
         </div>
@@ -480,7 +500,7 @@
         <div class="flex min-w-0 items-center gap-3">
           <img class="size-9 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
           <div class="min-w-0">
-            <h2 id="composer-title" class="truncate text-[13px] font-bold leading-5 text-[#111827]">{{ auth.currentUser()?.name || 'Utilizador' }}</h2>
+            <h2 id="composer-title" class="truncate text-[13px] font-bold leading-5 text-[#111827]">{{ editingPostId() ? 'Editar publicação' : (auth.currentUser()?.name || 'Utilizador') }}</h2>
             <button class="inline-flex items-center gap-1 text-[10px] font-semibold text-[#667085]" type="button">
               {{ prefs.t('publicAccount') }}
               <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
@@ -524,6 +544,17 @@
               <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
           </div>
+        } @else if (activeEditingPost(); as editingPost) {
+          @if (editingPost.image || editingPost.video) {
+            <div class="mt-3 overflow-hidden rounded-[8px] border border-[#edf1f6]">
+              @if (editingPost.image) {
+                <img class="max-h-[280px] w-full object-cover" [src]="editingPost.image" [alt]="editingPost.imageAlt" />
+              } @else if (editingPost.video) {
+                <video class="max-h-[280px] w-full bg-black object-contain" [src]="editingPost.video" controls playsinline preload="metadata"></video>
+              }
+              <p class="px-3 py-2 text-[10px] font-semibold text-[#667085]">Escolhe outro ficheiro para substituir a mídia atual.</p>
+            </div>
+          }
         }
 
         <div class="mt-5">
@@ -586,7 +617,7 @@
         <div class="flex items-center justify-between gap-3">
           <button class="h-9 rounded-[6px] border border-[#edf1f6] px-4 text-[11px] font-semibold text-[#1f2944] hover:bg-[#f5f7fb]" type="button" (click)="saveComposerDraft()">{{ prefs.language() === 'pt' ? 'Salvar rascunho' : 'Save draft' }}</button>
           <button [class]="canPublishComposer() ? 'inline-flex h-10 items-center gap-2 rounded-[8px] bg-[#1f2944] px-5 text-[12px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60' : 'inline-flex h-10 items-center gap-2 rounded-[8px] bg-[#c7ceda] px-5 text-[12px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60'" type="button" (click)="publishPost()" [disabled]="!canPublishComposer() || isPublishingPost()">
-            {{ isPublishingPost() ? 'A publicar...' : (prefs.language() === 'pt' ? 'Publicar Post' : 'Publish Post') }}
+            {{ isPublishingPost() ? (editingPostId() ? 'A atualizar...' : 'A publicar...') : (editingPostId() ? 'Guardar alterações' : (prefs.language() === 'pt' ? 'Publicar Post' : 'Publish Post')) }}
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
           </button>
         </div>
