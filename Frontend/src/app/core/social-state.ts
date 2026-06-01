@@ -17,8 +17,20 @@ export class SocialState {
     return this.sharedPostIds().has(postId);
   }
 
+  togglePostShare(postId: number): boolean {
+    const nextIsShared = !this.sharedPostIds().has(postId);
+
+    this.sharedPostIds.update((postIds) => {
+      const nextPostIds = new Set(postIds);
+      nextIsShared ? nextPostIds.add(postId) : nextPostIds.delete(postId);
+      return nextPostIds;
+    });
+
+    return nextIsShared;
+  }
+
   sharePost(postId: number): void {
-    this.sharedPostIds.update((postIds) => new Set(postIds).add(postId));
+    this.togglePostShare(postId);
   }
 
   isPostFavorite(postId: number): boolean {

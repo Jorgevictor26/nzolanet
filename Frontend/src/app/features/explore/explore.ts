@@ -175,8 +175,8 @@ export class Explore {
   }
 
   protected shareItem(itemId: number): void {
-    this.socialState.sharePost(itemId);
-    this.feedback.show('Publicação partilhada.');
+    const isShared = this.socialState.togglePostShare(itemId);
+    this.feedback.show(isShared ? 'Publicação partilhada.' : 'Partilha removida.', isShared ? 'success' : 'info');
   }
 
   protected submitComment(text: string): void {

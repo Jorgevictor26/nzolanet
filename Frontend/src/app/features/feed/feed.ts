@@ -40,12 +40,15 @@ export class Feed {
   protected readonly selectedCommentAttachment = signal<CommentAttachment>(null);
   protected readonly likedPostIds = signal<Set<number>>(new Set());
   protected readonly followedProfileIds = signal<Set<number>>(new Set());
+  protected readonly hiddenPostIds = signal<Set<number>>(new Set());
+  protected readonly openPostMenuId = signal<number | null>(null);
   protected readonly createdPosts = signal<FeedPost[]>([]);
   protected readonly composerText = signal('');
   protected readonly composerMediaUrl = signal<string | null>(null);
   protected readonly composerMediaKind = signal<'image' | 'video' | null>(null);
   protected readonly composerMediaName = signal('');
-  protected readonly composerLocation = signal('');
+  protected readonly composerHashtag = signal('');
+  protected readonly isHashtagComposerOpen = signal(false);
   protected readonly savedDraft = signal('');
   protected readonly composerLimit = 280;
   protected readonly posts: FeedPost[] = [
@@ -140,7 +143,9 @@ export class Feed {
       }
     ]
   });
-  protected readonly allPosts = computed(() => [...this.createdPosts(), ...this.posts]);
+  protected readonly allPosts = computed(() =>
+    [...this.createdPosts(), ...this.posts].filter((post) => !this.hiddenPostIds().has(post.id))
+  );
   protected readonly activeCommentPost = computed(() =>
     this.allPosts().find((post) => post.id === this.activeCommentPostId()) ?? null
   );
@@ -197,18 +202,28 @@ export class Feed {
   }
 
   protected insertComposerHashtag(): void {
+    this.isHashtagComposerOpen.update((isOpen) => !isOpen);
+  }
+
+  protected updateComposerHashtag(value: string): void {
+    this.composerHashtag.set(value.replace(/[^\p{L}\p{N}_-]/gu, '').slice(0, 32));
+  }
+
+  protected addComposerHashtag(): void {
+    const hashtag = this.composerHashtag().trim();
+
+    if (!hashtag) {
+      this.feedback.show('Escreve a hashtag antes de adicionar.', 'info');
+      return;
+    }
+
+    const normalizedHashtag = `#${hashtag.replace(/^#+/, '')}`;
     const currentText = this.composerText().trimEnd();
     const separator = currentText ? ' ' : '';
-    this.updateComposerText(`${currentText}${separator}#NzolaNet`);
-  }
-
-  protected toggleComposerLocation(): void {
-    this.composerLocation.update((location) => location ? '' : 'Luanda, Angola');
-    this.feedback.show(this.composerLocation() ? 'Localização adicionada.' : 'Localização removida.', 'info');
-  }
-
-  protected addComposerEmoji(): void {
-    this.updateComposerText(`${this.composerText()} :)`);
+    this.updateComposerText(`${currentText}${separator}${normalizedHashtag}`);
+    this.composerHashtag.set('');
+    this.isHashtagComposerOpen.set(false);
+    this.feedback.show('Hashtag adicionada.', 'success');
   }
 
   protected saveComposerDraft(): void {
@@ -226,7 +241,7 @@ export class Feed {
     const nextPost: FeedPost = {
       id: Date.now(),
       author: 'Maria Guilhermina',
-      username: this.composerLocation() ? `@maria.g · ${this.composerLocation()}` : '@maria.g',
+      username: '@maria.g',
       avatar: 'https://i.pravatar.cc/96?img=47',
       time: 'Agora',
       text,
@@ -280,8 +295,23 @@ export class Feed {
   }
 
   protected sharePost(postId: number): void {
-    this.socialState.sharePost(postId);
-    this.feedback.show('Publicação partilhada.');
+    const isShared = this.socialState.togglePostShare(postId);
+    this.feedback.show(isShared ? 'Publicação partilhada.' : 'Partilha removida.', isShared ? 'success' : 'info');
+  }
+
+  protected togglePostMenu(postId: number): void {
+    this.openPostMenuId.update((currentPostId) => currentPostId === postId ? null : postId);
+  }
+
+  protected hidePost(postId: number): void {
+    this.hiddenPostIds.update((postIds) => new Set(postIds).add(postId));
+    this.openPostMenuId.set(null);
+
+    if (this.activeCommentPostId() === postId) {
+      this.closeComments();
+    }
+
+    this.feedback.show('Publicação ocultada.', 'info');
   }
 
   protected openComments(postId: number): void {
@@ -372,8 +402,9 @@ export class Feed {
       return;
     }
 
-    const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
+    const fileName = file.name.toLowerCase();
+    const isImage = file.type.startsWith('image/') || /\.(avif|gif|jpe?g|png|webp)$/i.test(fileName);
+    const isVideo = file.type.startsWith('video/') || /\.(m4v|mov|mp4|ogg|ogv|webm)$/i.test(fileName);
 
     if (!isImage && !isVideo) {
       this.feedback.show('Escolhe uma imagem ou um vídeo.', 'info');
@@ -394,7 +425,8 @@ export class Feed {
 
   private resetComposer(): void {
     this.composerText.set('');
-    this.composerLocation.set('');
+    this.composerHashtag.set('');
+    this.isHashtagComposerOpen.set(false);
     this.clearComposerMedia();
   }
 
