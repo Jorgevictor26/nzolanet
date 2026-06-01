@@ -40,7 +40,7 @@ class PostService
         ]);
 
         return PostDTO::fromModel(
-            $post->load('user:id,name,profile_photo')
+            $post->load('user:id,name,username,profile_photo')
                 ->loadCount(['likes', 'comments'])
         );
     }

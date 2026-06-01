@@ -10,6 +10,7 @@ readonly class PostDTO
         public int $id,
         public int $userId,
         public ?string $authorName,
+        public ?string $authorUsername,
         public ?string $authorProfilePhoto,
         public string $content,
         public ?string $image,
@@ -26,6 +27,7 @@ readonly class PostDTO
             id: $post->id,
             userId: $post->user_id,
             authorName: $post->user?->name,
+            authorUsername: $post->user?->username,
             authorProfilePhoto: $post->user?->profile_photo,
             content: $post->content,
             image: $post->image,
@@ -47,6 +49,7 @@ readonly class PostDTO
             'user_id' => $this->userId,
             'author' => [
                 'name' => $this->authorName,
+                'username' => $this->authorUsername,
                 'profile_photo' => $this->authorProfilePhoto,
             ],
             'content' => $this->content,

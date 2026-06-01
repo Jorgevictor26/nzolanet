@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Auth, CurrentUser } from '../../core/auth';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
+import { ApiPost, Posts } from '../../core/posts';
 import { SocialState } from '../../core/social-state';
 
 type ProfileListModal = 'followers' | 'following' | null;
@@ -17,22 +18,14 @@ type ProfileListItem = {
   isFollowing: boolean;
 };
 
-type SharedProfilePost = {
-  id: number;
-  author: string;
-  username: string;
-  avatar: string;
-  text: string;
-  image?: string;
-  imageAlt?: string;
-};
-
 type ProfileContentFilter = 'posts' | 'photos' | 'videos' | 'tagged';
 
 type ProfileMediaItem = {
   id: number;
   kind: ProfileContentFilter;
-  image: string;
+  text: string;
+  image?: string;
+  video?: string;
   alt: string;
 };
 
@@ -45,6 +38,7 @@ export class Profile implements OnInit {
   constructor(
     protected readonly auth: Auth,
     private readonly feedback: Feedback,
+    private readonly postsService: Posts,
     protected readonly prefs: Preferences,
     protected readonly socialState: SocialState
   ) {}
@@ -57,6 +51,7 @@ export class Profile implements OnInit {
   protected readonly editPhoneNumber = signal('');
   protected readonly editBio = signal('');
   protected readonly editPrivacy = signal<'public' | 'private'>('public');
+  protected readonly isLoadingPosts = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly followers = signal<ProfileListItem[]>([
@@ -137,91 +132,30 @@ export class Profile implements OnInit {
       isFollowing: false
     }
   ]);
-  protected readonly sharedPosts: SharedProfilePost[] = [
-    {
-      id: 1,
-      author: 'Alex Rivera',
-      username: '@arivera.nz',
-      avatar: 'https://i.pravatar.cc/96?img=12',
-      text: 'Acabei de configurar meu novo espaço de trabalho! 🚀',
-      image: 'meza-membros/meza-06.jpeg',
-      imageAlt: 'Membros da Meza no stand do evento'
-    },
-    {
-      id: 2,
-      author: 'Sarah Chen',
-      username: '@schen.dev',
-      avatar: 'https://i.pravatar.cc/96?img=5',
-      text: 'A conectividade nesta plataforma é incrível. Realmente aproveitando as vibrações do glassmorphism e a navegação fluida.'
-    },
-    {
-      id: 3,
-      author: 'Karina Ribeiro',
-      username: '@karinaribeiro123_',
-      avatar: 'https://i.pravatar.cc/96?img=32',
-      text: 'A tarde perfeita para respirar, fotografar e guardar memórias.',
-      image: 'meza-membros/meza-01.jpeg',
-      imageAlt: 'Membros da Meza em conversa com visitantes'
-    },
-    {
-      id: 4,
-      author: 'David Miller',
-      username: '@miller_design',
-      avatar: 'https://i.pravatar.cc/96?img=18',
-      text: 'Novo painel para organizar ideias antes da próxima reunião.',
-      image: 'meza-membros/meza-07.jpeg',
-      imageAlt: 'Demonstração da Meza durante o evento'
-    }
-  ];
-  protected readonly mediaItems: ProfileMediaItem[] = [
-    {
-      id: 1,
-      kind: 'photos',
-      image: 'meza-membros/meza-02.jpeg',
-      alt: 'Registo de membros da Meza'
-    },
-    {
-      id: 2,
-      kind: 'posts',
-      image: 'meza-membros/meza-03.jpeg',
-      alt: 'Momento da equipa Meza'
-    },
-    {
-      id: 3,
-      kind: 'videos',
-      image: 'meza-membros/meza-09.jpeg',
-      alt: 'Vídeo da apresentação Meza'
-    },
-    {
-      id: 4,
-      kind: 'tagged',
-      image: 'meza-membros/meza-04.jpeg',
-      alt: 'Visitante no stand da Meza'
-    },
-    {
-      id: 5,
-      kind: 'photos',
-      image: 'meza-membros/meza-05.jpeg',
-      alt: 'Interação com membros da Meza'
-    },
-    {
-      id: 6,
-      kind: 'posts',
-      image: 'meza-membros/meza-10.jpeg',
-      alt: 'Stand da Meza no evento'
-    }
-  ];
+  protected readonly mediaItems = signal<ProfileMediaItem[]>([]);
   protected readonly filteredMediaItems = computed(() => {
     const filter = this.activeContentFilter();
-    return filter === 'posts'
-      ? this.mediaItems
-      : this.mediaItems.filter((item) => item.kind === filter);
+    const items = this.mediaItems();
+
+    if (filter === 'posts') {
+      return items;
+    }
+
+    if (filter === 'tagged') {
+      return [];
+    }
+
+    return items.filter((item) => item.kind === filter);
   });
+  protected readonly postsCount = computed(() => this.mediaItems().length);
   protected readonly currentUser = computed(() => this.auth.currentUser());
 
   ngOnInit(): void {
     this.auth.me().subscribe({
-      next: ({ data }) => this.syncEditor(data),
+      next: ({ data }) => {
+        this.syncEditor(data);
+        this.loadUserPosts(data.id);
+      },
       error: (error: unknown) => this.profileError.set(this.errorMessage(error))
     });
   }
@@ -333,6 +267,35 @@ export class Profile implements OnInit {
       )
     );
     this.feedback.show('Sugestão atualizada.');
+  }
+
+  private loadUserPosts(userId: number): void {
+    this.isLoadingPosts.set(true);
+    this.postsService.feed(50).subscribe({
+      next: (response) => {
+        this.mediaItems.set(
+          response.data
+            .filter((post) => post.user_id === userId)
+            .map((post) => this.mapPostToMediaItem(post))
+        );
+        this.isLoadingPosts.set(false);
+      },
+      error: (error: unknown) => {
+        this.profileError.set(this.errorMessage(error));
+        this.isLoadingPosts.set(false);
+      }
+    });
+  }
+
+  private mapPostToMediaItem(post: ApiPost): ProfileMediaItem {
+    return {
+      id: post.id,
+      kind: post.video ? 'videos' : post.image ? 'photos' : 'posts',
+      text: post.content,
+      image: post.image ? `/storage/${post.image}` : undefined,
+      video: post.video ? `/storage/${post.video}` : undefined,
+      alt: `Publicação de ${post.author.name ?? 'utilizador'}`
+    };
   }
 
   private syncEditor(user: CurrentUser): void {

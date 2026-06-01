@@ -4,7 +4,7 @@
 
     <section class="mb-4 rounded-[8px] bg-white p-3 shadow-sm">
       <div class="flex items-center gap-2 min-[380px]:gap-3">
-        <img class="size-9 shrink-0 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+        <img class="size-9 shrink-0 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
         <button class="h-9 min-w-0 flex-1 rounded-full bg-[#f5f7fb] px-3 text-left text-[11px] font-medium text-[#b7bfcd] min-[380px]:px-4 min-[380px]:text-[12px]" type="button" (click)="openComposer()">
           {{ prefs.language() === 'pt' ? 'Em que estás a pensar?' : 'What are you thinking?' }}
         </button>
@@ -22,6 +22,77 @@
       </div>
     </section>
 
+    @if (isLoadingPosts()) {
+      <section class="rounded-[8px] bg-white p-5 text-[13px] font-semibold text-[#667085] shadow-sm">
+        A carregar publicações...
+      </section>
+    } @else if (postsError()) {
+      <section class="rounded-[8px] border border-[#fecdd3] bg-[#fff1f2] p-5 text-[13px] font-semibold text-[#be123c] shadow-sm">
+        {{ postsError() }}
+        <button class="ml-3 text-[#1f6fff]" type="button" (click)="loadPosts()">Tentar novamente</button>
+      </section>
+    } @else if (!posts().length) {
+      <section class="rounded-[8px] bg-white p-5 text-[13px] font-semibold text-[#667085] shadow-sm">
+        Ainda não há publicações.
+      </section>
+    }
+
+    @for (post of posts(); track post.id) {
+      <article class="mb-5 cursor-pointer overflow-hidden rounded-[8px] bg-white shadow-sm" (click)="openPostDetails(post.id)">
+        <header class="flex items-start justify-between px-5 pt-4">
+          <div class="flex items-start gap-3">
+            <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+            <div class="min-w-0">
+              <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" routerLink="/visitor-profile" (click)="$event.stopPropagation()">{{ post.author }}</a>
+              <p class="text-[11px] text-[#8b95a7]">{{ post.username }} &middot; {{ post.time }}</p>
+            </div>
+          </div>
+          <button class="grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb]" type="button" aria-label="Mais opcoes" (click)="$event.stopPropagation()">
+            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+          </button>
+        </header>
+
+        <div class="px-5 py-3">
+          <p class="whitespace-pre-line text-[13px] leading-5 text-[#24304c]">{{ post.text }}</p>
+        </div>
+
+        @if (post.image) {
+          <div class="px-5">
+            <img class="h-[220px] w-full rounded-[6px] object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" [src]="post.image" [alt]="post.imageAlt" />
+          </div>
+        }
+
+        @if (post.video) {
+          <div class="px-5">
+            <video class="h-[220px] w-full rounded-[6px] bg-black object-cover min-[380px]:h-[260px] sm:h-[318px] 2xl:h-[360px]" [src]="post.video" controls></video>
+          </div>
+        }
+
+        <div class="flex items-center gap-4 px-5 pt-3 text-[11px] font-semibold text-[#667085]">
+          <span>{{ post.likesCount }} baze</span>
+          <span>{{ post.commentsCount }} comentários</span>
+        </div>
+
+        <footer class="flex items-center justify-between px-5 py-4 text-[12px] text-[#1f2944]">
+          <div class="flex items-center gap-5">
+            <button [class]="isPostLiked(post.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="$event.stopPropagation(); togglePostLike(post.id)">
+              <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostLiked(post.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+            </button>
+            <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="$event.stopPropagation(); openComments(post.id)">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
+            </button>
+            <button [class]="socialState.isPostShared(post.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="$event.stopPropagation(); sharePost(post.id)">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+            </button>
+          </div>
+          <button [class]="isPostSaved(post.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full text-[#1f2944] hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="$event.stopPropagation(); togglePostFavorite(post.id)">
+            <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="isPostSaved(post.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
+          </button>
+        </footer>
+      </article>
+    }
+
+    @if (false) {
     <article class="mb-5 overflow-hidden rounded-[8px] bg-white shadow-sm cursor-pointer" (click)="openPostDetails(1)">
       <header class="flex items-start justify-between px-5 pt-4">
         <div class="flex items-start gap-3">
@@ -184,6 +255,7 @@
         </button>
       </footer>
     </article>
+    }
   </section>
 
   <aside class="hidden space-y-5 lg:block lg:pt-[42px]">
@@ -252,6 +324,8 @@
       <div class="relative min-h-[260px] bg-[#111827] md:min-h-[620px]">
         @if (post.image) {
           <img class="h-full max-h-[46dvh] w-full object-cover md:max-h-none" [src]="post.image" [alt]="post.imageAlt" />
+        } @else if (post.video) {
+          <video class="h-full max-h-[46dvh] w-full bg-black object-contain md:max-h-none" [src]="post.video" controls></video>
         } @else {
           <div class="flex h-full min-h-[260px] items-center bg-[#f8fafc] px-8 py-10 md:min-h-[620px]">
             <p class="text-[22px] font-bold leading-8 text-[#111827] sm:text-[26px] sm:leading-9">{{ post.text }}</p>
@@ -277,14 +351,11 @@
             </div>
           </header>
           <p class="mt-3 text-[13px] leading-5 text-[#24304c]">{{ post.text }}</p>
-          @if (post.tags) {
-            <p class="mt-1 text-[12px] font-semibold text-[#1f6fff]">{{ post.tags }}</p>
-          }
         </article>
 
         <div class="mt-4 flex items-center gap-4 text-[12px] font-semibold text-[#667085]">
-          <span>{{ isPostLiked(post.id) ? '1' : '0' }} baze</span>
-          <span>{{ activePostComments().length }} comentários</span>
+          <span>{{ post.likesCount }} baze</span>
+          <span>{{ post.commentsCount }} comentários</span>
         </div>
 
         <div class="mt-4 flex items-center justify-between border-y border-[#edf1f6] py-3 text-[#1f2944]">
@@ -325,7 +396,7 @@
 
       <footer class="shrink-0 border-t border-[#edf1f6] p-3">
         <div class="flex items-end gap-2">
-          <img class="size-9 shrink-0 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+          <img class="size-9 shrink-0 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
           <div class="min-w-0 flex-1 rounded-[8px] border border-[#edf1f6] bg-white px-3 py-2">
             <textarea #commentText class="h-12 w-full resize-none text-[12px] leading-5 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" placeholder="Escreve um comentário..."></textarea>
             <div class="mt-2 flex flex-wrap items-center gap-1.5">
@@ -361,9 +432,9 @@
     <section class="flex max-h-[calc(100dvh-24px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[8px] bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="composer-title" (click)="$event.stopPropagation()">
       <header class="flex h-14 shrink-0 items-center justify-between border-b border-[#edf1f6] px-5">
         <div class="flex min-w-0 items-center gap-3">
-          <img class="size-9 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+          <img class="size-9 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
           <div class="min-w-0">
-            <h2 id="composer-title" class="truncate text-[13px] font-bold leading-5 text-[#111827]">Maria Guilhermina</h2>
+            <h2 id="composer-title" class="truncate text-[13px] font-bold leading-5 text-[#111827]">{{ auth.currentUser()?.name || 'Utilizador' }}</h2>
             <button class="inline-flex items-center gap-1 text-[10px] font-semibold text-[#667085]" type="button">
               {{ prefs.t('publicAccount') }}
               <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
@@ -376,9 +447,16 @@
       </header>
 
       <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-        <textarea class="h-24 w-full resize-none text-[13px] leading-6 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" [placeholder]="prefs.language() === 'pt' ? 'O que estás a pensar?' : 'What are you thinking?'"></textarea>
+        @if (postsError()) {
+          <p class="mb-4 rounded-[8px] border border-[#fecdd3] bg-[#fff1f2] px-4 py-3 text-[12px] font-semibold text-[#be123c]">{{ postsError() }}</p>
+        }
 
-        <button class="mt-4 grid h-[170px] w-full place-items-center rounded-[8px] border border-dashed border-[#d8deea] bg-white text-center hover:bg-[#fafbfe]" type="button">
+        <textarea class="h-24 w-full resize-none text-[13px] leading-6 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" [placeholder]="prefs.language() === 'pt' ? 'O que estás a pensar?' : 'What are you thinking?'" [value]="composerText()" (input)="composerText.set($any($event.target).value)"></textarea>
+
+        <input #postImageInput class="hidden" type="file" accept="image/*" (change)="selectPostMedia($event, 'image')" />
+        <input #postVideoInput class="hidden" type="file" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm" (change)="selectPostMedia($event, 'video')" />
+
+        <button class="mt-4 grid h-[170px] w-full place-items-center rounded-[8px] border border-dashed border-[#d8deea] bg-white text-center hover:bg-[#fafbfe]" type="button" (click)="choosePostMedia(postImageInput)">
           <span class="flex flex-col items-center">
             <span class="mb-3 grid size-10 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]">
               <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>
@@ -388,6 +466,17 @@
           </span>
         </button>
 
+        @if (selectedMediaPreview()) {
+          <div class="mt-3 overflow-hidden rounded-[8px] border border-[#edf1f6]">
+            @if (selectedImage()) {
+              <img class="max-h-[280px] w-full object-cover" [src]="selectedMediaPreview()" alt="Pre-visualizacao da imagem" />
+            } @else {
+              <video class="max-h-[280px] w-full bg-black object-contain" [src]="selectedMediaPreview()" controls></video>
+            }
+            <button class="m-3 h-8 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button" (click)="removeSelectedMedia()">Remover ficheiro</button>
+          </div>
+        }
+
         <div class="mt-5">
           <div class="mb-2 flex items-center justify-between">
             <span class="text-[9px] font-bold uppercase text-[#1f6fff]">{{ prefs.language() === 'pt' ? 'Visualização ao vivo' : 'Live preview' }}</span>
@@ -396,21 +485,20 @@
             </button>
           </div>
           <div class="flex items-start gap-3 rounded-[8px] bg-[#fafbfe] p-3">
-            <img class="size-8 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
+            <img class="size-8 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
             <div class="min-w-0 flex-1 space-y-2">
-              <div class="h-3 w-24 rounded-full bg-[#edf1f6]"></div>
-              <div class="h-3 w-full rounded-full bg-[#edf1f6]"></div>
-              <div class="h-3 w-2/3 rounded-full bg-[#edf1f6]"></div>
+              <p class="text-[11px] font-bold text-[#111827]">{{ auth.currentUser()?.name || 'Utilizador' }}</p>
+              <p class="whitespace-pre-line text-[12px] leading-5 text-[#344054]">{{ composerText() || 'A tua publicação vai aparecer aqui.' }}</p>
             </div>
           </div>
         </div>
 
         <div class="mt-4 flex flex-wrap items-center gap-2">
-          <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button">
+          <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button" (click)="choosePostMedia(postImageInput)">
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="m8 13 2-2 4 4 1.5-1.5L19 17" /></svg>
             {{ prefs.language() === 'pt' ? 'Imagem' : 'Image' }}
           </button>
-          <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button">
+          <button class="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#f4f7fb] px-3 text-[10px] font-bold text-[#1f2944]" type="button" (click)="choosePostMedia(postVideoInput)">
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="11" height="12" rx="2" /><path d="m15 10 5-3v10l-5-3" /></svg>
             {{ prefs.t('videos') }}
           </button>
@@ -433,12 +521,12 @@
           <div class="h-1 flex-1 overflow-hidden rounded-full bg-[#edf1f6]">
             <div class="h-full w-1/4 rounded-full bg-[#1f2944]"></div>
           </div>
-          <span class="text-[10px] font-semibold text-[#8b95a7]">64 / 280</span>
+          <span class="text-[10px] font-semibold text-[#8b95a7]">{{ composerText().length }} caracteres</span>
         </div>
         <div class="flex items-center justify-between gap-3">
           <button class="h-9 rounded-[6px] border border-[#edf1f6] px-4 text-[11px] font-semibold text-[#1f2944]" type="button">{{ prefs.language() === 'pt' ? 'Salvar rascunho' : 'Save draft' }}</button>
-          <button class="inline-flex h-10 items-center gap-2 rounded-[8px] bg-[#1f2944] px-5 text-[12px] font-bold text-white" type="button" (click)="closeComposer()">
-            {{ prefs.language() === 'pt' ? 'Publicar Post' : 'Publish Post' }}
+          <button class="inline-flex h-10 items-center gap-2 rounded-[8px] bg-[#1f2944] px-5 text-[12px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60" type="button" (click)="publishPost()" [disabled]="isPublishingPost()">
+            {{ isPublishingPost() ? 'A publicar...' : (prefs.language() === 'pt' ? 'Publicar Post' : 'Publish Post') }}
             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
           </button>
         </div>
