@@ -34,6 +34,34 @@ export type PostResponse = {
   data: ApiPost;
 };
 
+export type ApiComment = {
+  id: number;
+  user_id: number;
+  post_id: number;
+  author: {
+    id: number;
+    name: string | null;
+    profile_photo: string | null;
+  };
+  content: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CommentsResponse = {
+  data: ApiComment[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+};
+
+export type CommentResponse = {
+  data: ApiComment;
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -61,5 +89,45 @@ export class Posts {
     }
 
     return this.http.post<PostResponse>(`${environment.apiUrl}/posts`, formData);
+  }
+
+  update(id: number, payload: { content: string; image?: File | null; video?: File | null }): Observable<PostResponse> {
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
+    formData.append('content', payload.content);
+
+    if (payload.image) {
+      formData.append('image', payload.image);
+    }
+
+    if (payload.video) {
+      formData.append('video', payload.video);
+    }
+
+    return this.http.post<PostResponse>(`${environment.apiUrl}/posts/${id}`, formData);
+  }
+
+  delete(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/posts/${id}`);
+  }
+
+  comments(postId: number, perPage = 50): Observable<CommentsResponse> {
+    return this.http.get<CommentsResponse>(`${environment.apiUrl}/posts/${postId}/comments`, {
+      params: {
+        per_page: perPage
+      }
+    });
+  }
+
+  createComment(postId: number, content: string): Observable<CommentResponse> {
+    return this.http.post<CommentResponse>(`${environment.apiUrl}/posts/${postId}/comments`, { content });
+  }
+
+  updateComment(id: number, content: string): Observable<CommentResponse> {
+    return this.http.put<CommentResponse>(`${environment.apiUrl}/comments/${id}`, { content });
+  }
+
+  deleteComment(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/comments/${id}`);
   }
 }

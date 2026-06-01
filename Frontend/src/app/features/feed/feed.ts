@@ -3,13 +3,14 @@ import { RouterLink } from '@angular/router';
 import { Feedback } from '../../core/feedback';
 import { SocialState } from '../../core/social-state';
 import { Preferences } from '../../core/preferences';
-import { ApiPost, Posts } from '../../core/posts';
+import { ApiComment, ApiPost, Posts } from '../../core/posts';
 import { Auth, CurrentUser } from '../../core/auth';
 
 type CommentAttachment = 'photo' | 'video' | 'sticker' | 'emoji' | null;
 
 type FeedPost = {
   id: number;
+  userId: number;
   author: string;
   username: string;
   avatar: string;
@@ -25,10 +26,11 @@ type FeedPost = {
 
 type PostComment = {
   id: number;
+  userId: number;
+  postId: number;
   author: string;
   avatar: string;
   text: string;
-  attachment: CommentAttachment;
   time: string;
 };
 
@@ -41,7 +43,12 @@ export class Feed implements OnInit {
   protected readonly isComposerOpen = signal(false);
   protected readonly isLoadingPosts = signal(false);
   protected readonly isPublishingPost = signal(false);
+  protected readonly isLoadingComments = signal(false);
+  protected readonly isSubmittingComment = signal(false);
   protected readonly postsError = signal<string | null>(null);
+  protected readonly commentsError = signal<string | null>(null);
+  protected readonly editingPostId = signal<number | null>(null);
+  protected readonly deletingPostIds = signal<Set<number>>(new Set());
   protected readonly composerText = signal('');
   protected readonly selectedImage = signal<File | null>(null);
   protected readonly selectedVideo = signal<File | null>(null);
@@ -60,54 +67,10 @@ export class Feed implements OnInit {
   protected readonly openPostMenuId = signal<number | null>(null);
   protected readonly posts = signal<FeedPost[]>([]);
   protected readonly comments = signal<Record<number, PostComment[]>>({
-    1: [
-      {
-        id: 1,
-        author: 'Maria Guilhermina',
-        avatar: 'https://i.pravatar.cc/96?img=47',
-        text: 'Ficou mesmo inspirador!',
-        attachment: null,
-        time: 'Agora'
-      },
-      {
-        id: 2,
-        author: 'Lia K.',
-        avatar: 'https://i.pravatar.cc/96?img=36',
-        text: 'Esse setup merece uma foto de capa.',
-        attachment: 'photo',
-        time: '12 min'
-      }
-    ],
-    2: [
-      {
-        id: 3,
-        author: 'David Miller',
-        avatar: 'https://i.pravatar.cc/96?img=18',
-        text: 'Também estou a gostar bastante.',
-        attachment: null,
-        time: '31 min'
-      }
-    ],
-    3: [
-      {
-        id: 4,
-        author: 'Ana Figueira',
-        avatar: 'https://i.pravatar.cc/96?img=44',
-        text: 'Que luz linda.',
-        attachment: 'emoji',
-        time: '18 min'
-      }
-    ],
-    4: [
-      {
-        id: 5,
-        author: 'Julian Thorne',
-        avatar: 'https://i.pravatar.cc/96?img=60',
-        text: 'Boa organização.',
-        attachment: 'sticker',
-        time: '8 min'
-      }
-    ]
+    1: [],
+    2: [],
+    3: [],
+    4: []
   });
 
   protected readonly visiblePosts = computed(() =>
@@ -127,6 +90,10 @@ export class Feed implements OnInit {
   protected readonly canPublishComposer = computed(() =>
     this.composerText().trim().length > 0 || Boolean(this.selectedImage() || this.selectedVideo())
   );
+  protected readonly activeEditingPost = computed(() => {
+    const postId = this.editingPostId();
+    return postId ? this.posts().find((post) => post.id === postId) ?? null : null;
+  });
 
   constructor(
     private readonly feedback: Feedback,
@@ -141,6 +108,7 @@ export class Feed implements OnInit {
   }
 
   protected openComposer(): void {
+    this.editingPostId.set(null);
     if (!this.composerText() && this.savedDraft()) {
       this.composerText.set(this.savedDraft());
     }
@@ -151,6 +119,7 @@ export class Feed implements OnInit {
   protected closeComposer(): void {
     this.isComposerOpen.set(false);
     this.clearComposer();
+    this.editingPostId.set(null);
   }
 
   protected loadPosts(): void {
@@ -253,24 +222,107 @@ export class Feed implements OnInit {
     this.isPublishingPost.set(true);
     this.postsError.set(null);
 
-    this.postService.create({
+    const editingPostId = this.editingPostId();
+    const payload = {
       content: content || (this.selectedVideo() ? 'Novo vídeo partilhado.' : 'Nova imagem partilhada.'),
       image: this.selectedImage(),
       video: this.selectedVideo()
-    }).subscribe({
+    };
+    const request = editingPostId
+      ? this.postService.update(editingPostId, payload)
+      : this.postService.create(payload);
+
+    request.subscribe({
       next: (response) => {
         const post = this.mapPost(response.data);
-        this.posts.update((posts) => [post, ...posts]);
-        this.comments.update((comments) => ({ ...comments, [post.id]: [] }));
-        this.savedDraft.set('');
+        this.posts.update((posts) =>
+          editingPostId
+            ? posts.map((currentPost) => currentPost.id === post.id ? post : currentPost)
+            : [post, ...posts]
+        );
+
+        if (!editingPostId) {
+          this.comments.update((comments) => ({ ...comments, [post.id]: [] }));
+          this.savedDraft.set('');
+        }
+
         this.isPublishingPost.set(false);
         this.isComposerOpen.set(false);
         this.clearComposer();
-        this.feedback.show('Publicação criada.', 'success');
+        this.editingPostId.set(null);
+        this.feedback.show(editingPostId ? 'Publicação atualizada.' : 'Publicação criada.', 'success');
       },
       error: () => {
-        this.postsError.set('Não foi possível publicar.');
+        this.postsError.set(editingPostId ? 'Não foi possível atualizar.' : 'Não foi possível publicar.');
         this.isPublishingPost.set(false);
+      }
+    });
+  }
+
+  protected editPost(postId: number): void {
+    const post = this.posts().find((currentPost) => currentPost.id === postId);
+
+    if (!post || !this.canManagePost(post)) {
+      this.feedback.show('Não tens permissão para editar esta publicação.', 'info');
+      return;
+    }
+
+    this.openPostMenuId.set(null);
+    this.postsError.set(null);
+    this.editingPostId.set(post.id);
+    this.composerText.set(post.text.slice(0, this.composerLimit));
+    this.composerHashtag.set('');
+    this.isHashtagComposerOpen.set(false);
+    this.removeSelectedMedia();
+    this.isComposerOpen.set(true);
+  }
+
+  protected deletePost(postId: number): void {
+    const post = this.posts().find((currentPost) => currentPost.id === postId);
+
+    if (!post || !this.canManagePost(post)) {
+      this.feedback.show('Não tens permissão para apagar esta publicação.', 'info');
+      return;
+    }
+
+    if (!confirm('Apagar esta publicação?')) {
+      return;
+    }
+
+    this.openPostMenuId.set(null);
+    this.deletingPostIds.update((postIds) => new Set(postIds).add(postId));
+    this.postService.delete(postId).subscribe({
+      next: () => {
+        this.posts.update((posts) => posts.filter((currentPost) => currentPost.id !== postId));
+        this.comments.update((comments) => {
+          const nextComments = { ...comments };
+          delete nextComments[postId];
+          return nextComments;
+        });
+        this.likedPostIds.update((postIds) => {
+          const nextPostIds = new Set(postIds);
+          nextPostIds.delete(postId);
+          return nextPostIds;
+        });
+
+        if (this.activeCommentPostId() === postId) {
+          this.closeComments();
+        }
+
+        this.deletingPostIds.update((postIds) => {
+          const nextPostIds = new Set(postIds);
+          nextPostIds.delete(postId);
+          return nextPostIds;
+        });
+        this.feedback.show('Publicação apagada.', 'success');
+      },
+      error: () => {
+        this.deletingPostIds.update((postIds) => {
+          const nextPostIds = new Set(postIds);
+          nextPostIds.delete(postId);
+          return nextPostIds;
+        });
+        this.feedback.show('Não foi possível apagar a publicação.', 'info');
       }
     });
   }
@@ -330,14 +382,24 @@ export class Feed implements OnInit {
     this.feedback.show('Publicação ocultada.', 'info');
   }
 
+  protected isPostDeleting(postId: number): boolean {
+    return this.deletingPostIds().has(postId);
+  }
+
+  protected canManagePost(post: FeedPost): boolean {
+    return this.auth.currentUser()?.id === post.userId;
+  }
+
   protected openComments(postId: number): void {
     this.activeCommentPostId.set(postId);
     this.selectedCommentAttachment.set(null);
+    this.loadComments(postId);
   }
 
   protected closeComments(): void {
     this.activeCommentPostId.set(null);
     this.selectedCommentAttachment.set(null);
+    this.commentsError.set(null);
   }
 
   protected selectCommentAttachment(attachment: CommentAttachment): void {
@@ -346,31 +408,80 @@ export class Feed implements OnInit {
     );
   }
 
-  protected submitComment(text: string): void {
-    const postId = this.activeCommentPostId();
-    const trimmedText = text.trim();
-    const attachment = this.selectedCommentAttachment();
+  protected loadComments(postId: number): void {
+    this.isLoadingComments.set(true);
+    this.commentsError.set(null);
+    this.postService.comments(postId).subscribe({
+      next: (response) => {
+        this.comments.update((comments) => ({
+          ...comments,
+          [postId]: response.data.map((comment) => this.mapComment(comment))
+        }));
+        this.updatePostCountTo(postId, 'commentsCount', response.meta.total);
+        this.isLoadingComments.set(false);
+      },
+      error: () => {
+        this.commentsError.set('Não foi possível carregar os comentários.');
+        this.isLoadingComments.set(false);
+      }
+    });
+  }
 
-    if (!postId || (!trimmedText && !attachment)) {
+  protected submitComment(input: HTMLTextAreaElement): void {
+    const postId = this.activeCommentPostId();
+    const trimmedText = input.value.trim();
+    const attachment = this.selectedCommentAttachment();
+    const content = trimmedText || this.attachmentLabel(attachment);
+
+    if (!postId || !content) {
       return;
     }
 
-    const nextComment: PostComment = {
-      id: Date.now(),
-      author: this.auth.currentUser()?.name ?? 'Utilizador',
-      avatar: this.currentUserAvatar(),
-      text: trimmedText || this.attachmentLabel(attachment),
-      attachment,
-      time: 'Agora'
-    };
+    this.isSubmittingComment.set(true);
+    this.commentsError.set(null);
+    this.postService.createComment(postId, content).subscribe({
+      next: (response) => {
+        const nextComment = this.mapComment(response.data);
+        this.comments.update((comments) => ({
+          ...comments,
+          [postId]: [...(comments[postId] ?? []), nextComment]
+        }));
+        this.incrementCommentCount(postId);
+        this.selectedCommentAttachment.set(null);
+        input.value = '';
+        this.isSubmittingComment.set(false);
+        this.feedback.show('Comentário publicado.');
+      },
+      error: () => {
+        this.commentsError.set('Não foi possível publicar o comentário.');
+        this.isSubmittingComment.set(false);
+      }
+    });
+  }
 
-    this.comments.update((comments) => ({
-      ...comments,
-      [postId]: [...(comments[postId] ?? []), nextComment]
-    }));
-    this.incrementCommentCount(postId);
-    this.selectedCommentAttachment.set(null);
-    this.feedback.show('Comentário publicado.');
+  protected deleteComment(comment: PostComment): void {
+    if (!this.canManageComment(comment)) {
+      this.feedback.show('Não tens permissão para apagar este comentário.', 'info');
+      return;
+    }
+
+    this.postService.deleteComment(comment.id).subscribe({
+      next: () => {
+        this.comments.update((comments) => ({
+          ...comments,
+          [comment.postId]: (comments[comment.postId] ?? []).filter((currentComment) => currentComment.id !== comment.id)
+        }));
+        this.updatePostCount(comment.postId, 'commentsCount', -1);
+        this.feedback.show('Comentário apagado.', 'success');
+      },
+      error: () => {
+        this.feedback.show('Não foi possível apagar o comentário.', 'info');
+      }
+    });
+  }
+
+  protected canManageComment(comment: PostComment): boolean {
+    return this.auth.currentUser()?.id === comment.userId;
   }
 
   protected attachmentLabel(attachment: CommentAttachment): string {
@@ -454,6 +565,7 @@ export class Feed implements OnInit {
   private mapPost(post: ApiPost): FeedPost {
     return {
       id: post.id,
+      userId: post.user_id,
       author: post.author.name ?? 'Utilizador',
       username: post.author.username ? `@${post.author.username}` : `#${post.user_id}`,
       avatar: post.author.profile_photo ? `/storage/${post.author.profile_photo}` : 'https://i.pravatar.cc/96?img=47',
@@ -465,6 +577,18 @@ export class Feed implements OnInit {
       videoAlt: `Vídeo da publicação de ${post.author.name ?? 'utilizador'}`,
       likesCount: post.likes_count,
       commentsCount: post.comments_count
+    };
+  }
+
+  private mapComment(comment: ApiComment): PostComment {
+    return {
+      id: comment.id,
+      userId: comment.user_id,
+      postId: comment.post_id,
+      author: comment.author.name ?? 'Utilizador',
+      avatar: comment.author.profile_photo ? `/storage/${comment.author.profile_photo}` : 'https://i.pravatar.cc/96?img=47',
+      text: comment.content,
+      time: this.relativeTime(comment.created_at)
     };
   }
 
@@ -491,6 +615,14 @@ export class Feed implements OnInit {
     this.posts.update((posts) =>
       posts.map((post) =>
         post.id === postId ? { ...post, [key]: Math.max(0, post[key] + amount) } : post
+      )
+    );
+  }
+
+  private updatePostCountTo(postId: number, key: 'likesCount' | 'commentsCount', value: number): void {
+    this.posts.update((posts) =>
+      posts.map((post) =>
+        post.id === postId ? { ...post, [key]: Math.max(0, value) } : post
       )
     );
   }
