@@ -307,31 +307,6 @@
 
   <aside class="hidden space-y-5 lg:block lg:pt-[42px]">
     <section class="rounded-[8px] border border-[#dfe6f0] bg-white p-5 shadow-sm">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-[15px] font-bold text-[#111827]">{{ prefs.language() === 'pt' ? 'Em alta' : 'Trending' }}</h2>
-        <svg class="size-4 text-[#1f6fff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 14 6-6 4 4 6-6" /><path d="M14 6h6v6" /></svg>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <p class="text-[10px] text-[#8b95a7]">Tecnologia &middot; Em alta</p>
-          <h3 class="mt-0.5 text-[12px] font-bold leading-4 text-[#111827]">#GenerativeUI</h3>
-          <p class="mt-0.5 text-[10px] text-[#8b95a7]">2.4k posts</p>
-        </div>
-        <div>
-          <p class="text-[10px] text-[#8b95a7]">Produtividade</p>
-          <h3 class="mt-0.5 text-[12px] font-bold leading-4 text-[#111827]">Sexta de Trabalho Profundo</h3>
-          <p class="mt-0.5 text-[10px] text-[#8b95a7]">1.1k posts</p>
-        </div>
-        <div>
-          <p class="text-[10px] text-[#8b95a7]">Ecossistema de Design</p>
-          <h3 class="mt-0.5 text-[12px] font-bold leading-4 text-[#111827]">Renascimento do Glassmorphism</h3>
-          <p class="mt-0.5 text-[10px] text-[#8b95a7]">892 posts</p>
-        </div>
-      </div>
-      <button class="mt-5 text-[12px] font-bold text-[#1f6fff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
-    </section>
-
-    <section class="rounded-[8px] border border-[#dfe6f0] bg-white p-5 shadow-sm">
       <h2 class="mb-4 text-[15px] font-bold text-[#111827]">{{ prefs.t('suggestionsForYou') }}</h2>
       <div class="space-y-4">
         @for (profile of suggestedProfiles(); track profile.id) {

@@ -536,7 +536,9 @@ export class Feed implements OnInit {
 
     const onSuccess = (): void => {
       this.suggestedProfiles.update((profiles) =>
-        profiles.map((item) => item.id === profileId ? { ...item, isFollowing: !item.isFollowing } : item)
+        profile.isFollowing
+          ? profiles.map((item) => item.id === profileId ? { ...item, isFollowing: false } : item)
+          : profiles.filter((item) => item.id !== profileId)
       );
       this.feedback.show(profile.isFollowing ? 'Deixaste de seguir este perfil.' : 'Agora estás a seguir este perfil.', profile.isFollowing ? 'info' : 'success');
     };
@@ -596,7 +598,11 @@ export class Feed implements OnInit {
   private loadSuggestions(): void {
     this.suggestionsError.set(null);
     this.users.suggestions(5).subscribe({
-      next: ({ data }) => this.suggestedProfiles.set(data.map((user) => this.mapSuggestedProfile(user))),
+      next: ({ data }) => this.suggestedProfiles.set(
+        data
+          .filter((user) => !user.is_followed_by_viewer)
+          .map((user) => this.mapSuggestedProfile(user))
+      ),
       error: () => this.suggestionsError.set('Não foi possível carregar sugestões.')
     });
   }

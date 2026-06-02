@@ -28,16 +28,16 @@
 
   <section class="mt-8 overflow-hidden rounded-[8px] bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
     <header class="flex h-[64px] items-center bg-[#f5f3ff] px-10">
-      <h2 class="text-[16px] font-bold text-[#111827]">Denúncias Recentes</h2>
+      <h2 class="text-[16px] font-bold text-[#111827]">Denúncias</h2>
     </header>
 
     <div class="overflow-x-auto">
       <table class="w-full min-w-[760px] border-collapse text-left">
         <thead class="sticky top-0 z-10 bg-white">
-          <tr class="h-14 border-b border-[#edf1f6] text-[12px] font-bold text-[#1f2937]">
+          <tr class="h-14 border-b border-[#edf1f6] text-[16px] font-bold text-[#1f2937]">
             <th class="w-[36%] px-28">Utilizador</th>
             <th class="w-[36%] px-8">Motivo</th>
-            <th class="w-[28%] px-8">Estado</th>
+            <th class="w-[36%] px-8">Estado</th>
           </tr>
         </thead>
       </table>
@@ -48,7 +48,7 @@
         <tbody>
           @for (report of reports; track report.id) {
             <tr
-              class="h-[92px] cursor-pointer border-b border-[#f1f4f8] text-[12px] font-bold text-[#1f2937] transition hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:outline-none first:border-l-[4px] first:border-l-[#1f6fff]"
+              class="h-[92px] cursor-pointer border-b border-[#f1f4f8] text-[14px] font-bold text-[#1f2937] transition hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:outline-none first:border-l-[4px] first:border-l-[#1f6fff]"
               role="button"
               tabindex="0"
               (click)="openReportDetails(report)"
@@ -59,18 +59,18 @@
               <td class="w-[36%] px-8">
                 <span
                   [class]="report.reason === 'Discurso de Ódio'
-                    ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[8px] font-bold uppercase text-[#dc2626]'
+                    ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
                     : report.reason === 'Spam/Publicidade'
-                      ? 'rounded-full bg-[#e0e7ff] px-3 py-1.5 text-[8px] font-bold uppercase text-[#4f46e5]'
+                      ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
                     : report.reason === 'Assédio'
-                      ? 'rounded-full bg-[#fef3c7] px-3 py-1.5 text-[8px] font-bold uppercase text-[#b45309]'
-                      : 'rounded-full bg-[#f3f4f6] px-3 py-1.5 text-[8px] font-bold uppercase text-[#6b7280]'"
+                      ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
+                      : 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'"
                 >
                   {{ report.reason }}
                 </span>
               </td>
-              <td class="w-[28%] px-8">
-                <span [class]="report.status === 'Pendente' ? 'text-[10px] font-bold text-[#b45309]' : 'text-[10px] font-bold text-[#6b7280]'">
+              <td class="w-[36%] px-8">
+                <span [class]="report.status === 'Pendente' ? 'text-[12px] font-bold text-[#b45309]' : 'text-[12px] font-bold text-[#6b7280]'">
                   + {{ report.status }}
                 </span>
               </td>
@@ -83,19 +83,16 @@
 </section>
 
 @if (activeReport(); as report) {
-  <div
-    class="fixed inset-0 z-50 grid place-items-center bg-[#111827]/35 px-3 py-4"
-    role="presentation"
-    (click)="closeReportDetails()"
-    (keydown.escape)="closeReportDetails()"
-  >
-    <section
-      class="relative flex h-[640px] w-full max-w-[250px] flex-col overflow-hidden rounded-[2px] bg-[#f4f7fb] shadow-[0_22px_55px_rgba(15,23,42,0.22)]"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Detalhes do utilizador denunciado"
-      (click)="$event.stopPropagation()"
+  <section class="min-h-screen bg-[#f4f7fb] md:hidden">
+    <button
+      class="ml-4 mt-4 rounded-[4px] border border-[#c7d0dd] bg-white px-3 py-2 text-[12px] font-bold text-[#4b5565]"
+      type="button"
+      (click)="closeReportDetails()"
     >
+      Voltar
+    </button>
+
+    <section class="mx-auto mt-5 flex h-[640px] w-full max-w-[250px] flex-col overflow-hidden rounded-[2px] bg-[#f4f7fb]" aria-label="Detalhes do utilizador denunciado">
       <div class="h-[58px] shrink-0 bg-[#28334b]"></div>
 
       <div class="flex flex-1 flex-col px-[22px] pb-6">
@@ -103,21 +100,20 @@
 
         <div class="mt-[14px] text-center">
           <h2 class="text-[12px] font-extrabold leading-4 text-[#111827]">{{ report.user }}</h2>
-          <p class="mt-[2px] text-[8px] font-semibold leading-3 text-[#6b7484]">ID: #{{ report.id }}</p>
         </div>
 
         <article class="mt-[24px] rounded-[8px] bg-[#f0eefa] px-[14px] py-[14px]">
-          <h3 class="text-[10px] font-semibold leading-4 text-[#596171]">Texto do Comentário</h3>
+          <h3 class="text-[10px] font-semibold leading-4 text-[#596171]">Comentário</h3>
           <p class="mt-[5px] text-[10px] font-semibold italic leading-[17px] text-[#4d5666]">{{ report.comment }}</p>
         </article>
 
-        <div class="mt-[24px] flex items-center justify-between text-[9px] font-semibold leading-4 text-[#6b7484]">
-          <span>Total de Denúncias</span>
+        <div class="mt-[24px] flex items-center justify-between text-[12px] font-semibold leading-4 text-[#6b7484]">
+          <span>Total de Denuncias</span>
           <span class="grid size-[24px] place-items-center rounded-full bg-[#fee2e2] text-[10px] font-bold text-[#dc2626]">{{ report.reportsCount }}</span>
         </div>
 
-        <div class="mt-[22px] flex items-center justify-between gap-3 text-[9px] leading-4">
-          <span class="font-semibold text-[#6b7484]">Motivo Principal</span>
+        <div class="mt-[22px] flex items-center justify-between gap-3 text-[12px] leading-4">
+          <span class="font-semibold text-[#6b7484]">Motivo</span>
           <span class="max-w-[92px] text-right text-[10px] font-extrabold text-[#111827]">{{ report.reason }}</span>
         </div>
 
@@ -125,6 +121,53 @@
           <button class="h-[41px] w-full rounded-[4px] bg-[#28334b] text-[10px] font-extrabold text-white hover:bg-[#314061]" type="button">Aprovar Comentário</button>
           <button class="h-[41px] w-full rounded-[4px] border border-[#ef4444] bg-white text-[10px] font-extrabold text-[#dc2626] hover:bg-[#fff1f2]" type="button">Remover Comentário</button>
           <button class="h-[41px] w-full rounded-[4px] border border-[#9aa4b2] bg-white text-[10px] font-extrabold text-[#4b5565] hover:bg-[#eef2f7]" type="button">Avisar Utilizador</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div
+    class="fixed inset-0 z-50 hidden place-items-center bg-white/10 px-3 py-4 backdrop-blur-[1px] md:grid"
+    role="presentation"
+    (click)="closeReportDetails()"
+    (keydown.escape)="closeReportDetails()"
+  >
+    <section
+      class="relative flex h-[428px] w-full max-w-[707px] flex-col overflow-hidden border border-[#d8dee8] bg-[#f4f7fb] shadow-[0_22px_55px_rgba(15,23,42,0.22)]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Detalhes do utilizador denunciado"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="h-[29px] shrink-0 bg-[#28334b]"></div>
+
+      <div class="flex flex-1 flex-col px-5 pb-10">
+        <img class="mx-auto -mt-[12px] size-[78px] rounded-full border-[4px] border-white object-cover shadow-[0_2px_7px_rgba(15,23,42,0.25)]" [src]="report.avatar" [alt]="report.user" />
+
+        <div class="mt-[13px] text-center">
+          <h2 class="text-[13px] font-extrabold leading-4 text-[#111827]">{{ report.user }}</h2>
+          <p class="mt-[2px] text-[10px] font-medium leading-3 text-[#4b5565]">ID: #{{ report.id }}</p>
+        </div>
+
+        <article class="mt-[21px] rounded-[8px] bg-[#f0eefa] px-[14px] py-[15px]">
+          <h3 class="text-[13px] font-medium leading-4 text-[#4b5565]">Texto do Comentário</h3>
+          <p class="mt-[8px] text-[12px] font-medium italic leading-4 text-[#202637]">{{ report.comment }}</p>
+        </article>
+
+        <div class="mt-[20px] flex h-[31px] items-center justify-between border-b border-[#e8edf5] text-[11px] font-medium leading-4 text-[#4b5565]">
+          <span>Total de Denúncias</span>
+          <span class="grid size-[22px] place-items-center rounded-full bg-[#fee2e2] text-[12px] font-bold text-[#dc2626]">{{ report.reportsCount }}</span>
+        </div>
+
+        <div class="flex h-[43px] items-center justify-between gap-3 border-b border-[#e8edf5] text-[11px] leading-4">
+          <span class="font-medium text-[#4b5565]">Motivo Principal</span>
+          <span class="text-right text-[13px] font-extrabold text-[#111827]">{{ report.reason }}</span>
+        </div>
+
+        <div class="mt-[24px] flex items-center justify-center gap-[13px]">
+          <button class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] bg-[#28334b] px-4 text-[12px] font-extrabold text-white shadow-[0_7px_14px_rgba(40,51,75,0.22)] hover:bg-[#314061]" type="button">Aprovar Comentário</button>
+          <button class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] border border-[#ef4444] bg-white px-4 text-[12px] font-extrabold text-[#dc2626] hover:bg-[#fff1f2]" type="button">Remover Comentário</button>
+          <button class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] border border-[#9aa4b2] bg-white px-4 text-[12px] font-extrabold text-[#4b5565] hover:bg-[#eef2f7]" type="button">Avisar Utilizador</button>
         </div>
       </div>
     </section>

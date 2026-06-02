@@ -239,7 +239,11 @@ export class VisitorProfile implements OnInit {
 
   private loadSuggestions(excludeUserId: number): void {
     this.users.suggestions(5, excludeUserId).subscribe({
-      next: ({ data }) => this.suggestedProfiles.set(data.map((user) => this.mapUserToListItem(user))),
+      next: ({ data }) => this.suggestedProfiles.set(
+        data
+          .filter((user) => !user.is_followed_by_viewer)
+          .map((user) => this.mapUserToListItem(user))
+      ),
       error: (error: unknown) => this.profileError.set(this.errorMessage(error))
     });
   }
@@ -254,7 +258,9 @@ export class VisitorProfile implements OnInit {
 
     const onSuccess = (): void => {
       source.update((profiles) =>
-        profiles.map((item) => (item.id === profileId ? { ...item, isFollowing: !item.isFollowing } : item))
+        list === 'suggested' && !profile.isFollowing
+          ? profiles.filter((item) => item.id !== profileId)
+          : profiles.map((item) => (item.id === profileId ? { ...item, isFollowing: !item.isFollowing } : item))
       );
       this.feedback.show(profile.isFollowing ? 'Perfil removido da lista a seguir.' : 'Perfil seguido.', profile.isFollowing ? 'info' : 'success');
       this.loadProfileList('following');

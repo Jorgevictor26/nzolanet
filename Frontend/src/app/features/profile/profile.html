@@ -130,10 +130,10 @@
         <div class="space-y-4">
           @for (profile of suggestedProfiles(); track profile.id) {
             <div class="flex items-center gap-3 rounded-[8px] px-2 py-2 hover:bg-[#f4f7fb]">
-              <a class="shrink-0" routerLink="/visitor-profile" [attr.aria-label]="'Ver perfil de ' + profile.name">
+              <a class="shrink-0" [routerLink]="['/visitor-profile', profile.id]" [attr.aria-label]="'Ver perfil de ' + profile.name">
                 <img class="size-9 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
               </a>
-              <a class="min-w-0 flex-1" routerLink="/visitor-profile">
+              <a class="min-w-0 flex-1" [routerLink]="['/visitor-profile', profile.id]">
                 <p class="truncate text-[12px] font-bold leading-4 text-[#111827]">{{ profile.name }}</p>
                 <p class="truncate text-[10px] text-[#778295]">{{ profile.username }}</p>
               </a>
