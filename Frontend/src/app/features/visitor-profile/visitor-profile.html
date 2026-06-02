@@ -19,13 +19,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-<<<<<<< HEAD
-          <button [class]="isFollowing() ? 'inline-flex h-9 items-center rounded-[8px] bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff] hover:bg-[#e4edff]' : 'inline-flex h-9 items-center rounded-[8px] bg-[#28334b] px-5 text-[12px] font-bold text-white hover:bg-[#1f2944]'" type="button" (click)="toggleFollow()">
-            {{ isFollowing() ? prefs.t('following') : prefs.t('follow') }}
-=======
-          <button [class]="isFollowing() ? 'inline-flex h-9 items-center rounded-[8px] bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff] disabled:opacity-60' : 'inline-flex h-9 items-center rounded-[8px] bg-[#28334b] px-5 text-[12px] font-bold text-white disabled:opacity-60'" type="button" (click)="toggleFollow()" [disabled]="!profile() || isFollowInFlight()">
+          <button [class]="isFollowing() ? 'inline-flex h-9 items-center rounded-[8px] bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff] hover:bg-[#e4edff] disabled:opacity-60' : 'inline-flex h-9 items-center rounded-[8px] bg-[#28334b] px-5 text-[12px] font-bold text-white hover:bg-[#1f2944] disabled:opacity-60'" type="button" (click)="toggleFollow()" [disabled]="!profile() || isFollowInFlight()">
             {{ isFollowInFlight() ? 'A processar...' : (isFollowing() ? prefs.t('following') : prefs.t('follow')) }}
->>>>>>> integration-back-front
           </button>
           <button class="grid size-9 place-items-center rounded-[8px] bg-[#f4f7fb] text-[#24304c] hover:bg-[#eef3ff] hover:text-[#1f6fff]" type="button" aria-label="Mais opções">
             <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
@@ -57,21 +52,12 @@
           <p class="text-[18px] font-bold text-[#111827]">1,284</p>
           <p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Publicações</p>
         </div>
-<<<<<<< HEAD
         <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('followers')">
-          <span class="block text-[18px] font-bold text-[#111827]">48.2k</span>
-          <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
-        </button>
-        <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('following')">
-          <span class="block text-[18px] font-bold text-[#111827]">853</span>
-=======
-        <button class="text-center sm:text-left" type="button" (click)="openModal('followers')">
           <span class="block text-[18px] font-bold text-[#111827]">{{ followersCount() }}</span>
           <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
         </button>
-        <button class="text-center sm:text-left" type="button" (click)="openModal('following')">
+        <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('following')">
           <span class="block text-[18px] font-bold text-[#111827]">{{ followingCount() }}</span>
->>>>>>> integration-back-front
           <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">A seguir</span>
         </button>
       </div>

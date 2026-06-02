@@ -51,21 +51,12 @@
           <p class="text-[18px] font-bold text-[#111827]">{{ postsCount() }}</p>
           <p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Posts</p>
         </div>
-<<<<<<< HEAD
         <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('followers')">
-          <span class="block text-[18px] font-bold text-[#111827]">48.2k</span>
-          <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
-        </button>
-        <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('following')">
-          <span class="block text-[18px] font-bold text-[#111827]">853</span>
-=======
-        <button class="text-center sm:text-left" type="button" (click)="openModal('followers')">
           <span class="block text-[18px] font-bold text-[#111827]">{{ followersCount() }}</span>
           <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
         </button>
-        <button class="text-center sm:text-left" type="button" (click)="openModal('following')">
+        <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('following')">
           <span class="block text-[18px] font-bold text-[#111827]">{{ followingCount() }}</span>
->>>>>>> integration-back-front
           <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">A seguir</span>
         </button>
       </div>

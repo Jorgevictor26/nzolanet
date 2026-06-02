@@ -1,12 +1,7 @@
-<<<<<<< HEAD
-import { Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-=======
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Feedback } from '../../core/feedback';
->>>>>>> integration-back-front
 import { Preferences } from '../../core/preferences';
 import { ApiUser, Users } from '../../core/users';
 
