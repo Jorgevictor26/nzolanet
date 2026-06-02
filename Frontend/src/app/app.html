@@ -154,6 +154,14 @@
         <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" /><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05-1.7 2.94-.07-.02a1.7 1.7 0 0 0-1.95.4l-.04.04-3.4-1.2-.01-.08a1.7 1.7 0 0 0-1.6-1.1h-.07l-3.4 1.2-.04-.04a1.7 1.7 0 0 0-1.95-.4l-.07.02-1.7-2.94.05-.05A1.7 1.7 0 0 0 4.6 15l-.02-.07L2.8 12l1.78-2.93.02-.07a1.7 1.7 0 0 0-.34-1.87l-.05-.05 1.7-2.94.07.02a1.7 1.7 0 0 0 1.95-.4l.04-.04 3.4 1.2.01.08a1.7 1.7 0 0 0 1.6 1.1h.07l3.4-1.2.04.04a1.7 1.7 0 0 0 1.95.4l.07-.02 1.7 2.94-.05.05A1.7 1.7 0 0 0 19.4 9l.02.07L21.2 12l-1.78 2.93-.02.07Z" /></svg>
         {{ prefs.t('settings') }}
       </a>
+      <a
+        class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+        routerLink="/moderation"
+        routerLinkActive="bg-[#314061] text-white"
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12l4-3h5" /><path d="M8 8h8M8 12h5" /><path d="m17 21 4-4-2-2-4 4v2h2Z" /></svg>
+        {{ prefs.t('moderation') }}
+      </a>
     </nav>
 
     <footer class="mx-5 mb-5 border-t border-[#3a455e] pt-4 text-[10px] leading-5 text-[#aab4c8]">
@@ -167,7 +175,7 @@
     </footer>
   </aside>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-20 grid h-16 grid-cols-4 border-t border-[#3a455e] bg-[#28334b] text-[11px] font-semibold text-[#d6dceb] lg:hidden">
+  <nav class="fixed bottom-0 left-0 right-0 z-20 grid h-16 grid-cols-5 border-t border-[#3a455e] bg-[#28334b] text-[10px] font-semibold text-[#d6dceb] lg:hidden">
     <a class="flex flex-col items-center justify-center gap-1" routerLink="/home" routerLinkActive="bg-[#314061] text-white" [routerLinkActiveOptions]="{ exact: true }">
       <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" /></svg>
       {{ prefs.t('home') }}
@@ -183,6 +191,10 @@
     <a class="flex flex-col items-center justify-center gap-1" routerLink="/profile" routerLinkActive="bg-[#314061] text-white">
       <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
       {{ prefs.t('profile') }}
+    </a>
+    <a class="flex flex-col items-center justify-center gap-1" routerLink="/moderation" routerLinkActive="bg-[#314061] text-white">
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12l4-3h5" /><path d="M8 8h8M8 12h5" /><path d="m17 21 4-4-2-2-4 4v2h2Z" /></svg>
+      {{ prefs.t('moderation') }}
     </a>
   </nav>
 

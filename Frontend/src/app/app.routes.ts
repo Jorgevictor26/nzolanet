@@ -3,6 +3,7 @@ import { Favorites } from './features/favorites/favorites';
 import { Feed } from './features/feed/feed';
 import { Explore } from './features/explore/explore';
 import { Login } from './features/login/login';
+import { Moderation } from './features/moderation/moderation';
 import { Profile } from './features/profile/profile';
 import { Settings } from './features/settings/settings';
 import { VisitorProfile } from './features/visitor-profile/visitor-profile';
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'explore', component: Explore, canActivate: [authGuard] },
   { path: 'favorites', component: Favorites, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: 'moderation', component: Moderation, canActivate: [authGuard] },
   { path: 'visitor-profile/:id', component: VisitorProfile, canActivate: [authGuard] },
   { path: 'visitor-profile', component: VisitorProfile, canActivate: [authGuard] },
   { path: 'settings', component: Settings, canActivate: [authGuard] },
