@@ -28,6 +28,17 @@ type ProfileMediaItem = {
   image?: string;
   video?: string;
   alt: string;
+  likesCount: number;
+  commentsCount: number;
+  time: string;
+};
+
+type ProfileComment = {
+  id: number;
+  author: string;
+  avatar: string;
+  text: string;
+  time: string;
 };
 
 @Component({
@@ -56,6 +67,8 @@ export class Profile implements OnInit {
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeMediaItemId = signal<number | null>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
+  protected readonly likedPostIds = signal<Set<number>>(new Set());
+  protected readonly profileComments = signal<Record<number, ProfileComment[]>>({});
   protected readonly followers = signal<ProfileListItem[]>([
     {
       id: 1,
@@ -152,6 +165,10 @@ export class Profile implements OnInit {
   protected readonly activeMediaItem = computed(() =>
     this.mediaItems().find((item) => item.id === this.activeMediaItemId()) ?? null
   );
+  protected readonly activeMediaItemComments = computed(() => {
+    const itemId = this.activeMediaItemId();
+    return itemId ? this.profileComments()[itemId] ?? [] : [];
+  });
   protected readonly postsCount = computed(() => this.mediaItems().length);
   protected readonly currentUser = computed(() => this.auth.currentUser());
 
@@ -255,6 +272,61 @@ export class Profile implements OnInit {
     this.activeMediaItemId.set(null);
   }
 
+  protected isPostLiked(postId: number): boolean {
+    return this.likedPostIds().has(postId);
+  }
+
+  protected togglePostLike(postId: number): void {
+    const wasLiked = this.isPostLiked(postId);
+    this.likedPostIds.update((postIds) => {
+      const nextPostIds = new Set(postIds);
+      nextPostIds.has(postId) ? nextPostIds.delete(postId) : nextPostIds.add(postId);
+      return nextPostIds;
+    });
+    this.updateMediaItemCount(postId, 'likesCount', wasLiked ? -1 : 1);
+    this.feedback.show(this.isPostLiked(postId) ? 'Deste baze nesta publicacao.' : 'Baze removido.', this.isPostLiked(postId) ? 'success' : 'info');
+  }
+
+  protected sharePost(postId: number): void {
+    const isShared = this.socialState.togglePostShare(postId);
+    this.feedback.show(isShared ? 'Publicacao partilhada.' : 'Partilha removida.', isShared ? 'success' : 'info');
+  }
+
+  protected isPostSaved(postId: number): boolean {
+    return this.socialState.isPostFavorite(postId);
+  }
+
+  protected togglePostFavorite(postId: number): void {
+    const isFavorite = this.socialState.togglePostFavorite(postId);
+    this.feedback.show(isFavorite ? 'Publicacao guardada nos favoritos.' : 'Publicacao removida dos favoritos.', isFavorite ? 'success' : 'info');
+  }
+
+  protected submitProfileComment(input: HTMLTextAreaElement): void {
+    const postId = this.activeMediaItemId();
+    const text = input.value.trim();
+
+    if (!postId || !text) {
+      return;
+    }
+
+    const user = this.currentUser();
+    const comment: ProfileComment = {
+      id: Date.now(),
+      author: user?.name ?? 'Utilizador',
+      avatar: this.profilePhotoUrl(user),
+      text,
+      time: 'Agora'
+    };
+
+    this.profileComments.update((comments) => ({
+      ...comments,
+      [postId]: [...(comments[postId] ?? []), comment]
+    }));
+    this.updateMediaItemCount(postId, 'commentsCount', 1);
+    input.value = '';
+    this.feedback.show('Comentario publicado.');
+  }
+
   protected toggleFollowerFollow(profileId: number): void {
     this.followers.update((profiles) =>
       profiles.map((profile) =>
@@ -307,8 +379,19 @@ export class Profile implements OnInit {
       text: post.content,
       image: post.image ? `/storage/${post.image}` : undefined,
       video: post.video ? `/storage/${post.video}` : undefined,
+      likesCount: post.likes_count,
+      commentsCount: post.comments_count,
+      time: this.relativeTime(post.created_at),
       alt: `Publicação de ${post.author.name ?? 'utilizador'}`
     };
+  }
+
+  private updateMediaItemCount(postId: number, key: 'likesCount' | 'commentsCount', amount: number): void {
+    this.mediaItems.update((items) =>
+      items.map((item) =>
+        item.id === postId ? { ...item, [key]: Math.max(0, item[key] + amount) } : item
+      )
+    );
   }
 
   private syncEditor(user: CurrentUser): void {
@@ -323,6 +406,25 @@ export class Profile implements OnInit {
     const normalizedUsername = username.trim().replace(/^@+/, '');
 
     return normalizedUsername || null;
+  }
+
+  private relativeTime(value: string): string {
+    const createdAt = new Date(value).getTime();
+
+    if (Number.isNaN(createdAt)) {
+      return 'Agora';
+    }
+
+    const seconds = Math.max(0, Math.floor((Date.now() - createdAt) / 1000));
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d atras`;
+    if (hours > 0) return `${hours}h atras`;
+    if (minutes > 0) return `${minutes}min atras`;
+
+    return 'Agora';
   }
 
   private errorMessage(error: unknown): string {
