@@ -16,6 +16,7 @@ class Post extends Model
         'content',
         'image',
         'video',
+        'media',
     ];
 
     public function user(): BelongsTo
@@ -31,5 +32,15 @@ class Post extends Model
     public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'media' => 'array',
+        ];
     }
 }

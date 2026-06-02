@@ -20,7 +20,7 @@ class PostRepository
     }
 
     /**
-     * @param  array{user_id: int, content: string, image?: ?string, video?: ?string}  $data
+     * @param  array{user_id: int, content: string, image?: ?string, video?: ?string, media?: array<int, array{type: string, path: string}>}  $data
      */
     public function create(array $data): Post
     {
@@ -36,7 +36,7 @@ class PostRepository
     }
 
     /**
-     * @param  array{content: string, image?: ?string, video?: ?string}  $data
+     * @param  array{content: string, image?: ?string, video?: ?string, media?: array<int, array{type: string, path: string}>}  $data
      */
     public function update(Post $post, array $data): Post
     {
