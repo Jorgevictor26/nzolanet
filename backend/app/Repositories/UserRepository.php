@@ -34,7 +34,7 @@ class UserRepository
     public function paginateFollowSuggestions(User $viewer, int $perPage, ?int $excludeUserId = null): LengthAwarePaginator
     {
         return User::query()
-            ->withCount(['followers', 'following'])
+            ->withCount(['posts', 'followers', 'following'])
             ->whereKeyNot($viewer->id)
             ->when($excludeUserId, fn ($query) => $query->whereKeyNot($excludeUserId))
             ->whereDoesntHave('followers', fn ($query) => $query->where('users.id', $viewer->id))

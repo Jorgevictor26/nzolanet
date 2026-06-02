@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
+import { ApiPost, Posts } from '../../core/posts';
 import { ApiUser, Users } from '../../core/users';
 
 type ProfileListModal = 'followers' | 'following' | null;
@@ -22,8 +23,13 @@ type ProfileContentFilter = 'posts' | 'photos' | 'videos' | 'tagged';
 type ProfileMediaItem = {
   id: number;
   kind: ProfileContentFilter;
-  image: string;
+  text: string;
+  image?: string;
+  video?: string;
   alt: string;
+  likesCount: number;
+  commentsCount: number;
+  time: string;
 };
 
 @Component({
@@ -36,6 +42,7 @@ export class VisitorProfile implements OnInit {
   protected readonly profile = signal<ApiUser | null>(null);
   protected readonly profileError = signal<string | null>(null);
   protected readonly isLoadingProfile = signal(false);
+  protected readonly isLoadingPosts = signal(false);
   protected readonly isFollowInFlight = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeMediaItemId = signal<number | null>(null);
@@ -44,53 +51,21 @@ export class VisitorProfile implements OnInit {
   protected readonly following = signal<ProfileListItem[]>([]);
   protected readonly followersCount = signal(0);
   protected readonly followingCount = signal(0);
+  protected readonly postsCount = signal(0);
   protected readonly suggestedProfiles = signal<ProfileListItem[]>([]);
-  protected readonly mediaItems: ProfileMediaItem[] = [
-    {
-      id: 1,
-      kind: 'photos',
-      image: 'meza-membros/meza-02.jpeg',
-      alt: 'Registo de membros da Meza'
-    },
-    {
-      id: 2,
-      kind: 'posts',
-      image: 'meza-membros/meza-03.jpeg',
-      alt: 'Momento da equipa Meza'
-    },
-    {
-      id: 3,
-      kind: 'videos',
-      image: 'meza-membros/meza-09.jpeg',
-      alt: 'Vídeo da apresentação Meza'
-    },
-    {
-      id: 4,
-      kind: 'tagged',
-      image: 'meza-membros/meza-04.jpeg',
-      alt: 'Visitante no stand da Meza'
-    },
-    {
-      id: 5,
-      kind: 'photos',
-      image: 'meza-membros/meza-05.jpeg',
-      alt: 'Interação com membros da Meza'
-    },
-    {
-      id: 6,
-      kind: 'posts',
-      image: 'meza-membros/meza-10.jpeg',
-      alt: 'Stand da Meza no evento'
-    }
-  ];
+  protected readonly mediaItems = signal<ProfileMediaItem[]>([]);
   protected readonly filteredMediaItems = computed(() => {
     const filter = this.activeContentFilter();
+    const items = this.mediaItems();
+
     return filter === 'posts'
-      ? this.mediaItems
-      : this.mediaItems.filter((item) => item.kind === filter);
+      ? items
+      : filter === 'tagged'
+        ? []
+        : items.filter((item) => item.kind === filter);
   });
   protected readonly activeMediaItem = computed(() =>
-    this.mediaItems.find((item) => item.id === this.activeMediaItemId()) ?? null
+    this.mediaItems().find((item) => item.id === this.activeMediaItemId()) ?? null
   );
 
   protected readonly profileId = computed(() => this.profile()?.id ?? null);
@@ -98,6 +73,7 @@ export class VisitorProfile implements OnInit {
 
   constructor(
     private readonly feedback: Feedback,
+    private readonly posts: Posts,
     protected readonly prefs: Preferences,
     private readonly route: ActivatedRoute,
     private readonly users: Users
@@ -217,7 +193,9 @@ export class VisitorProfile implements OnInit {
         this.profile.set(data);
         this.followersCount.set(data.followers_count);
         this.followingCount.set(data.following_count);
+        this.postsCount.set(data.posts_count);
         this.isLoadingProfile.set(false);
+        this.loadUserPosts(data.id);
         this.loadProfileList('followers');
         this.loadProfileList('following');
         this.loadSuggestions(data.id);
@@ -240,7 +218,24 @@ export class VisitorProfile implements OnInit {
     this.following.set([]);
     this.followersCount.set(0);
     this.followingCount.set(0);
+    this.postsCount.set(0);
     this.suggestedProfiles.set([]);
+    this.mediaItems.set([]);
+  }
+
+  private loadUserPosts(userId: number): void {
+    this.isLoadingPosts.set(true);
+    this.posts.byUser(userId, 50).subscribe({
+      next: ({ data, meta }) => {
+        this.mediaItems.set(data.map((post) => this.mapPostToMediaItem(post)));
+        this.postsCount.set(meta.total);
+        this.isLoadingPosts.set(false);
+      },
+      error: (error: unknown) => {
+        this.profileError.set(this.errorMessage(error));
+        this.isLoadingPosts.set(false);
+      }
+    });
   }
 
   private loadProfileList(list: Exclude<ProfileListModal, null>): void {
@@ -308,6 +303,39 @@ export class VisitorProfile implements OnInit {
       bio: user.bio ?? 'Ainda sem biografia.',
       isFollowing: user.is_followed_by_viewer
     };
+  }
+
+  private mapPostToMediaItem(post: ApiPost): ProfileMediaItem {
+    return {
+      id: post.id,
+      kind: post.video ? 'videos' : post.image ? 'photos' : 'posts',
+      text: post.content,
+      image: post.image ? `/storage/${post.image}` : undefined,
+      video: post.video ? `/storage/${post.video}` : undefined,
+      likesCount: post.likes_count,
+      commentsCount: post.comments_count,
+      time: this.relativeTime(post.created_at),
+      alt: `Publicação de ${post.author.name ?? 'utilizador'}`
+    };
+  }
+
+  private relativeTime(value: string): string {
+    const createdAt = new Date(value).getTime();
+
+    if (Number.isNaN(createdAt)) {
+      return 'Agora';
+    }
+
+    const seconds = Math.max(0, Math.floor((Date.now() - createdAt) / 1000));
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d atras`;
+    if (hours > 0) return `${hours}h atras`;
+    if (minutes > 0) return `${minutes}min atras`;
+
+    return 'Agora';
   }
 
   private errorMessage(error: unknown): string {

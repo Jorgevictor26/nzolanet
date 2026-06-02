@@ -10,6 +10,7 @@ export type ApiUser = {
   bio: string | null;
   profile_photo: string | null;
   privacy: 'public' | 'private';
+  posts_count: number;
   followers_count: number;
   following_count: number;
   is_followed_by_viewer: boolean;

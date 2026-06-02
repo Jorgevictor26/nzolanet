@@ -13,6 +13,7 @@ readonly class UserDTO
         public ?string $bio,
         public ?string $profilePhoto,
         public string $privacy,
+        public int $postsCount,
         public int $followersCount,
         public int $followingCount,
         public bool $isFollowedByViewer,
@@ -27,6 +28,7 @@ readonly class UserDTO
             bio: $user->bio,
             profilePhoto: $user->profile_photo,
             privacy: $user->privacy,
+            postsCount: (int) ($user->getAttribute('posts_count') ?? $user->posts()->count()),
             followersCount: (int) ($user->getAttribute('followers_count') ?? $user->followers()->count()),
             followingCount: (int) ($user->getAttribute('following_count') ?? $user->following()->count()),
             isFollowedByViewer: $viewer !== null
@@ -47,6 +49,7 @@ readonly class UserDTO
             'bio' => $this->bio,
             'profile_photo' => $this->profilePhoto,
             'privacy' => $this->privacy,
+            'posts_count' => $this->postsCount,
             'followers_count' => $this->followersCount,
             'following_count' => $this->followingCount,
             'is_followed_by_viewer' => $this->isFollowedByViewer,

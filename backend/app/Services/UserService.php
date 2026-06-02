@@ -31,7 +31,7 @@ class UserService
             throw new AuthorizationException('Este perfil é privado.');
         }
 
-        $profile->loadCount(['followers', 'following']);
+        $profile->loadCount(['posts', 'followers', 'following']);
 
         return UserDTO::fromModel($profile, $viewer);
     }

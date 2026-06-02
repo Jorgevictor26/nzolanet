@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('users/{id}/follow', [FollowController::class, 'unfollow'])->whereNumber('id');
     Route::get('users/{id}/followers', [FollowController::class, 'followers'])->whereNumber('id');
     Route::get('users/{id}/following', [FollowController::class, 'following'])->whereNumber('id');
+    Route::get('users/{id}/posts', [PostController::class, 'userPosts'])->whereNumber('id');
     Route::get('users/{id}', [UserController::class, 'show'])->whereNumber('id');
     Route::put('users/profile', [UserController::class, 'updateProfile']);
     Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);

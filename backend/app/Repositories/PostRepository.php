@@ -20,6 +20,19 @@ class PostRepository
     }
 
     /**
+     * @return LengthAwarePaginator<int, Post>
+     */
+    public function paginateByUserId(int $userId, int $perPage): LengthAwarePaginator
+    {
+        return Post::query()
+            ->with('user:id,name,username,profile_photo')
+            ->withCount(['likes', 'comments'])
+            ->where('user_id', $userId)
+            ->latest()
+            ->paginate($perPage);
+    }
+
+    /**
      * @param  array{user_id: int, content: string, image?: ?string, video?: ?string}  $data
      */
     public function create(array $data): Post
