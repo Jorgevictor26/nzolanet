@@ -34,14 +34,14 @@ class FollowController extends Controller
     public function followers(Request $request, int $id): JsonResponse
     {
         return response()->json(
-            $this->followService->followers($id, (int) $request->integer('per_page', 15))
+            $this->followService->followers($id, (int) $request->integer('per_page', 15), $request->user())
         );
     }
 
     public function following(Request $request, int $id): JsonResponse
     {
         return response()->json(
-            $this->followService->following($id, (int) $request->integer('per_page', 15))
+            $this->followService->following($id, (int) $request->integer('per_page', 15), $request->user())
         );
     }
 }

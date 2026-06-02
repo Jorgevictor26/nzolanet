@@ -34,6 +34,17 @@ class UserController extends Controller
         ]);
     }
 
+    public function suggestions(Request $request): JsonResponse
+    {
+        return response()->json(
+            $this->userService->followSuggestions(
+                $request->user(),
+                (int) $request->integer('per_page', 5),
+                $request->integer('exclude_id') ?: null,
+            )
+        );
+    }
+
     public function updateProfile(UpdateUserRequest $request): JsonResponse
     {
         $user = $this->userService->updateProfile(

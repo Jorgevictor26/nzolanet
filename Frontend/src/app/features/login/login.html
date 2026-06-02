@@ -146,11 +146,14 @@
                   <div class="min-w-0 flex-1">
                     <h3 class="truncate text-[12px] font-bold leading-4 text-[#101828]">{{ profile.name }}</h3>
                     <p class="truncate text-[10px] text-[#667085]">{{ profile.username }}</p>
+                    <p class="truncate text-[10px] text-[#98a2b3]">{{ profile.role }}</p>
                   </div>
                   <button [class]="profile.isFollowing ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleFollow(profile.id)">
                     {{ profile.isFollowing ? 'Seguindo' : 'Seguir' }}
                   </button>
                 </article>
+              } @empty {
+                <p class="rounded-[8px] bg-white px-4 py-3 text-center text-[12px] font-semibold text-[#667085]">Sem sugestões disponíveis.</p>
               }
             </div>
             <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[13px] font-bold text-white" type="button" (click)="finishOnboarding()">Concluir</button>

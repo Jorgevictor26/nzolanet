@@ -5,6 +5,7 @@ import { SocialState } from '../../core/social-state';
 import { Preferences } from '../../core/preferences';
 import { ApiComment, ApiPost, Posts } from '../../core/posts';
 import { Auth, CurrentUser } from '../../core/auth';
+import { ApiUser, Users } from '../../core/users';
 
 type CommentAttachment = 'photo' | 'video' | 'sticker' | 'emoji' | null;
 
@@ -32,6 +33,15 @@ type PostComment = {
   avatar: string;
   text: string;
   time: string;
+};
+
+type SuggestedProfile = {
+  id: number;
+  name: string;
+  username: string;
+  avatar: string;
+  bio: string;
+  isFollowing: boolean;
 };
 
 @Component({
@@ -62,10 +72,11 @@ export class Feed implements OnInit {
   protected readonly activeCommentPostId = signal<number | null>(null);
   protected readonly selectedCommentAttachment = signal<CommentAttachment>(null);
   protected readonly likedPostIds = signal<Set<number>>(new Set());
-  protected readonly followedProfileIds = signal<Set<number>>(new Set());
   protected readonly hiddenPostIds = signal<Set<number>>(new Set());
   protected readonly openPostMenuId = signal<number | null>(null);
   protected readonly posts = signal<FeedPost[]>([]);
+  protected readonly suggestedProfiles = signal<SuggestedProfile[]>([]);
+  protected readonly suggestionsError = signal<string | null>(null);
   protected readonly comments = signal<Record<number, PostComment[]>>({
     1: [],
     2: [],
@@ -100,11 +111,13 @@ export class Feed implements OnInit {
     private readonly postService: Posts,
     protected readonly auth: Auth,
     protected readonly socialState: SocialState,
-    protected readonly prefs: Preferences
+    protected readonly prefs: Preferences,
+    private readonly users: Users
   ) {}
 
   ngOnInit(): void {
     this.loadPosts();
+    this.loadSuggestions();
   }
 
   protected openComposer(): void {
@@ -514,17 +527,35 @@ export class Feed implements OnInit {
     this.feedback.show(this.isPostLiked(postId) ? 'Deste baze nesta publicação.' : 'Baze removido.', this.isPostLiked(postId) ? 'success' : 'info');
   }
 
-  protected isFollowingProfile(profileId: number): boolean {
-    return this.followedProfileIds().has(profileId);
-  }
-
   protected toggleSuggestedFollow(profileId: number): void {
-    this.followedProfileIds.update((profileIds) => {
-      const nextProfileIds = new Set(profileIds);
-      nextProfileIds.has(profileId) ? nextProfileIds.delete(profileId) : nextProfileIds.add(profileId);
-      return nextProfileIds;
+    const profile = this.suggestedProfiles().find((item) => item.id === profileId);
+
+    if (!profile) {
+      return;
+    }
+
+    const onSuccess = (): void => {
+      this.suggestedProfiles.update((profiles) =>
+        profiles.map((item) => item.id === profileId ? { ...item, isFollowing: !item.isFollowing } : item)
+      );
+      this.feedback.show(profile.isFollowing ? 'Deixaste de seguir este perfil.' : 'Agora estás a seguir este perfil.', profile.isFollowing ? 'info' : 'success');
+    };
+    const onError = (): void => {
+      this.suggestionsError.set('Não foi possível atualizar a sugestão.');
+    };
+
+    if (profile.isFollowing) {
+      this.users.unfollow(profileId).subscribe({
+        next: onSuccess,
+        error: onError
+      });
+      return;
+    }
+
+    this.users.follow(profileId).subscribe({
+      next: onSuccess,
+      error: onError
     });
-    this.feedback.show(this.isFollowingProfile(profileId) ? 'Agora estás a seguir este perfil.' : 'Deixaste de seguir este perfil.', this.isFollowingProfile(profileId) ? 'success' : 'info');
   }
 
   protected currentUserAvatar(user: CurrentUser | null = this.auth.currentUser()): string {
@@ -560,6 +591,25 @@ export class Feed implements OnInit {
     this.selectedMediaName.set(file.name);
     this.selectedMediaKind.set(type);
     this.feedback.show(type === 'image' ? 'Imagem pronta para publicar.' : 'Vídeo pronto para publicar.', 'success');
+  }
+
+  private loadSuggestions(): void {
+    this.suggestionsError.set(null);
+    this.users.suggestions(5).subscribe({
+      next: ({ data }) => this.suggestedProfiles.set(data.map((user) => this.mapSuggestedProfile(user))),
+      error: () => this.suggestionsError.set('Não foi possível carregar sugestões.')
+    });
+  }
+
+  private mapSuggestedProfile(user: ApiUser): SuggestedProfile {
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username ? `@${user.username}` : `@utilizador${user.id}`,
+      avatar: user.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/80?img=47',
+      bio: user.bio ?? 'Ainda sem biografia.',
+      isFollowing: user.is_followed_by_viewer
+    };
   }
 
   private mapPost(post: ApiPost): FeedPost {
