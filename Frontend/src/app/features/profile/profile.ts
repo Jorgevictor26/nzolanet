@@ -6,6 +6,7 @@ import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
 import { ApiPost, Posts } from '../../core/posts';
 import { SocialState } from '../../core/social-state';
+import { ApiUser, Users } from '../../core/users';
 
 type ProfileListModal = 'followers' | 'following' | null;
 
@@ -40,7 +41,8 @@ export class Profile implements OnInit {
     private readonly feedback: Feedback,
     private readonly postsService: Posts,
     protected readonly prefs: Preferences,
-    protected readonly socialState: SocialState
+    protected readonly socialState: SocialState,
+    private readonly users: Users
   ) {}
 
   protected readonly isProfileEditorOpen = signal(false);
@@ -54,84 +56,11 @@ export class Profile implements OnInit {
   protected readonly isLoadingPosts = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
-  protected readonly followers = signal<ProfileListItem[]>([
-    {
-      id: 1,
-      name: 'Sarah Connor',
-      username: '@sarah.c',
-      avatar: 'https://i.pravatar.cc/80?img=5',
-      bio: 'Fotografia, cultura e viagens',
-      isFollowing: false
-    },
-    {
-      id: 2,
-      name: 'David Miller',
-      username: '@miller_design',
-      avatar: 'https://i.pravatar.cc/80?img=18',
-      bio: 'Design de produtos digitais',
-      isFollowing: true
-    },
-    {
-      id: 3,
-      name: 'Lia K.',
-      username: '@lia_connect',
-      avatar: 'https://i.pravatar.cc/80?img=36',
-      bio: 'Comunidade NzolaNet',
-      isFollowing: false
-    }
-  ]);
-  protected readonly following = signal<ProfileListItem[]>([
-    {
-      id: 4,
-      name: 'Marcus Vane',
-      username: '@mrv_design',
-      avatar: 'https://i.pravatar.cc/80?img=15',
-      bio: 'Branding e identidade visual',
-      isFollowing: true
-    },
-    {
-      id: 5,
-      name: 'Julian Thorne',
-      username: '@jthorne_io',
-      avatar: 'https://i.pravatar.cc/80?img=60',
-      bio: 'Tecnologia e startups',
-      isFollowing: true
-    },
-    {
-      id: 6,
-      name: 'Ana Figueira',
-      username: '@anafigueira',
-      avatar: 'https://i.pravatar.cc/80?img=44',
-      bio: 'Moda, eventos e lifestyle',
-      isFollowing: true
-    }
-  ]);
-  protected readonly suggestedProfiles = signal<ProfileListItem[]>([
-    {
-      id: 15,
-      name: 'Marcus Vane',
-      username: '@mrv_design',
-      avatar: 'https://i.pravatar.cc/80?img=15',
-      bio: 'Branding e identidade visual',
-      isFollowing: false
-    },
-    {
-      id: 36,
-      name: 'Lia K.',
-      username: '@lia_connect',
-      avatar: 'https://i.pravatar.cc/80?img=36',
-      bio: 'Comunidade NzolaNet',
-      isFollowing: false
-    },
-    {
-      id: 60,
-      name: 'Julian Thorne',
-      username: '@jthorne_io',
-      avatar: 'https://i.pravatar.cc/80?img=60',
-      bio: 'Tecnologia e startups',
-      isFollowing: false
-    }
-  ]);
+  protected readonly followers = signal<ProfileListItem[]>([]);
+  protected readonly following = signal<ProfileListItem[]>([]);
+  protected readonly followersCount = signal(0);
+  protected readonly followingCount = signal(0);
+  protected readonly suggestedProfiles = signal<ProfileListItem[]>([]);
   protected readonly mediaItems = signal<ProfileMediaItem[]>([]);
   protected readonly filteredMediaItems = computed(() => {
     const filter = this.activeContentFilter();
@@ -155,6 +84,8 @@ export class Profile implements OnInit {
       next: ({ data }) => {
         this.syncEditor(data);
         this.loadUserPosts(data.id);
+        this.loadProfileLists(data.id);
+        this.loadSuggestions();
       },
       error: (error: unknown) => this.profileError.set(this.errorMessage(error))
     });
@@ -236,6 +167,11 @@ export class Profile implements OnInit {
 
   protected openModal(modal: Exclude<ProfileListModal, null>): void {
     this.activeModal.set(modal);
+    const userId = this.currentUser()?.id;
+
+    if (userId) {
+      this.loadProfileList(userId, modal);
+    }
   }
 
   protected closeModal(): void {
@@ -243,30 +179,74 @@ export class Profile implements OnInit {
   }
 
   protected toggleFollowerFollow(profileId: number): void {
-    this.followers.update((profiles) =>
-      profiles.map((profile) =>
-        profile.id === profileId ? { ...profile, isFollowing: !profile.isFollowing } : profile
-      )
-    );
-    this.feedback.show('Estado de seguimento atualizado.');
+    this.toggleListProfileFollow(profileId, 'followers');
   }
 
   protected unfollowProfile(profileId: number): void {
-    this.following.update((profiles) =>
-      profiles.map((profile) =>
-        profile.id === profileId ? { ...profile, isFollowing: false } : profile
-      )
-    );
-    this.feedback.show('Perfil removido da lista a seguir.', 'info');
+    this.toggleListProfileFollow(profileId, 'following');
   }
 
   protected toggleSuggestedFollow(profileId: number): void {
-    this.suggestedProfiles.update((profiles) =>
-      profiles.map((profile) =>
-        profile.id === profileId ? { ...profile, isFollowing: !profile.isFollowing } : profile
-      )
-    );
-    this.feedback.show('Sugestão atualizada.');
+    this.toggleListProfileFollow(profileId, 'suggested');
+  }
+
+  private loadSuggestions(): void {
+    this.users.suggestions(5).subscribe({
+      next: ({ data }) => this.suggestedProfiles.set(data.map((user) => this.mapUserToListItem(user))),
+      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
+    });
+  }
+
+  private loadProfileLists(userId: number): void {
+    this.loadProfileList(userId, 'followers');
+    this.loadProfileList(userId, 'following');
+  }
+
+  private loadProfileList(userId: number, list: Exclude<ProfileListModal, null>): void {
+    const request = list === 'followers' ? this.users.followers(userId) : this.users.following(userId);
+    request.subscribe({
+      next: ({ data, meta }) => {
+        const mappedProfiles = data.map((user) => this.mapUserToListItem(user));
+        list === 'followers' ? this.followers.set(mappedProfiles) : this.following.set(mappedProfiles);
+        list === 'followers' ? this.followersCount.set(meta.total) : this.followingCount.set(meta.total);
+      },
+      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
+    });
+  }
+
+  private toggleListProfileFollow(profileId: number, list: 'followers' | 'following' | 'suggested'): void {
+    const source = list === 'followers' ? this.followers : list === 'following' ? this.following : this.suggestedProfiles;
+    const profile = source().find((item) => item.id === profileId);
+
+    if (!profile) {
+      return;
+    }
+
+    const onSuccess = (): void => {
+      source.update((profiles) =>
+        profiles.map((item) => (item.id === profileId ? { ...item, isFollowing: !item.isFollowing } : item))
+      );
+      this.feedback.show(profile.isFollowing ? 'Perfil removido da lista a seguir.' : 'Perfil seguido.', profile.isFollowing ? 'info' : 'success');
+
+      const userId = this.currentUser()?.id;
+      if (userId) {
+        this.loadProfileLists(userId);
+      }
+    };
+    const onError = (error: unknown): void => this.profileError.set(this.errorMessage(error));
+
+    if (profile.isFollowing) {
+      this.users.unfollow(profileId).subscribe({
+        next: onSuccess,
+        error: onError
+      });
+      return;
+    }
+
+    this.users.follow(profileId).subscribe({
+      next: onSuccess,
+      error: onError
+    });
   }
 
   private loadUserPosts(userId: number): void {
@@ -295,6 +275,17 @@ export class Profile implements OnInit {
       image: post.image ? `/storage/${post.image}` : undefined,
       video: post.video ? `/storage/${post.video}` : undefined,
       alt: `Publicação de ${post.author.name ?? 'utilizador'}`
+    };
+  }
+
+  private mapUserToListItem(user: ApiUser): ProfileListItem {
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username ? `@${user.username}` : `@utilizador${user.id}`,
+      avatar: user.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/80?img=47',
+      bio: user.bio ?? 'Ainda sem biografia.',
+      isFollowing: user.is_followed_by_viewer
     };
   }
 

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 class UserRepository
@@ -25,6 +26,21 @@ class UserRepository
     public function findById(int $id): ?User
     {
         return User::query()->find($id);
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, User>
+     */
+    public function paginateFollowSuggestions(User $viewer, int $perPage, ?int $excludeUserId = null): LengthAwarePaginator
+    {
+        return User::query()
+            ->withCount(['followers', 'following'])
+            ->whereKeyNot($viewer->id)
+            ->when($excludeUserId, fn ($query) => $query->whereKeyNot($excludeUserId))
+            ->whereDoesntHave('followers', fn ($query) => $query->where('users.id', $viewer->id))
+            ->orderByDesc('followers_count')
+            ->orderBy('name')
+            ->paginate($perPage);
     }
 
     /**

@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
     Route::get('users/me', [UserController::class, 'me']);
+    Route::get('users/suggestions', [UserController::class, 'suggestions']);
     Route::post('users/{id}/follow', [FollowController::class, 'follow'])->whereNumber('id');
     Route::delete('users/{id}/follow', [FollowController::class, 'unfollow'])->whereNumber('id');
     Route::get('users/{id}/followers', [FollowController::class, 'followers'])->whereNumber('id');

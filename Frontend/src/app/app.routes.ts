@@ -15,6 +15,7 @@ export const routes: Routes = [
   { path: 'explore', component: Explore, canActivate: [authGuard] },
   { path: 'favorites', component: Favorites, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: 'visitor-profile/:id', component: VisitorProfile, canActivate: [authGuard] },
   { path: 'visitor-profile', component: VisitorProfile, canActivate: [authGuard] },
   { path: 'settings', component: Settings, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }

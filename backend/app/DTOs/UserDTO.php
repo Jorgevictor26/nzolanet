@@ -13,9 +13,12 @@ readonly class UserDTO
         public ?string $bio,
         public ?string $profilePhoto,
         public string $privacy,
+        public int $followersCount,
+        public int $followingCount,
+        public bool $isFollowedByViewer,
     ) {}
 
-    public static function fromModel(User $user): self
+    public static function fromModel(User $user, ?User $viewer = null): self
     {
         return new self(
             id: $user->id,
@@ -24,11 +27,16 @@ readonly class UserDTO
             bio: $user->bio,
             profilePhoto: $user->profile_photo,
             privacy: $user->privacy,
+            followersCount: (int) ($user->getAttribute('followers_count') ?? $user->followers()->count()),
+            followingCount: (int) ($user->getAttribute('following_count') ?? $user->following()->count()),
+            isFollowedByViewer: $viewer !== null
+                && $viewer->id !== $user->id
+                && $user->followers()->where('users.id', $viewer->id)->exists(),
         );
     }
 
     /**
-     * @return array<string, int|string|null>
+     * @return array<string, bool|int|string|null>
      */
     public function toArray(): array
     {
@@ -39,6 +47,9 @@ readonly class UserDTO
             'bio' => $this->bio,
             'profile_photo' => $this->profilePhoto,
             'privacy' => $this->privacy,
+            'followers_count' => $this->followersCount,
+            'following_count' => $this->followingCount,
+            'is_followed_by_viewer' => $this->isFollowedByViewer,
         ];
     }
 }
