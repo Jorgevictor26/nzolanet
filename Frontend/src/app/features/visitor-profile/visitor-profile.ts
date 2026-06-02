@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
 import { ApiUser, Users } from '../../core/users';
@@ -31,6 +32,7 @@ type ProfileMediaItem = {
   templateUrl: './visitor-profile.html'
 })
 export class VisitorProfile implements OnInit {
+  private routeSubscription?: Subscription;
   protected readonly profile = signal<ApiUser | null>(null);
   protected readonly profileError = signal<string | null>(null);
   protected readonly isLoadingProfile = signal(false);
@@ -102,14 +104,22 @@ export class VisitorProfile implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const profileId = Number(this.route.snapshot.paramMap.get('id'));
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
+      const profileId = Number(params.get('id'));
 
-    if (!Number.isInteger(profileId) || profileId <= 0) {
-      this.profileError.set('Abre um perfil de utilizador válido para seguir ou deixar de seguir.');
-      return;
-    }
+      this.resetProfileState();
 
-    this.loadProfile(profileId);
+      if (!Number.isInteger(profileId) || profileId <= 0) {
+        this.profileError.set('Abre um perfil de utilizador válido para seguir ou deixar de seguir.');
+        return;
+      }
+
+      this.loadProfile(profileId);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
   }
 
   protected toggleFollow(): void {
@@ -217,6 +227,20 @@ export class VisitorProfile implements OnInit {
         this.isLoadingProfile.set(false);
       }
     });
+  }
+
+  private resetProfileState(): void {
+    this.profile.set(null);
+    this.profileError.set(null);
+    this.isFollowInFlight.set(false);
+    this.activeModal.set(null);
+    this.activeMediaItemId.set(null);
+    this.activeContentFilter.set('posts');
+    this.followers.set([]);
+    this.following.set([]);
+    this.followersCount.set(0);
+    this.followingCount.set(0);
+    this.suggestedProfiles.set([]);
   }
 
   private loadProfileList(list: Exclude<ProfileListModal, null>): void {
