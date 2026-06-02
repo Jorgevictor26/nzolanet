@@ -36,8 +36,9 @@ class FollowService
         }
 
         $this->follows->create($dto->followerId, $dto->followingId);
+        $following->loadCount(['followers', 'following']);
 
-        return UserDTO::fromModel($following);
+        return UserDTO::fromModel($following, $follower);
     }
 
     public function unfollow(User $follower, int $followingId): void
@@ -53,26 +54,28 @@ class FollowService
     }
 
     /**
-     * @return array{data: array<int, array<string, int|string|null>>, meta: array<string, int>}
+     * @return array{data: array<int, array<string, bool|int|string|null>>, meta: array<string, int>}
      */
-    public function followers(int $userId, int $perPage): array
+    public function followers(int $userId, int $perPage, User $viewer): array
     {
         $user = $this->findUserOrFail($userId);
 
         return $this->formatPaginatedUsers(
-            $this->follows->paginateFollowers($user, $this->normalizePerPage($perPage))
+            $this->follows->paginateFollowers($user, $this->normalizePerPage($perPage)),
+            $viewer
         );
     }
 
     /**
-     * @return array{data: array<int, array<string, int|string|null>>, meta: array<string, int>}
+     * @return array{data: array<int, array<string, bool|int|string|null>>, meta: array<string, int>}
      */
-    public function following(int $userId, int $perPage): array
+    public function following(int $userId, int $perPage, User $viewer): array
     {
         $user = $this->findUserOrFail($userId);
 
         return $this->formatPaginatedUsers(
-            $this->follows->paginateFollowing($user, $this->normalizePerPage($perPage))
+            $this->follows->paginateFollowing($user, $this->normalizePerPage($perPage)),
+            $viewer
         );
     }
 
@@ -94,13 +97,14 @@ class FollowService
 
     /**
      * @param  LengthAwarePaginator<int, User>  $paginator
-     * @return array{data: array<int, array<string, int|string|null>>, meta: array<string, int>}
+     * @return array{data: array<int, array<string, bool|int|string|null>>, meta: array<string, int>}
      */
-    private function formatPaginatedUsers(LengthAwarePaginator $paginator): array
+    private function formatPaginatedUsers(LengthAwarePaginator $paginator, User $viewer): array
     {
         return [
             'data' => $paginator->getCollection()
-                ->map(fn (User $user): array => UserDTO::fromModel($user)->toArray())
+                ->each->loadCount(['followers', 'following'])
+                ->map(fn (User $user): array => UserDTO::fromModel($user, $viewer)->toArray())
                 ->values()
                 ->all(),
             'meta' => [

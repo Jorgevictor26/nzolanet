@@ -51,12 +51,21 @@
           <p class="text-[18px] font-bold text-[#111827]">{{ postsCount() }}</p>
           <p class="text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Posts</p>
         </div>
+<<<<<<< HEAD
         <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('followers')">
           <span class="block text-[18px] font-bold text-[#111827]">48.2k</span>
           <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
         </button>
         <button class="rounded-[8px] text-center hover:bg-[#f4f7fb] sm:text-left" type="button" (click)="openModal('following')">
           <span class="block text-[18px] font-bold text-[#111827]">853</span>
+=======
+        <button class="text-center sm:text-left" type="button" (click)="openModal('followers')">
+          <span class="block text-[18px] font-bold text-[#111827]">{{ followersCount() }}</span>
+          <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">Seguidores</span>
+        </button>
+        <button class="text-center sm:text-left" type="button" (click)="openModal('following')">
+          <span class="block text-[18px] font-bold text-[#111827]">{{ followingCount() }}</span>
+>>>>>>> integration-back-front
           <span class="block text-[9px] font-bold uppercase tracking-[0.08em] text-[#8b95a7]">A seguir</span>
         </button>
       </div>
@@ -141,6 +150,8 @@
                 {{ profile.isFollowing ? prefs.t('following') : prefs.t('follow') }}
               </button>
             </div>
+          } @empty {
+            <p class="text-[12px] font-semibold text-[#778295]">Sem sugestões disponíveis.</p>
           }
         </div>
         <button class="mt-5 rounded-[6px] px-2 py-1 text-[14px] font-normal text-[#1f6fff] hover:bg-[#eef3ff]" type="button">{{ prefs.language() === 'pt' ? 'Mostrar mais' : 'Show more' }}</button>
@@ -216,6 +227,8 @@
                 {{ profile.isFollowing ? prefs.t('following') : 'Seguir de volta' }}
               </button>
             </article>
+          } @empty {
+            <p class="rounded-[8px] bg-[#f8fafc] px-3 py-4 text-center text-[12px] font-semibold text-[#8b95a7]">Ainda não há seguidores.</p>
           }
         } @else {
           @for (profile of following(); track profile.id) {
@@ -229,6 +242,8 @@
                 {{ profile.isFollowing ? 'Deixar de seguir' : 'Removido' }}
               </button>
             </article>
+          } @empty {
+            <p class="rounded-[8px] bg-[#f8fafc] px-3 py-4 text-center text-[12px] font-semibold text-[#8b95a7]">Ainda não segues ninguém.</p>
           }
         }
       </div>

@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../core/auth';
+import { ApiUser, Users } from '../../core/users';
 
 type AuthStep = 'login' | 'register' | 'photo' | 'bio' | 'follow' | 'forgot' | 'reset';
 
@@ -23,7 +24,8 @@ type SuggestedProfile = {
 export class Login {
   constructor(
     private readonly router: Router,
-    private readonly auth: Auth
+    private readonly auth: Auth,
+    private readonly users: Users
   ) {}
 
   protected readonly authStep = signal<AuthStep>('login');
@@ -58,32 +60,7 @@ export class Login {
       .map((name) => name[0]?.toUpperCase() ?? '')
       .join('');
   });
-  protected readonly suggestedProfiles = signal<SuggestedProfile[]>([
-    {
-      id: 15,
-      name: 'Marcus Vane',
-      username: '@mrv_design',
-      avatar: 'https://i.pravatar.cc/96?img=15',
-      role: 'Design e tecnologia',
-      isFollowing: false
-    },
-    {
-      id: 36,
-      name: 'Lia K.',
-      username: '@lia_connect',
-      avatar: 'https://i.pravatar.cc/96?img=36',
-      role: 'Comunidade NzolaNet',
-      isFollowing: false
-    },
-    {
-      id: 60,
-      name: 'Julian Thorne',
-      username: '@jthorne_io',
-      avatar: 'https://i.pravatar.cc/96?img=60',
-      role: 'Tecnologia e startups',
-      isFollowing: false
-    }
-  ]);
+  protected readonly suggestedProfiles = signal<SuggestedProfile[]>([]);
 
   protected togglePasswordVisibility(): void {
     this.isPasswordVisible.update((isVisible) => !isVisible);
@@ -93,6 +70,10 @@ export class Login {
     this.authError.set(null);
     this.authMessage.set(null);
     this.authStep.set(step);
+
+    if (step === 'follow') {
+      this.loadSuggestions();
+    }
   }
 
   protected chooseProfilePhoto(input: HTMLInputElement): void {
@@ -112,11 +93,31 @@ export class Login {
   }
 
   protected toggleFollow(profileId: number): void {
-    this.suggestedProfiles.update((profiles) =>
-      profiles.map((profile) =>
-        profile.id === profileId ? { ...profile, isFollowing: !profile.isFollowing } : profile
-      )
-    );
+    const profile = this.suggestedProfiles().find((item) => item.id === profileId);
+
+    if (!profile) {
+      return;
+    }
+
+    const onSuccess = (): void => {
+      this.suggestedProfiles.update((profiles) =>
+        profiles.map((item) => item.id === profileId ? { ...item, isFollowing: !item.isFollowing } : item)
+      );
+    };
+    const onError = (error: unknown): void => this.handleError(error);
+
+    if (profile.isFollowing) {
+      this.users.unfollow(profileId).subscribe({
+        next: onSuccess,
+        error: onError
+      });
+      return;
+    }
+
+    this.users.follow(profileId).subscribe({
+      next: onSuccess,
+      error: onError
+    });
   }
 
   protected finishOnboarding(): void {
@@ -237,6 +238,24 @@ export class Login {
       .map((name) => name.trim())
       .filter(Boolean)
       .join(' ');
+  }
+
+  private loadSuggestions(): void {
+    this.users.suggestions(5).subscribe({
+      next: ({ data }) => this.suggestedProfiles.set(data.map((user) => this.mapSuggestedProfile(user))),
+      error: (error: unknown) => this.handleError(error)
+    });
+  }
+
+  private mapSuggestedProfile(user: ApiUser): SuggestedProfile {
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username ? `@${user.username}` : `@utilizador${user.id}`,
+      avatar: user.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/96?img=47',
+      role: user.bio ?? 'Ainda sem biografia.',
+      isFollowing: user.is_followed_by_viewer
+    };
   }
 
   private runRequest(start: () => void): void {

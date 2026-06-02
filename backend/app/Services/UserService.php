@@ -9,6 +9,7 @@ use App\DTOs\UserDTO;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 
@@ -30,12 +31,25 @@ class UserService
             throw new AuthorizationException('Este perfil é privado.');
         }
 
-        return UserDTO::fromModel($profile);
+        $profile->loadCount(['followers', 'following']);
+
+        return UserDTO::fromModel($profile, $viewer);
     }
 
     public function getAuthenticatedProfile(User $user): CurrentUserDTO
     {
         return CurrentUserDTO::fromModel($user);
+    }
+
+    /**
+     * @return array{data: array<int, array<string, bool|int|string|null>>, meta: array<string, int>}
+     */
+    public function followSuggestions(User $viewer, int $perPage, ?int $excludeUserId = null): array
+    {
+        return $this->formatPaginatedUsers(
+            $this->users->paginateFollowSuggestions($viewer, $this->normalizePerPage($perPage), $excludeUserId),
+            $viewer
+        );
     }
 
     public function updateProfile(User $user, UpdateProfileDTO $dto): CurrentUserDTO
@@ -56,5 +70,30 @@ class UserService
         }
 
         return CurrentUserDTO::fromModel($updatedUser);
+    }
+
+    private function normalizePerPage(int $perPage): int
+    {
+        return max(1, min($perPage, 50));
+    }
+
+    /**
+     * @param  LengthAwarePaginator<int, User>  $paginator
+     * @return array{data: array<int, array<string, bool|int|string|null>>, meta: array<string, int>}
+     */
+    private function formatPaginatedUsers(LengthAwarePaginator $paginator, User $viewer): array
+    {
+        return [
+            'data' => $paginator->getCollection()
+                ->map(fn (User $user): array => UserDTO::fromModel($user, $viewer)->toArray())
+                ->values()
+                ->all(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ];
     }
 }
