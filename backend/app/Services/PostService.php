@@ -8,6 +8,7 @@ use App\DTOs\UpdatePostDTO;
 use App\Models\Post;
 use App\Models\User;
 use App\Repositories\PostRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,6 +19,7 @@ class PostService
 {
     public function __construct(
         private readonly PostRepository $posts,
+        private readonly UserRepository $users,
     ) {}
 
     /**
@@ -27,6 +29,26 @@ class PostService
     {
         return $this->formatPaginatedPosts(
             $this->posts->paginateFeed($this->normalizePerPage($perPage))
+        );
+    }
+
+    /**
+     * @return array{data: array<int, array<string, mixed>>, meta: array<string, int>}
+     */
+    public function userPosts(User $viewer, int $userId, int $perPage): array
+    {
+        $profile = $this->users->findById($userId);
+
+        if (! $profile) {
+            throw (new ModelNotFoundException)->setModel(User::class, [$userId]);
+        }
+
+        if ($profile->id !== $viewer->id && $profile->privacy === 'private') {
+            throw new AuthorizationException('Este perfil é privado.');
+        }
+
+        return $this->formatPaginatedPosts(
+            $this->posts->paginateByUserId($userId, $this->normalizePerPage($perPage))
         );
     }
 

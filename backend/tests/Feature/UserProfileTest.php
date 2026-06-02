@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -44,6 +45,10 @@ class UserProfileTest extends TestCase
             'phone_number' => '+244 921 111 111',
             'privacy' => 'public',
         ]);
+        Post::create([
+            'user_id' => $profile->id,
+            'content' => 'Publicação do perfil.',
+        ]);
 
         $response = $this
             ->actingAs($viewer, 'sanctum')
@@ -54,6 +59,7 @@ class UserProfileTest extends TestCase
             ->assertJsonPath('data.id', $profile->id)
             ->assertJsonPath('data.name', 'Public User')
             ->assertJsonPath('data.username', 'public.user')
+            ->assertJsonPath('data.posts_count', 1)
             ->assertJsonMissing(['phone_number']);
     }
 

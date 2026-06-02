@@ -23,6 +23,13 @@ class PostController extends Controller
         );
     }
 
+    public function userPosts(Request $request, int $id): JsonResponse
+    {
+        return response()->json(
+            $this->postService->userPosts($request->user(), $id, (int) $request->integer('per_page', 15))
+        );
+    }
+
     public function store(StorePostRequest $request): JsonResponse
     {
         $post = $this->postService->create(

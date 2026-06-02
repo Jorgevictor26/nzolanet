@@ -69,6 +69,57 @@ class PostTest extends TestCase
         ]);
     }
 
+    public function test_authenticated_user_can_list_posts_from_a_public_profile(): void
+    {
+        $viewer = User::factory()->create();
+        $profile = User::factory()->create([
+            'name' => 'Perfil Visitado',
+            'privacy' => 'public',
+        ]);
+        $otherUser = User::factory()->create();
+
+        $profilePost = Post::create([
+            'user_id' => $profile->id,
+            'content' => 'Publicação real do perfil visitado.',
+        ]);
+        Post::create([
+            'user_id' => $otherUser->id,
+            'content' => 'Publicação de outro utilizador.',
+        ]);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$profile->id}/posts?per_page=10");
+
+        $response
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $profilePost->id)
+            ->assertJsonPath('data.0.user_id', $profile->id)
+            ->assertJsonPath('data.0.author.name', 'Perfil Visitado')
+            ->assertJsonPath('data.0.content', 'Publicação real do perfil visitado.')
+            ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_authenticated_user_cannot_list_posts_from_a_private_profile(): void
+    {
+        $viewer = User::factory()->create();
+        $profile = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+
+        Post::create([
+            'user_id' => $profile->id,
+            'content' => 'Publicação privada.',
+        ]);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$profile->id}/posts");
+
+        $response->assertForbidden();
+    }
+
     public function test_authenticated_user_can_create_post(): void
     {
         $user = User::factory()->create();

@@ -76,6 +76,14 @@ export class Posts {
     });
   }
 
+  byUser(userId: number, perPage = 50): Observable<PostsResponse> {
+    return this.http.get<PostsResponse>(`${environment.apiUrl}/users/${userId}/posts`, {
+      params: {
+        per_page: perPage
+      }
+    });
+  }
+
   create(payload: { content: string; image?: File | null; video?: File | null }): Observable<PostResponse> {
     const formData = new FormData();
     formData.append('content', payload.content);
