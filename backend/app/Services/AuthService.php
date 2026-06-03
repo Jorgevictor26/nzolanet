@@ -66,7 +66,13 @@ class AuthService
 
     public function forgotPassword(ForgotPasswordDTO $dto): string
     {
-        $status = Password::sendResetLink(['email' => $dto->email]);
+        $status = Password::broker()->sendResetLink(
+            ['email' => $dto->email],
+            function (User $user, string $token) {
+                $resetUrl = env('FRONTEND_URL') . '/login?token=' . $token . '&email=' . urlencode($user->email);
+                $user->sendPasswordResetNotification($token);
+            }
+        );
 
         if ($status !== Password::RESET_LINK_SENT) {
             throw ValidationException::withMessages([

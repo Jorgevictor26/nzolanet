@@ -52,6 +52,10 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
     /**
      * Get the attributes that should be cast.
      *
