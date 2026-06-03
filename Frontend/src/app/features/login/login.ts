@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '../../core/auth';
 import { ApiUser, Users } from '../../core/users';
 
@@ -24,9 +24,26 @@ type SuggestedProfile = {
 export class Login {
   constructor(
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly auth: Auth,
     private readonly users: Users
-  ) {}
+  ) {
+    const initialStep = this.route.snapshot.data['authStep'] as AuthStep | undefined;
+    const email = this.route.snapshot.queryParamMap.get('email')?.trim();
+    const navigationMessage = this.router.getCurrentNavigation()?.extras.state?.['authMessage'];
+
+    if (initialStep) {
+      this.authStep.set(initialStep);
+    }
+
+    if (email) {
+      this.forgotEmail.set(email);
+    }
+
+    if (typeof navigationMessage === 'string') {
+      this.authMessage.set(navigationMessage);
+    }
+  }
 
   protected readonly authStep = signal<AuthStep>('login');
   protected readonly isPasswordVisible = signal(false);
@@ -70,6 +87,16 @@ export class Login {
     this.authError.set(null);
     this.authMessage.set(null);
     this.authStep.set(step);
+
+    if (step === 'login') {
+      this.router.navigateByUrl('/');
+    } else if (step === 'forgot') {
+      this.router.navigateByUrl('/esqueci-senha');
+    } else if (step === 'reset') {
+      this.router.navigate(['/redefinir-senha'], {
+        queryParams: { email: this.forgotEmail().trim() || null }
+      });
+    }
 
     if (step === 'follow') {
       this.loadSuggestions();
@@ -125,10 +152,23 @@ export class Login {
   }
 
   protected submitLogin(): void {
+    const email = this.loginEmail().trim();
+    const password = this.loginPassword();
+
+    if (!email) {
+      this.authError.set('Indica o email da tua conta para iniciar sessão.');
+      return;
+    }
+
+    if (!password) {
+      this.authError.set('Escreve a tua senha para entrares na conta.');
+      return;
+    }
+
     this.runRequest(() =>
       this.auth.login({
-        email: this.loginEmail(),
-        password: this.loginPassword()
+        email,
+        password
       }).subscribe({
         next: () => this.router.navigateByUrl('/home'),
         error: (error: unknown) => this.handleError(error)
@@ -138,8 +178,23 @@ export class Login {
 
   protected submitRegister(): void {
     const password = this.registerPassword();
-    const email = this.registerEmail();
+    const email = this.registerEmail().trim();
     const name = this.fullName();
+
+    if (!name) {
+      this.authError.set('Preenche pelo menos o primeiro nome para criar a conta.');
+      return;
+    }
+
+    if (!email) {
+      this.authError.set('Indica um email válido para associares a conta.');
+      return;
+    }
+
+    if (password.length < 8) {
+      this.authError.set('A senha deve ter pelo menos 8 caracteres.');
+      return;
+    }
 
     this.runRequest(() =>
       this.auth.register({ name, email, password }).subscribe({
@@ -203,11 +258,19 @@ export class Login {
   }
 
   protected submitForgotPassword(): void {
+    const email = this.forgotEmail().trim();
+
+    if (!email) {
+      this.authError.set('Escreve o email da conta para enviarmos o código de recuperação.');
+      return;
+    }
+
     this.runRequest(() =>
-      this.auth.forgotPassword(this.forgotEmail()).subscribe({
+      this.auth.forgotPassword(email).subscribe({
         next: (response) => {
+          this.forgotEmail.set(email);
           this.goToStep('reset');
-          this.authMessage.set(response.message || 'Email de recuperação enviado.');
+          this.authMessage.set(response.message || 'Enviamos um código de recuperação para o teu email.');
           this.finishRequest();
         },
         error: (error: unknown) => this.handleError(error)
@@ -216,16 +279,41 @@ export class Login {
   }
 
   protected submitResetPassword(): void {
+    if (!this.forgotEmail().trim()) {
+      this.authError.set('Volta ao passo anterior e informa o email da conta.');
+      return;
+    }
+
+    if (!this.resetToken().trim()) {
+      this.authError.set('Informa o código de recuperação que recebeste por email.');
+      return;
+    }
+
+    if (this.resetPassword().length < 8) {
+      this.authError.set('A nova senha deve ter pelo menos 8 caracteres.');
+      return;
+    }
+
+    if (this.resetPassword() !== this.resetPasswordConfirmation()) {
+      this.authError.set('A confirmação da senha deve ser igual à nova senha.');
+      return;
+    }
+
     this.runRequest(() =>
       this.auth.resetPassword({
-        email: this.forgotEmail(),
-        token: this.resetToken(),
+        email: this.forgotEmail().trim(),
+        token: this.resetToken().trim(),
         password: this.resetPassword(),
         password_confirmation: this.resetPasswordConfirmation()
       }).subscribe({
         next: (response) => {
-          this.goToStep('login');
-          this.authMessage.set(response.message || 'Senha redefinida com sucesso.');
+          this.authError.set(null);
+          this.authStep.set('login');
+          this.router.navigateByUrl('/', {
+            state: {
+              authMessage: response.message || 'Senha alterada com sucesso. Já podes entrar com a nova senha.'
+            }
+          });
           this.finishRequest();
         },
         error: (error: unknown) => this.handleError(error)
@@ -276,16 +364,48 @@ export class Login {
 
   private errorMessage(error: unknown): string {
     if (!(error instanceof HttpErrorResponse)) {
-      return 'Não foi possível concluir a operação.';
+      return 'Não foi possível concluir a operação. Verifica a tua ligação e tenta novamente.';
     }
 
     const validationErrors = error.error?.errors;
-    const firstValidationError = validationErrors ? Object.values(validationErrors)[0] : null;
+    const firstValidationKey = validationErrors ? Object.keys(validationErrors)[0] : null;
+    const firstValidationError = validationErrors && firstValidationKey ? validationErrors[firstValidationKey] : null;
 
     if (Array.isArray(firstValidationError) && firstValidationError[0]) {
-      return String(firstValidationError[0]);
+      return this.validationMessage(firstValidationKey, String(firstValidationError[0]));
     }
 
-    return error.error?.message || 'Não foi possível concluir a operação.';
+    if (error.status === 401) {
+      return 'Email ou senha incorretos. Confirma os dados e tenta novamente.';
+    }
+
+    if (error.status === 404) {
+      return 'Não encontramos uma conta com estes dados.';
+    }
+
+    if (error.status === 422) {
+      return 'Revê os dados preenchidos e tenta novamente.';
+    }
+
+    return error.error?.message || 'Não foi possível concluir a operação. Tenta novamente dentro de instantes.';
+  }
+
+  private validationMessage(field: string | null, fallback: string): string {
+    switch (field) {
+      case 'name':
+        return 'Indica o teu nome para criar a conta.';
+      case 'email':
+        return this.authStep() === 'login'
+          ? 'Indica um email válido para entrar.'
+          : 'Indica um email válido. Se já existe uma conta com este email, usa a tela de login.';
+      case 'password':
+        return 'A senha deve ter pelo menos 8 caracteres.';
+      case 'password_confirmation':
+        return 'A confirmação da senha deve ser igual à nova senha.';
+      case 'token':
+        return 'O código de recuperação está vazio ou inválido.';
+      default:
+        return fallback || 'Revê os dados preenchidos e tenta novamente.';
+    }
   }
 }

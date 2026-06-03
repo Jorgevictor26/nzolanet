@@ -177,6 +177,10 @@ export class VisitorProfile implements OnInit {
     return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/180?img=32';
   }
 
+  protected coverPhotoUrl(user: ApiUser | null = this.profile()): string {
+    return user?.cover_photo ? `/storage/${user.cover_photo}` : 'meza-membros/meza-10.jpeg';
+  }
+
   protected username(user: ApiUser | null = this.profile()): string {
     if (user?.username) {
       return `@${user.username}`;

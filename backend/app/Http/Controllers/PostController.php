@@ -38,6 +38,7 @@ class PostController extends Controller
                 content: $request->validated('content'),
                 image: $request->file('image'),
                 video: $request->file('video'),
+                media: $request->file('media', []),
             ),
         );
 
@@ -55,6 +56,7 @@ class PostController extends Controller
                 content: $request->validated('content'),
                 image: $request->file('image'),
                 video: $request->file('video'),
+                media: $request->file('media', []),
             ),
         );
 

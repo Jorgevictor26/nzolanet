@@ -10,5 +10,7 @@ readonly class CreatePostDTO
         public string $content,
         public ?UploadedFile $image,
         public ?UploadedFile $video,
+        /** @var array<int, UploadedFile> */
+        public array $media = [],
     ) {}
 }

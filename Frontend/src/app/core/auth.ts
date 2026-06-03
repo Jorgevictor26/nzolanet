@@ -11,6 +11,7 @@ export type CurrentUser = {
   phone_number: string | null;
   bio: string | null;
   profile_photo: string | null;
+  cover_photo: string | null;
   privacy: 'public' | 'private';
 };
 
@@ -87,7 +88,30 @@ export class Auth {
     phone_number: string | null;
     bio: string | null;
     privacy: 'public' | 'private';
+    profile_photo_file?: File | null;
+    cover_photo_file?: File | null;
   }): Observable<UserResponse> {
+    if (payload.profile_photo_file || payload.cover_photo_file) {
+      const formData = new FormData();
+      formData.append('name', payload.name);
+      formData.append('username', payload.username ?? '');
+      formData.append('phone_number', payload.phone_number ?? '');
+      formData.append('bio', payload.bio ?? '');
+      formData.append('privacy', payload.privacy);
+
+      if (payload.profile_photo_file) {
+        formData.append('profile_photo_file', payload.profile_photo_file);
+      }
+
+      if (payload.cover_photo_file) {
+        formData.append('cover_photo_file', payload.cover_photo_file);
+      }
+
+      return this.http.post<UserResponse>(`${environment.apiUrl}/users/profile`, formData).pipe(
+        tap((response) => this.storeUser(response.data))
+      );
+    }
+
     return this.http.put<UserResponse>(`${environment.apiUrl}/users/profile`, payload).pipe(
       tap((response) => this.storeUser(response.data))
     );

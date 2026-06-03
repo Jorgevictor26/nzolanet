@@ -2,6 +2,8 @@
 
 namespace App\DTOs;
 
+use Illuminate\Http\UploadedFile;
+
 readonly class UpdateProfileDTO
 {
     public function __construct(
@@ -10,6 +12,8 @@ readonly class UpdateProfileDTO
         public ?string $phoneNumber,
         public ?string $bio,
         public string $privacy,
+        public ?UploadedFile $profilePhoto,
+        public ?UploadedFile $coverPhoto,
     ) {}
 
     /**
@@ -23,6 +27,8 @@ readonly class UpdateProfileDTO
             phoneNumber: $data['phone_number'] ?? null,
             bio: $data['bio'] ?? null,
             privacy: $data['privacy'],
+            profilePhoto: $data['profile_photo_file'] ?? null,
+            coverPhoto: $data['cover_photo_file'] ?? null,
         );
     }
 

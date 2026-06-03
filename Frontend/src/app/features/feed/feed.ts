@@ -170,6 +170,19 @@ export class Feed implements OnInit {
     input.value = '';
   }
 
+  protected selectPostMediaAuto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    if (!file) {
+      return;
+    }
+
+    const type = file.type.startsWith('video/') ? 'video' : 'image';
+    this.applyComposerFile(file, type);
+    input.value = '';
+  }
+
   protected handleComposerDrop(event: DragEvent): void {
     event.preventDefault();
     const file = event.dataTransfer?.files?.[0];

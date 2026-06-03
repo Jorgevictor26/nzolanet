@@ -8,6 +8,7 @@ use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
 use App\DTOs\ResetPasswordDTO;
 use App\Models\User;
+use App\Notifications\PasswordResetCode;
 use App\Repositories\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
@@ -66,15 +67,18 @@ class AuthService
 
     public function forgotPassword(ForgotPasswordDTO $dto): string
     {
-        $status = Password::sendResetLink(['email' => $dto->email]);
+        $user = $this->users->findByEmail($dto->email);
 
-        if ($status !== Password::RESET_LINK_SENT) {
+        if (! $user) {
             throw ValidationException::withMessages([
-                'email' => [__($status)],
+                'email' => [__(Password::INVALID_USER)],
             ]);
         }
 
-        return __($status);
+        $token = Password::broker()->createToken($user);
+        $user->notify(new PasswordResetCode($token));
+
+        return 'Enviamos um código de recuperação para o teu email.';
     }
 
     public function resetPassword(ResetPasswordDTO $dto): string

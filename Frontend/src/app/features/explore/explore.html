@@ -46,13 +46,13 @@
 </section>
 
 @if (activeItem(); as item) {
-  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/40 p-3 sm:p-4" (click)="closeItemDetails()">
-    <section class="grid max-h-[calc(100dvh-24px)] w-full max-w-[980px] overflow-hidden rounded-[8px] bg-white shadow-2xl md:grid-cols-[minmax(0,1.25fr)_360px]" role="dialog" aria-modal="true" aria-labelledby="explore-detail-title" (click)="$event.stopPropagation()">
-      <div class="relative min-h-[280px] bg-[#111827] md:min-h-[620px]">
+  <div class="fixed inset-0 z-50 grid place-items-center bg-[#0f172a]/40 p-2 min-[380px]:p-3 sm:p-4" (click)="closeItemDetails()">
+    <section class="grid h-full max-h-[calc(100dvh-16px)] w-full max-w-[980px] grid-rows-[minmax(160px,42dvh)_minmax(0,1fr)] overflow-hidden rounded-[8px] bg-white shadow-2xl min-[380px]:max-h-[calc(100dvh-24px)] md:h-auto md:grid-cols-[minmax(0,1.25fr)_minmax(320px,360px)] md:grid-rows-none" role="dialog" aria-modal="true" aria-labelledby="explore-detail-title" (click)="$event.stopPropagation()">
+      <div class="relative min-h-0 bg-[#111827] md:min-h-[620px]">
         @if (item.kind === 'video' && item.video) {
-          <video class="h-full max-h-[48dvh] w-full bg-black object-contain md:max-h-none" [src]="item.video" [poster]="item.image" controls playsinline></video>
+          <video class="h-full max-h-[42dvh] w-full bg-black object-contain md:max-h-none" [src]="item.video" [poster]="item.image" controls playsinline></video>
         } @else {
-          <img class="h-full max-h-[48dvh] w-full object-cover md:max-h-none" [src]="item.image" [alt]="item.title" />
+          <img class="h-full max-h-[42dvh] w-full object-cover md:max-h-none" [src]="item.image" [alt]="item.title" />
         }
       </div>
 
@@ -78,16 +78,16 @@
           </div>
 
           <div class="mt-4 flex items-center justify-between border-y border-[#edf1f6] py-3 text-[#1f2944]">
-            <button [class]="socialState.hasPostBaze(item.id) ? 'grid size-9 place-items-center rounded-full bg-[#1f2944] text-white' : 'grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="toggleBaze(item.id)">
+            <button [class]="socialState.hasPostBaze(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="toggleBaze(item.id)">
               <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.hasPostBaze(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
             </button>
-            <button class="grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="exploreComment.focus()">
+            <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="exploreComment.focus()">
               <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
             </button>
-            <button [class]="socialState.isPostShared(item.id) ? 'grid size-9 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="shareItem(item.id)">
+            <button [class]="socialState.isPostShared(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="shareItem(item.id)">
               <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
             </button>
-            <button [class]="socialState.isPostFavorite(item.id) ? 'grid size-9 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-9 place-items-center rounded-full bg-[#f5f7fb] hover:bg-[#eef3ff] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="toggleFavorite(item.id)">
+            <button [class]="socialState.isPostFavorite(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="toggleFavorite(item.id)">
               <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.isPostFavorite(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
             </button>
           </div>
@@ -110,11 +110,13 @@
           </div>
         </div>
 
-        <footer class="shrink-0 border-t border-[#edf1f6] p-3">
+        <footer class="shrink-0 border-t border-[#edf1f6] p-2 min-[380px]:p-3">
           <div class="flex items-end gap-2">
             <img class="size-9 shrink-0 rounded-full object-cover" src="https://i.pravatar.cc/96?img=47" alt="Maria Guilhermina" />
             <textarea #exploreComment class="h-10 min-w-0 flex-1 resize-none rounded-[8px] border border-[#edf1f6] px-3 py-2 text-[12px] leading-5 text-[#1f2944] outline-none placeholder:text-[#b7bfcd] focus:border-[#1f6fff]" placeholder="Escreve um comentário..."></textarea>
-            <button class="h-10 shrink-0 rounded-[8px] bg-[#1f2944] px-4 text-[11px] font-bold text-white" type="button" (click)="submitComment(exploreComment.value); exploreComment.value = ''">Comentar</button>
+            <button class="grid size-10 shrink-0 place-items-center rounded-[8px] bg-[#1f2944] text-white min-[380px]:size-11" type="button" aria-label="Publicar comentario" (click)="submitComment(exploreComment.value); exploreComment.value = ''">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+            </button>
           </div>
         </footer>
       </div>

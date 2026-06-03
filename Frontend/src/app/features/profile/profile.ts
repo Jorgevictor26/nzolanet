@@ -65,6 +65,10 @@ export class Profile implements OnInit {
   protected readonly editPhoneNumber = signal('');
   protected readonly editBio = signal('');
   protected readonly editPrivacy = signal<'public' | 'private'>('public');
+  protected readonly editProfilePhotoFile = signal<File | null>(null);
+  protected readonly editCoverPhotoFile = signal<File | null>(null);
+  protected readonly editProfilePhotoPreview = signal<string | null>(null);
+  protected readonly editCoverPhotoPreview = signal<string | null>(null);
   protected readonly isLoadingPosts = signal(false);
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeMediaItemId = signal<number | null>(null);
@@ -126,6 +130,7 @@ export class Profile implements OnInit {
 
   protected closeProfileEditor(): void {
     this.isProfileEditorOpen.set(false);
+    this.clearPendingProfileImages();
   }
 
   protected saveProfile(): void {
@@ -136,11 +141,14 @@ export class Profile implements OnInit {
       username: this.normalizeUsername(this.editUsername()),
       phone_number: this.editPhoneNumber().trim() || null,
       bio: this.editBio().trim() || null,
-      privacy: this.editPrivacy()
+      privacy: this.editPrivacy(),
+      profile_photo_file: this.editProfilePhotoFile(),
+      cover_photo_file: this.editCoverPhotoFile()
     }).subscribe({
       next: () => {
         this.isSavingProfile.set(false);
         this.isProfileEditorOpen.set(false);
+        this.clearPendingProfileImages();
         this.feedback.show('Perfil atualizado.');
       },
       error: (error: unknown) => {
@@ -163,15 +171,29 @@ export class Profile implements OnInit {
     }
 
     this.profileError.set(null);
-    this.auth.changeProfilePhoto(photo).subscribe({
-      next: () => this.feedback.show('Foto de perfil atualizada.'),
-      error: (error: unknown) => this.profileError.set(this.errorMessage(error))
-    });
+    this.setPendingImage(photo, this.editProfilePhotoFile, this.editProfilePhotoPreview);
+    input.value = '';
+  }
+
+  protected changeCoverPhoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const photo = input.files?.[0];
+
+    if (!photo) {
+      return;
+    }
+
+    this.profileError.set(null);
+    this.setPendingImage(photo, this.editCoverPhotoFile, this.editCoverPhotoPreview);
     input.value = '';
   }
 
   protected profilePhotoUrl(user: CurrentUser | null = this.currentUser()): string {
     return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/180?img=47';
+  }
+
+  protected coverPhotoUrl(user: CurrentUser | null = this.currentUser()): string {
+    return user?.cover_photo ? `/storage/${user.cover_photo}` : 'meza-membros/meza-08.jpeg';
   }
 
   protected username(user: CurrentUser | null = this.currentUser()): string {
@@ -397,6 +419,45 @@ export class Profile implements OnInit {
     this.editPhoneNumber.set(user.phone_number ?? '');
     this.editBio.set(user.bio ?? '');
     this.editPrivacy.set(user.privacy);
+    this.clearPendingProfileImages();
+  }
+
+  private setPendingImage(
+    file: File,
+    fileSignal: { set(value: File | null): void },
+    previewSignal: { set(value: string | null): void; (): string | null }
+  ): void {
+    if (!file.type.startsWith('image/')) {
+      this.profileError.set('Escolhe uma imagem valida para o perfil.');
+      return;
+    }
+
+    if (file.size > 4 * 1024 * 1024) {
+      this.profileError.set('A imagem deve ter no maximo 4MB.');
+      return;
+    }
+
+    const previousPreview = previewSignal();
+    if (previousPreview) {
+      URL.revokeObjectURL(previousPreview);
+    }
+
+    fileSignal.set(file);
+    previewSignal.set(URL.createObjectURL(file));
+  }
+
+  private clearPendingProfileImages(): void {
+    const previews = [this.editProfilePhotoPreview(), this.editCoverPhotoPreview()];
+    previews.forEach((preview) => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    });
+
+    this.editProfilePhotoFile.set(null);
+    this.editCoverPhotoFile.set(null);
+    this.editProfilePhotoPreview.set(null);
+    this.editCoverPhotoPreview.set(null);
   }
 
   private normalizeUsername(username: string): string | null {

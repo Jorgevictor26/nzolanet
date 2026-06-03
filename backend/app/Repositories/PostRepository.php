@@ -20,6 +20,9 @@ class PostRepository
     }
 
     /**
+<<<<<<< HEAD
+     * @param  array{user_id: int, content: string, image?: ?string, video?: ?string, media?: array<int, array{type: string, path: string}>}  $data
+=======
      * @return LengthAwarePaginator<int, Post>
      */
     public function paginateByUserId(int $userId, int $perPage): LengthAwarePaginator
@@ -34,6 +37,7 @@ class PostRepository
 
     /**
      * @param  array{user_id: int, content: string, image?: ?string, video?: ?string}  $data
+>>>>>>> 74b153e3aa87d8ef7a9fa74478cce3bbde417433
      */
     public function create(array $data): Post
     {
@@ -49,7 +53,7 @@ class PostRepository
     }
 
     /**
-     * @param  array{content: string, image?: ?string, video?: ?string}  $data
+     * @param  array{content: string, image?: ?string, video?: ?string, media?: array<int, array{type: string, path: string}>}  $data
      */
     public function update(Post $post, array $data): Post
     {
