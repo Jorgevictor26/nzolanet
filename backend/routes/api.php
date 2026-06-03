@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('users/{id}/posts', [PostController::class, 'userPosts'])->whereNumber('id');
     Route::get('users/{id}', [UserController::class, 'show'])->whereNumber('id');
     Route::put('users/profile', [UserController::class, 'updateProfile']);
+    Route::post('users/profile', [UserController::class, 'updateProfile']);
     Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);
 
     Route::get('posts', [PostController::class, 'index']);

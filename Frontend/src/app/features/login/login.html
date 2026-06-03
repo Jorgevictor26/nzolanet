@@ -178,6 +178,10 @@
 
         @if (authStep() === 'reset') {
           <form class="mx-auto flex h-full max-w-[410px] flex-col justify-center" (submit)="$event.preventDefault(); submitResetPassword()">
+            <button class="mb-6 flex items-center gap-2 text-[12px] font-bold text-[#667085]" type="button" (click)="goToStep('forgot')">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18 9 12l6-6" /></svg>
+              Voltar
+            </button>
             <h2 class="text-center font-['Poppins'] text-[28px] font-bold leading-tight">Redefinir senha</h2>
             <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Cria uma nova senha para voltar a entrar na tua conta.</p>
             @if (authMessage()) {

@@ -9,6 +9,7 @@ export type ApiUser = {
   username: string | null;
   bio: string | null;
   profile_photo: string | null;
+  cover_photo: string | null;
   privacy: 'public' | 'private';
   posts_count: number;
   followers_count: number;

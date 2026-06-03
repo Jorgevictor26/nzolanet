@@ -1,7 +1,7 @@
 <div class="mx-auto w-full max-w-[1088px] px-3 py-4 sm:px-5 lg:px-6">
   <section class="overflow-hidden rounded-[8px] bg-white shadow-sm">
     <div class="relative h-[190px] sm:h-[270px]">
-      <img class="h-full w-full object-cover" src="meza-membros/meza-08.jpeg" alt="Capa do perfil Meza" />
+      <img class="h-full w-full object-cover" [src]="coverPhotoUrl()" alt="Capa do perfil" />
       <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
     </div>
 
@@ -284,10 +284,15 @@
 
       <div class="min-h-0 flex-1 overflow-y-auto">
         <div class="relative h-[108px] bg-[#e9eef5] sm:h-[128px]">
-          <img class="h-full w-full object-cover" src="meza-membros/meza-08.jpeg" alt="Capa do perfil Meza" />
+          <img class="h-full w-full object-cover" [src]="editCoverPhotoPreview() || coverPhotoUrl()" alt="Capa do perfil" />
+          <input #coverPhotoInput class="hidden" type="file" accept="image/*" (change)="changeCoverPhoto($event)" />
+          <button class="absolute right-4 top-4 inline-flex h-8 items-center gap-2 rounded-[8px] bg-white/95 px-3 text-[10px] font-bold text-[#1f2944] shadow-sm hover:bg-white" type="button" (click)="chooseProfilePhoto(coverPhotoInput)">
+            <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="m8 13 2-2 4 4 1.5-1.5L19 17" /></svg>
+            Alterar capa
+          </button>
           <input #profilePhotoInput class="hidden" type="file" accept="image/*" (change)="changeProfilePhoto($event)" />
           <button class="absolute -bottom-8 left-4 size-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-md sm:left-5 sm:size-20" type="button" aria-label="Alterar foto de perfil" (click)="chooseProfilePhoto(profilePhotoInput)">
-            <img class="h-full w-full object-cover" [src]="profilePhotoUrl()" [alt]="currentUser()?.name || 'Perfil'" />
+            <img class="h-full w-full object-cover" [src]="editProfilePhotoPreview() || profilePhotoUrl()" [alt]="currentUser()?.name || 'Perfil'" />
           </button>
         </div>
 

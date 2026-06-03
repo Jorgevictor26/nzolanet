@@ -482,10 +482,11 @@
 
         <textarea class="h-24 w-full resize-none text-[13px] leading-6 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" [placeholder]="prefs.language() === 'pt' ? 'O que estás a pensar?' : 'What are you thinking?'" [value]="composerText()" (input)="updateComposerText($any($event.target).value)"></textarea>
 
+        <input #postMediaInput class="hidden" type="file" accept="image/*,video/mp4,video/quicktime,video/x-msvideo,video/webm" (change)="selectPostMediaAuto($event)" />
         <input #postImageInput class="hidden" type="file" accept="image/*" (change)="selectPostMedia($event, 'image')" />
         <input #postVideoInput class="hidden" type="file" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm" (change)="selectPostMedia($event, 'video')" />
 
-        <button class="mt-4 grid min-h-[170px] w-full place-items-center rounded-[8px] border border-dashed border-[#d8deea] bg-white text-center hover:bg-[#fafbfe]" type="button" (click)="choosePostMedia(postImageInput)" (dragover)="$event.preventDefault()" (drop)="handleComposerDrop($event)">
+        <button class="mt-4 grid min-h-[170px] w-full place-items-center rounded-[8px] border border-dashed border-[#d8deea] bg-white text-center hover:bg-[#fafbfe]" type="button" (click)="choosePostMedia(postMediaInput)" (dragover)="$event.preventDefault()" (drop)="handleComposerDrop($event)">
           <span class="flex flex-col items-center">
             <span class="mb-3 grid size-10 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]">
               <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>

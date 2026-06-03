@@ -93,6 +93,8 @@ export class App {
   }
 
   protected isLoginRoute(): boolean {
-    return this.router.url === '/' || this.router.url.startsWith('/login');
+    const publicAuthRoutes = ['/', '/login', '/esqueci-senha', '/redefinir-senha'];
+
+    return publicAuthRoutes.some((route) => this.router.url === route || this.router.url.startsWith(`${route}?`));
   }
 }
