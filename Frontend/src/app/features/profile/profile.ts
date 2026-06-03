@@ -3,6 +3,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Auth, CurrentUser } from '../../core/auth';
+import { profilePhotoUrl, userInitials } from '../../core/avatar';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
 import { ApiPost, Posts } from '../../core/posts';
@@ -15,7 +16,8 @@ type ProfileListItem = {
   id: number;
   name: string;
   username: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   bio: string;
   isFollowing: boolean;
 };
@@ -37,7 +39,8 @@ type ProfileMediaItem = {
 type ProfileComment = {
   id: number;
   author: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   text: string;
   time: string;
 };
@@ -189,7 +192,15 @@ export class Profile implements OnInit {
   }
 
   protected profilePhotoUrl(user: CurrentUser | null = this.currentUser()): string {
-    return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/180?img=47';
+    return profilePhotoUrl(user?.profile_photo) ?? '';
+  }
+
+  protected hasProfilePhoto(user: CurrentUser | null = this.currentUser()): boolean {
+    return Boolean(profilePhotoUrl(user?.profile_photo));
+  }
+
+  protected profileInitials(user: CurrentUser | null = this.currentUser()): string {
+    return userInitials(user?.name, user?.email, user?.username);
   }
 
   protected coverPhotoUrl(user: CurrentUser | null = this.currentUser()): string {
@@ -271,7 +282,8 @@ export class Profile implements OnInit {
     const comment: ProfileComment = {
       id: Date.now(),
       author: user?.name ?? 'Utilizador',
-      avatar: this.profilePhotoUrl(user),
+      avatar: profilePhotoUrl(user?.profile_photo),
+      initials: this.profileInitials(user),
       text,
       time: 'Agora'
     };
@@ -407,7 +419,8 @@ export class Profile implements OnInit {
       id: user.id,
       name: user.name,
       username: user.username ? `@${user.username}` : `@utilizador${user.id}`,
-      avatar: user.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/80?img=47',
+      avatar: profilePhotoUrl(user.profile_photo),
+      initials: userInitials(user.name, null, user.username),
       bio: user.bio ?? 'Ainda sem biografia.',
       isFollowing: user.is_followed_by_viewer
     };

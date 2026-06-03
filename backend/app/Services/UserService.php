@@ -56,24 +56,15 @@ class UserService
     {
         $data = $dto->toArray();
         $previousPhoto = $user->profile_photo;
-        $previousCover = $user->cover_photo;
 
         if ($dto->profilePhoto) {
             $data['profile_photo'] = $dto->profilePhoto->store('profile-photos', 'public');
-        }
-
-        if ($dto->coverPhoto) {
-            $data['cover_photo'] = $dto->coverPhoto->store('profile-covers', 'public');
         }
 
         $updatedUser = $this->users->updateProfile($user, $data);
 
         if ($dto->profilePhoto && $previousPhoto) {
             Storage::disk('public')->delete($previousPhoto);
-        }
-
-        if ($dto->coverPhoto && $previousCover) {
-            Storage::disk('public')->delete($previousCover);
         }
 
         return CurrentUserDTO::fromModel($updatedUser);

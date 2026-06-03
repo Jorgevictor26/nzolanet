@@ -3,16 +3,11 @@
 namespace App\Services;
 
 use App\DTOs\CurrentUserDTO;
-use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
-use App\DTOs\ResetPasswordDTO;
 use App\Models\User;
-use App\Notifications\PasswordResetCode;
 use App\Repositories\UserRepository;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -63,41 +58,5 @@ class AuthService
         if ($token && method_exists($token, 'delete')) {
             $token->delete();
         }
-    }
-
-    public function forgotPassword(ForgotPasswordDTO $dto): string
-    {
-        $user = $this->users->findByEmail($dto->email);
-
-        if (! $user) {
-            throw ValidationException::withMessages([
-                'email' => [__(Password::INVALID_USER)],
-            ]);
-        }
-
-        $token = Password::broker()->createToken($user);
-        $user->notify(new PasswordResetCode($token));
-
-        return 'Enviamos um código de recuperação para o teu email.';
-    }
-
-    public function resetPassword(ResetPasswordDTO $dto): string
-    {
-        $status = Password::reset(
-            $dto->toPasswordBrokerCredentials(),
-            function (User $user, string $password): void {
-                $this->users->updatePassword($user, Hash::make($password));
-
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status !== Password::PASSWORD_RESET) {
-            throw ValidationException::withMessages([
-                'email' => [__($status)],
-            ]);
-        }
-
-        return __($status);
     }
 }

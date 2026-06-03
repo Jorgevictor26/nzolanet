@@ -5,6 +5,7 @@ import { SocialState } from '../../core/social-state';
 import { Preferences } from '../../core/preferences';
 import { ApiComment, ApiPost, Posts } from '../../core/posts';
 import { Auth, CurrentUser } from '../../core/auth';
+import { profilePhotoUrl, userInitials } from '../../core/avatar';
 import { ApiUser, Users } from '../../core/users';
 
 type CommentAttachment = 'photo' | 'video' | 'sticker' | 'emoji' | null;
@@ -14,7 +15,8 @@ type FeedPost = {
   userId: number;
   author: string;
   username: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   time: string;
   text: string;
   image?: string;
@@ -30,7 +32,8 @@ type PostComment = {
   userId: number;
   postId: number;
   author: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   text: string;
   time: string;
 };
@@ -39,7 +42,8 @@ type SuggestedProfile = {
   id: number;
   name: string;
   username: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   bio: string;
   isFollowing: boolean;
 };
@@ -573,8 +577,12 @@ export class Feed implements OnInit {
     });
   }
 
-  protected currentUserAvatar(user: CurrentUser | null = this.auth.currentUser()): string {
-    return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/96?img=47';
+  protected currentUserAvatar(user: CurrentUser | null = this.auth.currentUser()): string | null {
+    return profilePhotoUrl(user?.profile_photo);
+  }
+
+  protected currentUserInitials(user: CurrentUser | null = this.auth.currentUser()): string {
+    return userInitials(user?.name, user?.email, user?.username);
   }
 
   protected currentUsername(user: CurrentUser | null = this.auth.currentUser()): string {
@@ -625,7 +633,8 @@ export class Feed implements OnInit {
       id: user.id,
       name: user.name,
       username: user.username ? `@${user.username}` : `@utilizador${user.id}`,
-      avatar: user.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/80?img=47',
+      avatar: profilePhotoUrl(user.profile_photo),
+      initials: userInitials(user.name, null, user.username),
       bio: user.bio ?? 'Ainda sem biografia.',
       isFollowing: user.is_followed_by_viewer
     };
@@ -637,7 +646,8 @@ export class Feed implements OnInit {
       userId: post.user_id,
       author: post.author.name ?? 'Utilizador',
       username: post.author.username ? `@${post.author.username}` : `#${post.user_id}`,
-      avatar: post.author.profile_photo ? `/storage/${post.author.profile_photo}` : 'https://i.pravatar.cc/96?img=47',
+      avatar: profilePhotoUrl(post.author.profile_photo),
+      initials: userInitials(post.author.name, null, post.author.username),
       time: this.relativeTime(post.created_at),
       text: post.content,
       image: post.image ? `/storage/${post.image}` : undefined,
@@ -655,7 +665,8 @@ export class Feed implements OnInit {
       userId: comment.user_id,
       postId: comment.post_id,
       author: comment.author.name ?? 'Utilizador',
-      avatar: comment.author.profile_photo ? `/storage/${comment.author.profile_photo}` : 'https://i.pravatar.cc/96?img=47',
+      avatar: profilePhotoUrl(comment.author.profile_photo),
+      initials: userInitials(comment.author.name, null, null),
       text: comment.content,
       time: this.relativeTime(comment.created_at)
     };

@@ -14,7 +14,6 @@ readonly class CurrentUserDTO
         public ?string $phoneNumber,
         public ?string $bio,
         public ?string $profilePhoto,
-        public ?string $coverPhoto,
         public string $privacy,
     ) {}
 
@@ -28,7 +27,6 @@ readonly class CurrentUserDTO
             phoneNumber: $user->phone_number,
             bio: $user->bio,
             profilePhoto: $user->profile_photo,
-            coverPhoto: $user->cover_photo,
             privacy: $user->privacy,
         );
     }
@@ -46,7 +44,6 @@ readonly class CurrentUserDTO
             'phone_number' => $this->phoneNumber,
             'bio' => $this->bio,
             'profile_photo' => $this->profilePhoto,
-            'cover_photo' => $this->coverPhoto,
             'privacy' => $this->privacy,
         ];
     }

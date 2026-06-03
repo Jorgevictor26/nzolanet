@@ -4,7 +4,11 @@
 
     <section class="mb-4 rounded-[8px] bg-white p-3 shadow-sm">
       <div class="flex items-center gap-2 min-[380px]:gap-3">
-        <img class="size-9 shrink-0 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+        @if (currentUserAvatar()) {
+          <img class="size-9 shrink-0 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+        } @else {
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white">{{ currentUserInitials() }}</span>
+        }
         <button class="h-9 min-w-0 flex-1 rounded-full bg-[#f5f7fb] px-3 text-left text-[11px] font-medium text-[#b7bfcd] min-[380px]:px-4 min-[380px]:text-[12px]" type="button" (click)="openComposer()">
           {{ prefs.language() === 'pt' ? 'Em que estás a pensar?' : 'What are you thinking?' }}
         </button>
@@ -39,7 +43,11 @@
       <article class="relative mb-5 cursor-pointer overflow-hidden rounded-[8px] bg-white shadow-sm" (click)="openPostDetails(post.id)">
         <header class="flex items-start justify-between px-5 pt-4">
           <div class="flex items-start gap-3">
-            <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+            @if (post.avatar) {
+              <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+            } @else {
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white">{{ post.initials }}</span>
+            }
             <div class="min-w-0">
               <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" [routerLink]="['/visitor-profile', post.userId]" (click)="$event.stopPropagation()">{{ post.author }}</a>
               <p class="text-[11px] text-[#8b95a7]">{{ post.username }} &middot; {{ post.time }}</p>
@@ -312,7 +320,11 @@
         @for (profile of suggestedProfiles(); track profile.id) {
           <div class="flex items-center gap-3">
             <a [routerLink]="['/visitor-profile', profile.id]">
-              <img class="size-9 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+              @if (profile.avatar) {
+                <img class="size-9 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+              } @else {
+                <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white">{{ profile.initials }}</span>
+              }
             </a>
             <div class="min-w-0 flex-1">
               <a class="block truncate text-[12px] font-bold leading-4 text-[#111827] hover:text-[#1f6fff]" [routerLink]="['/visitor-profile', profile.id]">{{ profile.name }}</a>
@@ -363,7 +375,11 @@
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <article class="rounded-[8px] border border-[#edf1f6] p-3">
           <header class="flex items-start gap-3">
-            <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+            @if (post.avatar) {
+              <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+            } @else {
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white">{{ post.initials }}</span>
+            }
             <div class="min-w-0">
               <h3 class="truncate text-[13px] font-bold text-[#111827]">{{ post.author }}</h3>
               <p class="text-[10px] text-[#8b95a7]">{{ post.username }} · {{ post.time }}</p>
@@ -403,7 +419,11 @@
           }
           @for (comment of activePostComments(); track comment.id) {
             <article class="flex items-start gap-3">
-              <img class="size-9 rounded-full object-cover" [src]="comment.avatar" [alt]="comment.author" />
+              @if (comment.avatar) {
+                <img class="size-9 rounded-full object-cover" [src]="comment.avatar" [alt]="comment.author" />
+              } @else {
+                <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white">{{ comment.initials }}</span>
+              }
               <div class="min-w-0 flex-1 rounded-[8px] bg-[#f5f7fb] px-3 py-2">
                 <div class="flex items-center gap-2">
                   <h4 class="truncate text-[12px] font-bold text-[#111827]">{{ comment.author }}</h4>
@@ -425,7 +445,11 @@
 
       <footer class="shrink-0 border-t border-[#edf1f6] p-2 min-[380px]:p-3">
         <div class="flex items-end gap-2">
-          <img class="size-9 shrink-0 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+          @if (currentUserAvatar()) {
+            <img class="size-9 shrink-0 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+          } @else {
+            <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white">{{ currentUserInitials() }}</span>
+          }
           <div class="min-w-0 flex-1 rounded-[8px] border border-[#edf1f6] bg-white px-3 py-2">
             <textarea #commentText class="h-12 w-full resize-none text-[12px] leading-5 text-[#1f2944] outline-none placeholder:text-[#b7bfcd]" placeholder="Escreve um comentário..."></textarea>
             <div class="mt-2 flex flex-wrap items-center gap-1.5">
@@ -461,7 +485,11 @@
     <section class="flex max-h-[calc(100dvh-24px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[8px] bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="composer-title" (click)="$event.stopPropagation()">
       <header class="flex h-14 shrink-0 items-center justify-between border-b border-[#edf1f6] px-5">
         <div class="flex min-w-0 items-center gap-3">
-          <img class="size-9 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+          @if (currentUserAvatar()) {
+            <img class="size-9 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+          } @else {
+            <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white">{{ currentUserInitials() }}</span>
+          }
           <div class="min-w-0">
             <h2 id="composer-title" class="truncate text-[13px] font-bold leading-5 text-[#111827]">{{ editingPostId() ? 'Editar publicação' : (auth.currentUser()?.name || 'Utilizador') }}</h2>
             <button class="inline-flex items-center gap-1 text-[10px] font-semibold text-[#667085]" type="button">
@@ -529,7 +557,11 @@
             </button>
           </div>
           <div class="flex items-start gap-3 rounded-[8px] bg-[#fafbfe] p-3">
-            <img class="size-8 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+            @if (currentUserAvatar()) {
+              <img class="size-8 rounded-full object-cover" [src]="currentUserAvatar()" [alt]="auth.currentUser()?.name || 'Perfil'" />
+            } @else {
+              <span class="grid size-8 shrink-0 place-items-center rounded-full bg-[#28334b] text-[10px] font-extrabold text-white">{{ currentUserInitials() }}</span>
+            }
             <div class="min-w-0 flex-1 space-y-2">
               <p class="text-[11px] font-bold text-[#111827]">{{ auth.currentUser()?.name || 'Utilizador' }}</p>
               <p class="whitespace-pre-line text-[12px] leading-5 text-[#344054]">{{ composerText() || 'A tua publicação vai aparecer aqui.' }}</p>

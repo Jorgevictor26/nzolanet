@@ -13,6 +13,8 @@ export type CurrentUser = {
   profile_photo: string | null;
   cover_photo: string | null;
   privacy: 'public' | 'private';
+  role?: string | null;
+  is_admin?: boolean | null;
 };
 
 type AuthResponse = {
@@ -34,6 +36,25 @@ export class Auth {
   private readonly tokenState = signal<string | null>(this.read(this.tokenKey));
   readonly currentUser = signal<CurrentUser | null>(this.readUser());
   readonly isAuthenticated = computed(() => Boolean(this.tokenState()));
+  readonly isAdmin = computed(() => {
+    const user = this.currentUser();
+
+    if (!user) {
+      return false;
+    }
+
+    const email = user.email.trim().toLowerCase();
+    const username = user.username?.trim().toLowerCase();
+    const role = user.role?.trim().toLowerCase();
+
+    return Boolean(
+      user.is_admin ||
+      role === 'admin' ||
+      role === 'administrator' ||
+      environment.adminEmails.includes(email) ||
+      (username && environment.adminUsernames.includes(username))
+    );
+  });
 
   constructor(private readonly http: HttpClient) {}
 

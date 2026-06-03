@@ -1,6 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Auth } from './core/auth';
+import { profilePhotoUrl, userInitials } from './core/avatar';
+import { Auth, CurrentUser } from './core/auth';
 import { Feedback } from './core/feedback';
 import { Preferences } from './core/preferences';
 
@@ -96,5 +97,13 @@ export class App {
     const publicAuthRoutes = ['/', '/login', '/esqueci-senha', '/redefinir-senha'];
 
     return publicAuthRoutes.some((route) => this.router.url === route || this.router.url.startsWith(`${route}?`));
+  }
+
+  protected currentUserPhotoUrl(user: CurrentUser | null = this.auth.currentUser()): string | null {
+    return profilePhotoUrl(user?.profile_photo);
+  }
+
+  protected currentUserInitials(user: CurrentUser | null = this.auth.currentUser()): string {
+    return userInitials(user?.name, user?.email, user?.username);
   }
 }

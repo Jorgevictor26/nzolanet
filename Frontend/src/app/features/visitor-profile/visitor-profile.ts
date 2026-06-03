@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { Feedback } from '../../core/feedback';
 import { Preferences } from '../../core/preferences';
 import { ApiPost, Posts } from '../../core/posts';
+import { profilePhotoUrl, userInitials } from '../../core/avatar';
 import { ApiUser, Users } from '../../core/users';
 
 type ProfileListModal = 'followers' | 'following' | null;
@@ -13,7 +14,8 @@ type ProfileListItem = {
   id: number;
   name: string;
   username: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   bio: string;
   isFollowing: boolean;
 };
@@ -174,7 +176,15 @@ export class VisitorProfile implements OnInit {
   }
 
   protected profilePhotoUrl(user: ApiUser | null = this.profile()): string {
-    return user?.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/180?img=32';
+    return profilePhotoUrl(user?.profile_photo) ?? '';
+  }
+
+  protected hasProfilePhoto(user: ApiUser | null = this.profile()): boolean {
+    return Boolean(profilePhotoUrl(user?.profile_photo));
+  }
+
+  protected profileInitials(user: ApiUser | null = this.profile()): string {
+    return userInitials(user?.name, null, user?.username);
   }
 
   protected coverPhotoUrl(user: ApiUser | null = this.profile()): string {
@@ -309,7 +319,8 @@ export class VisitorProfile implements OnInit {
       id: user.id,
       name: user.name,
       username: this.username(user),
-      avatar: this.profilePhotoUrl(user),
+      avatar: profilePhotoUrl(user.profile_photo),
+      initials: userInitials(user.name, null, user.username),
       bio: user.bio ?? 'Ainda sem biografia.',
       isFollowing: user.is_followed_by_viewer
     };

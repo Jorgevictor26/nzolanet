@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Str;
 
 class UserRepository
 {
@@ -60,15 +59,5 @@ class UserRepository
         ])->save();
 
         return $user->refresh();
-    }
-
-    public function updatePassword(User $user, string $hashedPassword): User
-    {
-        $user->forceFill([
-            'password' => $hashedPassword,
-            'remember_token' => Str::random(60),
-        ])->save();
-
-        return $user;
     }
 }

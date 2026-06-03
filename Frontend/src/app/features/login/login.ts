@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '../../core/auth';
+import { profilePhotoUrl, userInitials } from '../../core/avatar';
 import { ApiUser, Users } from '../../core/users';
 
 type AuthStep = 'login' | 'register' | 'photo' | 'bio' | 'follow' | 'forgot' | 'reset';
@@ -11,7 +12,8 @@ type SuggestedProfile = {
   id: number;
   name: string;
   username: string;
-  avatar: string;
+  avatar: string | null;
+  initials: string;
   role: string;
   isFollowing: boolean;
 };
@@ -340,7 +342,8 @@ export class Login {
       id: user.id,
       name: user.name,
       username: user.username ? `@${user.username}` : `@utilizador${user.id}`,
-      avatar: user.profile_photo ? `/storage/${user.profile_photo}` : 'https://i.pravatar.cc/96?img=47',
+      avatar: profilePhotoUrl(user.profile_photo),
+      initials: userInitials(user.name, null, user.username),
       role: user.bio ?? 'Ainda sem biografia.',
       isFollowing: user.is_followed_by_viewer
     };

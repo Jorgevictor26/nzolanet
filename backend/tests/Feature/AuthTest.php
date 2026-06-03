@@ -3,11 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Notifications\PasswordResetCode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Password;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
@@ -83,43 +80,5 @@ class AuthTest extends TestCase
             ->assertJsonPath('message', 'Sessão terminada com sucesso.');
 
         $this->assertSame(0, PersonalAccessToken::count());
-    }
-
-    public function test_user_can_request_password_reset_link(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create([
-            'email' => 'jorge@example.com',
-        ]);
-
-        $response = $this->postJson('/api/auth/forgot-password', [
-            'email' => 'jorge@example.com',
-        ]);
-
-        $response->assertOk();
-
-        Notification::assertSentTo($user, PasswordResetCode::class);
-    }
-
-    public function test_user_can_reset_password(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'jorge@example.com',
-            'password' => Hash::make('old-password'),
-        ]);
-
-        $token = Password::createToken($user);
-
-        $response = $this->postJson('/api/auth/reset-password', [
-            'email' => 'jorge@example.com',
-            'password' => 'new-password',
-            'password_confirmation' => 'new-password',
-            'token' => $token,
-        ]);
-
-        $response->assertOk();
-
-        $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
     }
 }
