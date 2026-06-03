@@ -77,17 +77,19 @@
             <span>{{ itemCommentsCount(item) }} comentários</span>
           </div>
 
-          <div class="mt-4 flex items-center justify-between border-y border-[#edf1f6] py-3 text-[#1f2944]">
-            <button [class]="socialState.hasPostBaze(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="toggleBaze(item.id)">
-              <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.hasPostBaze(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-            </button>
-            <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="exploreComment.focus()">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-            </button>
-            <button [class]="socialState.isPostShared(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="shareItem(item.id)">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
-            </button>
-            <button [class]="socialState.isPostFavorite(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="toggleFavorite(item.id)">
+          <div class="mt-4 flex items-center border-y border-[#edf1f6] py-3 text-[#1f2944]">
+            <div class="flex items-center gap-7">
+              <button [class]="socialState.hasPostBaze(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Dar baze" (click)="toggleBaze(item.id)">
+                <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.hasPostBaze(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+              </button>
+              <button class="grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]" type="button" aria-label="Comentar" (click)="exploreComment.focus()">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
+              </button>
+              <button [class]="socialState.isPostShared(item.id) ? 'grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Partilhar" (click)="shareItem(item.id)">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+              </button>
+            </div>
+            <button [class]="socialState.isPostFavorite(item.id) ? 'ml-auto grid size-8 place-items-center rounded-full bg-[#eef3ff] text-[#1f6fff]' : 'ml-auto grid size-8 place-items-center rounded-full hover:bg-[#f5f7fb] hover:text-[#1f6fff]'" type="button" aria-label="Guardar" (click)="toggleFavorite(item.id)">
               <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="socialState.isPostFavorite(item.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
             </button>
           </div>
