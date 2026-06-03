@@ -15,7 +15,6 @@ readonly class PostDTO
         public string $content,
         public ?string $image,
         public ?string $video,
-        public array $media,
         public int $likesCount,
         public int $commentsCount,
         public string $createdAt,
@@ -33,7 +32,6 @@ readonly class PostDTO
             content: $post->content,
             image: $post->image,
             video: $post->video,
-            media: self::normalizeMedia($post),
             likesCount: (int) ($post->likes_count ?? 0),
             commentsCount: (int) ($post->comments_count ?? 0),
             createdAt: $post->created_at?->toISOString() ?? '',
@@ -57,28 +55,10 @@ readonly class PostDTO
             'content' => $this->content,
             'image' => $this->image,
             'video' => $this->video,
-            'media' => $this->media,
             'likes_count' => $this->likesCount,
             'comments_count' => $this->commentsCount,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];
-    }
-
-    /**
-     * @return array<int, array{type: string, path: string}>
-     */
-    private static function normalizeMedia(Post $post): array
-    {
-        $media = is_array($post->media) ? $post->media : [];
-
-        if ($media !== []) {
-            return $media;
-        }
-
-        return array_values(array_filter([
-            $post->image ? ['type' => 'image', 'path' => $post->image] : null,
-            $post->video ? ['type' => 'video', 'path' => $post->video] : null,
-        ]));
     }
 }
