@@ -132,14 +132,6 @@
       </a>
       <a
         class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
-        routerLink="/explore"
-        routerLinkActive="bg-[#314061] text-white"
-      >
-        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7" /><path d="m14.8 9.2-1.7 4-3.9 1.6 1.7-3.9 3.9-1.7Z" /></svg>
-        {{ prefs.t('explore') }}
-      </a>
-      <a
-        class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
         routerLink="/favorites"
         routerLinkActive="bg-[#314061] text-white"
       >
@@ -176,14 +168,10 @@
     </footer>
   </aside>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-20 grid h-16 border-t border-[#3a455e] bg-[#28334b] text-[10px] font-semibold text-[#d6dceb] lg:hidden" [class.grid-cols-4]="!auth.isAdmin()" [class.grid-cols-5]="auth.isAdmin()">
+  <nav class="fixed bottom-0 left-0 right-0 z-20 grid h-16 border-t border-[#3a455e] bg-[#28334b] text-[10px] font-semibold text-[#d6dceb] lg:hidden" [class.grid-cols-3]="!auth.isAdmin()" [class.grid-cols-4]="auth.isAdmin()">
     <a class="flex flex-col items-center justify-center gap-1" routerLink="/home" routerLinkActive="bg-[#314061] text-white" [routerLinkActiveOptions]="{ exact: true }">
       <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" /></svg>
       {{ prefs.t('home') }}
-    </a>
-    <a class="flex flex-col items-center justify-center gap-1" routerLink="/explore" routerLinkActive="bg-[#314061] text-white">
-      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7" /><path d="m14.8 9.2-1.7 4-3.9 1.6 1.7-3.9 3.9-1.7Z" /></svg>
-      {{ prefs.t('explore') }}
     </a>
     <a class="flex flex-col items-center justify-center gap-1" routerLink="/favorites" routerLinkActive="bg-[#314061] text-white">
       <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>

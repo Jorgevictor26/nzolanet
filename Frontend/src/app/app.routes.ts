@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { Favorites } from './features/favorites/favorites';
 import { Feed } from './features/feed/feed';
-import { Explore } from './features/explore/explore';
 import { Login } from './features/login/login';
 import { Moderation } from './features/moderation/moderation';
 import { Profile } from './features/profile/profile';
@@ -16,7 +15,6 @@ export const routes: Routes = [
   { path: 'esqueci-senha', component: Login, data: { authStep: 'forgot' } },
   { path: 'redefinir-senha', component: Login, data: { authStep: 'reset' } },
   { path: 'home', component: Feed, canActivate: [authGuard] },
-  { path: 'explore', component: Explore, canActivate: [authGuard] },
   { path: 'favorites', component: Favorites, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'moderation', component: Moderation, canActivate: [authGuard, adminGuard] },
