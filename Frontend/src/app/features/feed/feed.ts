@@ -8,7 +8,6 @@ import { Auth, CurrentUser } from '../../core/auth';
 import { profilePhotoUrl, userInitials } from '../../core/avatar';
 import { ApiUser, Users } from '../../core/users';
 
-type CommentAttachment = 'photo' | 'video' | 'sticker' | 'emoji' | null;
 
 type FeedPost = {
   id: number;
@@ -68,25 +67,16 @@ export class Feed implements OnInit {
   protected readonly selectedVideo = signal<File | null>(null);
   protected readonly selectedMediaPreview = signal<string | null>(null);
   protected readonly selectedMediaName = signal('');
-  protected readonly selectedMediaKind = signal<'image' | 'video' | null>(null);
-  protected readonly composerHashtag = signal('');
-  protected readonly isHashtagComposerOpen = signal(false);
   protected readonly savedDraft = signal('');
   protected readonly composerLimit = 280;
   protected readonly activeCommentPostId = signal<number | null>(null);
-  protected readonly selectedCommentAttachment = signal<CommentAttachment>(null);
   protected readonly likedPostIds = signal<Set<number>>(new Set());
   protected readonly hiddenPostIds = signal<Set<number>>(new Set());
   protected readonly openPostMenuId = signal<number | null>(null);
   protected readonly posts = signal<FeedPost[]>([]);
   protected readonly suggestedProfiles = signal<SuggestedProfile[]>([]);
   protected readonly suggestionsError = signal<string | null>(null);
-  protected readonly comments = signal<Record<number, PostComment[]>>({
-    1: [],
-    2: [],
-    3: [],
-    4: []
-  });
+  protected readonly comments = signal<Record<number, PostComment[]>>({});
 
   protected readonly visiblePosts = computed(() =>
     this.posts().filter((post) => !this.hiddenPostIds().has(post.id))
@@ -162,17 +152,6 @@ export class Feed implements OnInit {
     input.click();
   }
 
-  protected selectPostMedia(event: Event, type: 'image' | 'video'): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
-
-    if (!file) {
-      return;
-    }
-
-    this.applyComposerFile(file, type);
-    input.value = '';
-  }
 
   protected selectPostMediaAuto(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -208,33 +187,8 @@ export class Feed implements OnInit {
     this.selectedVideo.set(null);
     this.selectedMediaPreview.set(null);
     this.selectedMediaName.set('');
-    this.selectedMediaKind.set(null);
   }
 
-  protected insertComposerHashtag(): void {
-    this.isHashtagComposerOpen.update((isOpen) => !isOpen);
-  }
-
-  protected updateComposerHashtag(value: string): void {
-    this.composerHashtag.set(value.replace(/[^\p{L}\p{N}_-]/gu, '').slice(0, 32));
-  }
-
-  protected addComposerHashtag(): void {
-    const hashtag = this.composerHashtag().trim();
-
-    if (!hashtag) {
-      this.feedback.show('Escreve a hashtag antes de adicionar.', 'info');
-      return;
-    }
-
-    const normalizedHashtag = `#${hashtag.replace(/^#+/, '')}`;
-    const currentText = this.composerText().trimEnd();
-    const separator = currentText ? ' ' : '';
-    this.updateComposerText(`${currentText}${separator}${normalizedHashtag}`);
-    this.composerHashtag.set('');
-    this.isHashtagComposerOpen.set(false);
-    this.feedback.show('Hashtag adicionada.', 'success');
-  }
 
   protected saveComposerDraft(): void {
     this.savedDraft.set(this.composerText());
@@ -301,8 +255,6 @@ export class Feed implements OnInit {
     this.postsError.set(null);
     this.editingPostId.set(post.id);
     this.composerText.set(post.text.slice(0, this.composerLimit));
-    this.composerHashtag.set('');
-    this.isHashtagComposerOpen.set(false);
     this.removeSelectedMedia();
     this.isComposerOpen.set(true);
   }
@@ -361,30 +313,13 @@ export class Feed implements OnInit {
     this.openComments(postId);
   }
 
-  protected toggleWorkspacePostFavorite(): void {
-    this.socialState.toggleWorkspacePostFavorite();
-    this.feedback.show(
-      this.socialState.isWorkspacePostFavorite()
-        ? 'Publicação guardada nos favoritos.'
-        : 'Publicação removida dos favoritos.',
-      this.socialState.isWorkspacePostFavorite() ? 'success' : 'info'
-    );
-  }
 
   protected isPostSaved(postId: number): boolean {
-    return postId === 1
-      ? this.socialState.isWorkspacePostFavorite()
-      : this.socialState.isPostFavorite(postId);
+    return this.socialState.isPostFavorite(postId);
   }
 
   protected togglePostFavorite(postId: number): void {
-    const isFavorite = postId === 1
-      ? !this.socialState.isWorkspacePostFavorite()
-      : this.socialState.togglePostFavorite(postId);
-
-    if (postId === 1) {
-      this.socialState.isWorkspacePostFavorite.set(isFavorite);
-    }
+    const isFavorite = this.socialState.togglePostFavorite(postId);
 
     this.feedback.show(
       isFavorite ? 'Publicação guardada nos favoritos.' : 'Publicação removida dos favoritos.',
@@ -422,21 +357,14 @@ export class Feed implements OnInit {
 
   protected openComments(postId: number): void {
     this.activeCommentPostId.set(postId);
-    this.selectedCommentAttachment.set(null);
     this.loadComments(postId);
   }
 
   protected closeComments(): void {
     this.activeCommentPostId.set(null);
-    this.selectedCommentAttachment.set(null);
     this.commentsError.set(null);
   }
 
-  protected selectCommentAttachment(attachment: CommentAttachment): void {
-    this.selectedCommentAttachment.update((currentAttachment) =>
-      currentAttachment === attachment ? null : attachment
-    );
-  }
 
   protected loadComments(postId: number): void {
     this.isLoadingComments.set(true);
@@ -459,9 +387,7 @@ export class Feed implements OnInit {
 
   protected submitComment(input: HTMLTextAreaElement): void {
     const postId = this.activeCommentPostId();
-    const trimmedText = input.value.trim();
-    const attachment = this.selectedCommentAttachment();
-    const content = trimmedText || this.attachmentLabel(attachment);
+    const content = input.value.trim();
 
     if (!postId || !content) {
       return;
@@ -477,7 +403,6 @@ export class Feed implements OnInit {
           [postId]: [...(comments[postId] ?? []), nextComment]
         }));
         this.incrementCommentCount(postId);
-        this.selectedCommentAttachment.set(null);
         input.value = '';
         this.isSubmittingComment.set(false);
         this.feedback.show('Comentário publicado.');
@@ -514,20 +439,6 @@ export class Feed implements OnInit {
     return this.auth.currentUser()?.id === comment.userId;
   }
 
-  protected attachmentLabel(attachment: CommentAttachment): string {
-    switch (attachment) {
-      case 'photo':
-        return 'Foto';
-      case 'video':
-        return 'Vídeo';
-      case 'sticker':
-        return 'Sticker';
-      case 'emoji':
-        return '😊';
-      default:
-        return '';
-    }
-  }
 
   protected isPostLiked(postId: number): boolean {
     return this.likedPostIds().has(postId);
@@ -585,13 +496,6 @@ export class Feed implements OnInit {
     return userInitials(user?.name, user?.email, user?.username);
   }
 
-  protected currentUsername(user: CurrentUser | null = this.auth.currentUser()): string {
-    if (user?.username) {
-      return `@${user.username}`;
-    }
-
-    return user?.email ? `@${user.email.split('@')[0]}` : '@utilizador';
-  }
 
   private applyComposerFile(file: File, type: 'image' | 'video'): void {
     const isImage = type === 'image' && file.type.startsWith('image/');
@@ -612,7 +516,6 @@ export class Feed implements OnInit {
     this.selectedVideo.set(type === 'video' ? file : null);
     this.selectedMediaPreview.set(URL.createObjectURL(file));
     this.selectedMediaName.set(file.name);
-    this.selectedMediaKind.set(type);
     this.feedback.show(type === 'image' ? 'Imagem pronta para publicar.' : 'Vídeo pronto para publicar.', 'success');
   }
 
@@ -713,8 +616,6 @@ export class Feed implements OnInit {
 
   private clearComposer(): void {
     this.composerText.set('');
-    this.composerHashtag.set('');
-    this.isHashtagComposerOpen.set(false);
     this.postsError.set(null);
     this.removeSelectedMedia();
   }
