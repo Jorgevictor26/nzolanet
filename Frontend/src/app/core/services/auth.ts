@@ -13,8 +13,7 @@ export type CurrentUser = {
   profile_photo: string | null;
   cover_photo: string | null;
   privacy: 'public' | 'private';
-  role?: string | null;
-  is_admin?: boolean | null;
+  is_admin?: boolean;
 };
 
 type AuthResponse = {
@@ -28,7 +27,7 @@ type UserResponse = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class Auth {
   private readonly tokenKey = 'nzolanet_token';
@@ -36,24 +35,11 @@ export class Auth {
   private readonly tokenState = signal<string | null>(this.read(this.tokenKey));
   readonly currentUser = signal<CurrentUser | null>(this.readUser());
   readonly isAuthenticated = computed(() => Boolean(this.tokenState()));
+
   readonly isAdmin = computed(() => {
     const user = this.currentUser();
-
-    if (!user) {
-      return false;
-    }
-
-    const email = user.email.trim().toLowerCase();
-    const username = user.username?.trim().toLowerCase();
-    const role = user.role?.trim().toLowerCase();
-
-    return Boolean(
-      user.is_admin ||
-      role === 'admin' ||
-      role === 'administrator' ||
-      environment.adminEmails.includes(email) ||
-      (username && environment.adminUsernames.includes(username))
-    );
+    if (!user) return false;
+    return user.is_admin === true;
   });
 
   constructor(private readonly http: HttpClient) {}
@@ -63,9 +49,9 @@ export class Auth {
   }
 
   me(): Observable<UserResponse> {
-    return this.http.get<UserResponse>(`${environment.apiUrl}/users/me`).pipe(
-      tap((response) => this.storeUser(response.data))
-    );
+    return this.http
+      .get<UserResponse>(`${environment.apiUrl}/users/me`)
+      .pipe(tap((response) => this.storeUser(response.data)));
   }
 
   register(payload: {
@@ -79,19 +65,21 @@ export class Auth {
   }
 
   login(payload: { email: string; password: string }): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, payload).pipe(
-      tap((response) => this.storeSession(response.token, response.data))
-    );
+    return this.http
+      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, payload)
+      .pipe(tap((response) => this.storeSession(response.token, response.data)));
   }
 
   logout(): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/logout`, {}).pipe(
-      tap(() => this.clearSession())
-    );
+    return this.http
+      .post<{ message: string }>(`${environment.apiUrl}/auth/logout`, {})
+      .pipe(tap(() => this.clearSession()));
   }
 
   forgotPassword(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/forgot-password`, { email });
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/forgot-password`, {
+      email,
+    });
   }
 
   resetPassword(payload: {
@@ -100,7 +88,10 @@ export class Auth {
     password: string;
     password_confirmation: string;
   }): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, payload);
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/auth/reset-password`,
+      payload,
+    );
   }
 
   updateProfile(payload: {
@@ -128,23 +119,23 @@ export class Auth {
         formData.append('cover_photo_file', payload.cover_photo_file);
       }
 
-      return this.http.post<UserResponse>(`${environment.apiUrl}/users/profile`, formData).pipe(
-        tap((response) => this.storeUser(response.data))
-      );
+      return this.http
+        .post<UserResponse>(`${environment.apiUrl}/users/profile`, formData)
+        .pipe(tap((response) => this.storeUser(response.data)));
     }
 
-    return this.http.put<UserResponse>(`${environment.apiUrl}/users/profile`, payload).pipe(
-      tap((response) => this.storeUser(response.data))
-    );
+    return this.http
+      .put<UserResponse>(`${environment.apiUrl}/users/profile`, payload)
+      .pipe(tap((response) => this.storeUser(response.data)));
   }
 
   changeProfilePhoto(photo: File): Observable<UserResponse> {
     const formData = new FormData();
     formData.append('photo', photo);
 
-    return this.http.post<UserResponse>(`${environment.apiUrl}/users/profile-photo`, formData).pipe(
-      tap((response) => this.storeUser(response.data))
-    );
+    return this.http
+      .post<UserResponse>(`${environment.apiUrl}/users/profile-photo`, formData)
+      .pipe(tap((response) => this.storeUser(response.data)));
   }
 
   clearSession(): void {

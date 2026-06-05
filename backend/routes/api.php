@@ -3,11 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
-<<<<<<< HEAD
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ModerationController;
-=======
->>>>>>> main
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -21,8 +18,8 @@ Route::prefix('auth')->group(function (): void {
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('auth/logout', [AuthController::class, 'logout']);
-
     Route::get('users/me', [UserController::class, 'me']);
+    Route::get('users/count', [UserController::class, 'count']);
     Route::get('users/suggestions', [UserController::class, 'suggestions']);
     Route::post('users/{id}/follow', [FollowController::class, 'follow'])->whereNumber('id');
     Route::delete('users/{id}/follow', [FollowController::class, 'unfollow'])->whereNumber('id');
@@ -33,7 +30,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::put('users/profile', [UserController::class, 'updateProfile']);
     Route::post('users/profile', [UserController::class, 'updateProfile']);
     Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);
-    Route::get('users/count', [UserController::class, 'count']);
     Route::get('posts', [PostController::class, 'index']);
     Route::post('posts', [PostController::class, 'store']);
     Route::put('posts/{id}', [PostController::class, 'update'])->whereNumber('id');
@@ -45,7 +41,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('comments/{id}', [CommentController::class, 'destroy'])->whereNumber('id');
     Route::post('comments/{id}/report', [CommentController::class, 'report'])->whereNumber('id');
     Route::apiResource('likes', LikeController::class)->only(['store', 'destroy']);
-
     Route::middleware('admin')->prefix('moderation')->group(function (): void {
         Route::get('reports', [ModerationController::class, 'index']);
         Route::post('reports/{id}/approve', [ModerationController::class, 'approve'])->whereNumber('id');
