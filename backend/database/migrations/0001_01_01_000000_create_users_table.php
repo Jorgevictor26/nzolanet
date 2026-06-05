@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('profile_photo')->nullable();
             $table->string('cover_photo')->nullable();
             $table->enum('privacy', ['public', 'private'])->default('public');
+            $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
