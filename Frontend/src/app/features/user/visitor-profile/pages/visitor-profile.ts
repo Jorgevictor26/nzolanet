@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
@@ -73,7 +74,7 @@ export class VisitorProfile implements OnInit, OnDestroy {
   );
 
   constructor(
-    private readonly auth: Auth,
+    protected readonly auth: Auth,
     private readonly feedback: Feedback,
     private readonly posts: Posts,
     protected readonly prefs: Preferences,
@@ -244,6 +245,12 @@ export class VisitorProfile implements OnInit, OnDestroy {
         this.isLoadingPosts.set(false);
       },
       error: (error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 403) {
+          this.mediaItems.set([]);
+          this.isLoadingPosts.set(false);
+          return;
+        }
+
         this.profileError.set(this.errorMessage(error));
         this.isLoadingPosts.set(false);
       }

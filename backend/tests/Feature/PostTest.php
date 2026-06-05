@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Comment;
+use App\Models\Follow;
 use App\Models\Like;
 use App\Models\Post;
 use App\Models\User;
@@ -118,6 +119,33 @@ class PostTest extends TestCase
             ->getJson("/api/users/{$profile->id}/posts");
 
         $response->assertForbidden();
+    }
+
+    public function test_authenticated_follower_can_list_posts_from_a_private_profile(): void
+    {
+        $viewer = User::factory()->create();
+        $profile = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+
+        Follow::create([
+            'follower_id' => $viewer->id,
+            'following_id' => $profile->id,
+        ]);
+
+        $profilePost = Post::create([
+            'user_id' => $profile->id,
+            'content' => 'Publicação privada para seguidores.',
+        ]);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$profile->id}/posts");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $profilePost->id)
+            ->assertJsonPath('data.0.content', 'Publicação privada para seguidores.');
     }
 
     public function test_authenticated_user_can_create_post(): void

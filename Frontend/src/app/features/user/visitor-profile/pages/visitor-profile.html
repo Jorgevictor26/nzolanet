@@ -109,6 +109,7 @@
   [activeModal]="activeModal()"
   [followers]="followers()"
   [following]="following()"
+  [currentUserId]="auth.currentUser()?.id"
   [followingLabel]="prefs.t('following')"
   followersEmptyText="Ainda não há seguidores."
   followingEmptyText="Ainda não segue ninguém."

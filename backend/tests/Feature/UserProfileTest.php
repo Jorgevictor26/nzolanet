@@ -65,10 +65,11 @@ class UserProfileTest extends TestCase
             ->assertJsonMissing(['phone_number']);
     }
 
-    public function test_authenticated_user_cannot_view_private_profile_from_another_user(): void
+    public function test_authenticated_user_can_view_private_profile_summary_from_another_user(): void
     {
         $viewer = User::factory()->create();
         $profile = User::factory()->create([
+            'name' => 'Private User',
             'privacy' => 'private',
         ]);
 
@@ -76,7 +77,12 @@ class UserProfileTest extends TestCase
             ->actingAs($viewer, 'sanctum')
             ->getJson("/api/users/{$profile->id}");
 
-        $response->assertForbidden();
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.id', $profile->id)
+            ->assertJsonPath('data.name', 'Private User')
+            ->assertJsonPath('data.privacy', 'private')
+            ->assertJsonMissing(['phone_number']);
     }
 
     public function test_authenticated_user_can_update_own_profile(): void

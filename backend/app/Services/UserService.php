@@ -8,7 +8,6 @@ use App\DTOs\UpdateProfileDTO;
 use App\DTOs\UserDTO;
 use App\Models\User;
 use App\Repositories\UserRepository;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -25,10 +24,6 @@ class UserService
 
         if (! $profile) {
             throw (new ModelNotFoundException)->setModel(User::class, [$id]);
-        }
-
-        if ($profile->id !== $viewer->id && $profile->privacy === 'private') {
-            throw new AuthorizationException('Este perfil é privado.');
         }
 
         $profile->loadCount(['posts', 'followers', 'following']);

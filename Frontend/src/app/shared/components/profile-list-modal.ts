@@ -22,6 +22,7 @@ import { ProfileListModal } from '../profile/profile-view-models';
               @for (profile of followers(); track profile.id) {
                 <app-profile-list-item-card
                   [profile]="profile"
+                  [profileLink]="profileLink(profile.id)"
                   [actionLabel]="profile.isFollowing ? followingLabel() : followBackLabel()"
                   [variant]="profile.isFollowing ? 'secondary' : 'primary'"
                   (followToggle)="followersToggle.emit($event)"
@@ -33,6 +34,7 @@ import { ProfileListModal } from '../profile/profile-view-models';
               @for (profile of following(); track profile.id) {
                 <app-profile-list-item-card
                   [profile]="profile"
+                  [profileLink]="profileLink(profile.id)"
                   [actionLabel]="profile.isFollowing ? unfollowLabel() : removedLabel()"
                   [variant]="profile.isFollowing ? 'secondary' : 'muted'"
                   (followToggle)="followingToggle.emit($event)"
@@ -59,8 +61,13 @@ export class ProfileListModalComponent {
   readonly removedLabel = input('Removido');
   readonly followersEmptyText = input('Ainda não há seguidores.');
   readonly followingEmptyText = input('Ainda não segue ninguém.');
+  readonly currentUserId = input<number | null | undefined>(null);
 
   readonly close = output<void>();
   readonly followersToggle = output<number>();
   readonly followingToggle = output<number>();
+
+  protected profileLink(profileId: number): unknown[] {
+    return profileId === this.currentUserId() ? ['/profile'] : ['/visitor-profile', profileId];
+  }
 }

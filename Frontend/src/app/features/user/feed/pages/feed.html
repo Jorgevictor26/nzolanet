@@ -43,11 +43,13 @@
       <article class="relative mb-5 cursor-pointer overflow-hidden rounded-[8px] bg-white shadow-sm" (click)="openPostDetails(post.id)">
         <header class="flex items-start justify-between px-5 pt-4">
           <div class="flex items-start gap-3">
-            @if (post.avatar) {
-              <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
-            } @else {
-              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white">{{ post.initials }}</span>
-            }
+            <a class="shrink-0" [routerLink]="profileLink(post.userId)" (click)="$event.stopPropagation()" [attr.aria-label]="'Ver perfil de ' + post.author">
+              @if (post.avatar) {
+                <img class="size-10 rounded-full object-cover" [src]="post.avatar" [alt]="post.author" />
+              } @else {
+                <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white">{{ post.initials }}</span>
+              }
+            </a>
             <div class="min-w-0">
               <a class="truncate text-[14px] font-bold leading-5 text-[#111827] hover:text-[#1f6fff]" [routerLink]="profileLink(post.userId)" (click)="$event.stopPropagation()">{{ post.author }}</a>
               <p class="text-[11px] text-[#8b95a7]">{{ post.username }} &middot; {{ post.time }}</p>
