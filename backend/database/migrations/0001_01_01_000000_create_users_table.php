@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->text('bio')->nullable();
             $table->string('profile_photo')->nullable();
+            $table->string('cover_photo')->nullable();
             $table->enum('privacy', ['public', 'private'])->default('public');
             $table->rememberToken();
             $table->timestamps();
