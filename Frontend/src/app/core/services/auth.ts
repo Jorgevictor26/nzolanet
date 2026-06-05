@@ -48,12 +48,10 @@ export class Auth {
     const role = user.role?.trim().toLowerCase();
 
     return Boolean(
-      user.is_admin ||
-      role === 'admin' ||
-      role === 'administrator' ||
-      environment.adminEmails.includes(email) ||
-      (username && environment.adminUsernames.includes(username))
-    );
+  user.is_admin ||
+  role === 'admin' ||
+  role === 'administrator'
+);
   });
 
   constructor(private readonly http: HttpClient) {}
