@@ -43,18 +43,10 @@ export class Auth {
       return false;
     }
 
-    const email = user.email.trim().toLowerCase();
-    const username = user.username?.trim().toLowerCase();
-    const role = user.role?.trim().toLowerCase();
-
-    return Boolean(
-  user.is_admin ||
-  role === 'admin' ||
-  role === 'administrator'
-);
+    return Boolean(user.is_admin);
   });
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) { }
 
   token(): string | null {
     return this.tokenState();
