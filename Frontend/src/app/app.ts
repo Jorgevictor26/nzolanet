@@ -1,9 +1,9 @@
 import { Component, computed, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { profilePhotoUrl, userInitials } from './core/avatar';
-import { Auth, CurrentUser } from './core/auth';
-import { Feedback } from './core/feedback';
-import { Preferences } from './core/preferences';
+import { profilePhotoUrl, userInitials } from './core/models/avatar';
+import { Auth, CurrentUser } from './core/services/auth';
+import { Feedback } from './core/services/feedback';
+import { Preferences } from './core/services/preferences';
 
 type NotificationItem = {
   id: number;

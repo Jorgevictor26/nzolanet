@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
-import { Favorites } from './features/favorites/favorites';
-import { Feed } from './features/feed/feed';
-import { Login } from './features/login/login';
-import { Moderation } from './features/moderation/moderation';
-import { Profile } from './features/profile/profile';
-import { Settings } from './features/settings/settings';
-import { VisitorProfile } from './features/visitor-profile/visitor-profile';
-import { adminGuard } from './core/admin.guard';
-import { authGuard } from './core/auth.guard';
+import { Login } from './features/auth/login/pages/login';
+import { Moderation } from './features/admin/moderation/pages/moderation';
+import { Favorites } from './features/user/favorites/pages/favorites';
+import { Feed } from './features/user/feed/pages/feed';
+import { Profile } from './features/user/profile/pages/profile';
+import { Settings } from './features/user/settings/pages/settings';
+import { VisitorProfile } from './features/user/visitor-profile/pages/visitor-profile';
+import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Login },
