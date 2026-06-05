@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +32,7 @@ class UserProfileTest extends TestCase
             ->assertJsonPath('data.name', 'Jorge Victor')
             ->assertJsonPath('data.username', 'jorge.victor')
             ->assertJsonPath('data.phone_number', '+244 921 000 000')
+            ->assertJsonPath('data.cover_photo', null)
             ->assertJsonPath('data.privacy', 'private')
             ->assertJsonMissing(['password']);
     }
@@ -59,6 +60,7 @@ class UserProfileTest extends TestCase
             ->assertJsonPath('data.id', $profile->id)
             ->assertJsonPath('data.name', 'Public User')
             ->assertJsonPath('data.username', 'public.user')
+            ->assertJsonPath('data.cover_photo', null)
             ->assertJsonPath('data.posts_count', 1)
             ->assertJsonMissing(['phone_number']);
     }
@@ -136,6 +138,43 @@ class UserProfileTest extends TestCase
             ->assertJsonPath('data.id', $user->id);
 
         $path = $user->fresh()->profile_photo;
+
+        $this->assertNotNull($path);
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_authenticated_user_can_update_cover_photo(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create([
+            'name' => 'Jorge Victor',
+            'username' => 'jorge.victor',
+            'phone_number' => '+244 921 000 000',
+            'bio' => 'Perfil com capa.',
+            'privacy' => 'public',
+        ]);
+        $cover = UploadedFile::fake()->createWithContent(
+            'cover.png',
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=')
+        );
+
+        $response = $this
+            ->actingAs($user, 'sanctum')
+            ->postJson('/api/users/profile', [
+                'name' => 'Jorge Victor',
+                'username' => 'jorge.victor',
+                'phone_number' => '+244 921 000 000',
+                'bio' => 'Perfil com capa.',
+                'privacy' => 'public',
+                'cover_photo_file' => $cover,
+            ]);
+
+        $path = $user->fresh()->cover_photo;
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.cover_photo', $path);
 
         $this->assertNotNull($path);
         Storage::disk('public')->assertExists($path);

@@ -13,10 +13,11 @@ readonly class UpdateProfileDTO
         public ?string $bio,
         public string $privacy,
         public ?UploadedFile $profilePhoto,
+        public ?UploadedFile $coverPhoto,
     ) {}
 
     /**
-     * @param  array{name: string, username?: ?string, phone_number?: ?string, bio?: ?string, privacy: string}  $data
+     * @param  array{name: string, username?: ?string, phone_number?: ?string, bio?: ?string, privacy: string, profile_photo_file?: UploadedFile|null, cover_photo_file?: UploadedFile|null}  $data
      */
     public static function fromArray(array $data): self
     {
@@ -27,6 +28,7 @@ readonly class UpdateProfileDTO
             bio: $data['bio'] ?? null,
             privacy: $data['privacy'],
             profilePhoto: $data['profile_photo_file'] ?? null,
+            coverPhoto: $data['cover_photo_file'] ?? null,
         );
     }
 
