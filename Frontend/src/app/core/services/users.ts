@@ -32,7 +32,7 @@ export type UsersResponse = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class Users {
   constructor(private readonly http: HttpClient) {}
@@ -52,22 +52,25 @@ export class Users {
   followers(id: number, perPage = 50): Observable<UsersResponse> {
     return this.http.get<UsersResponse>(`${environment.apiUrl}/users/${id}/followers`, {
       params: {
-        per_page: perPage
-      }
+        per_page: perPage,
+      },
     });
   }
 
   following(id: number, perPage = 50): Observable<UsersResponse> {
     return this.http.get<UsersResponse>(`${environment.apiUrl}/users/${id}/following`, {
       params: {
-        per_page: perPage
-      }
+        per_page: perPage,
+      },
     });
+  }
+  count(): Observable<{ data: { count: number } }> {
+    return this.http.get<{ data: { count: number } }>(`${environment.apiUrl}/users/count`);
   }
 
   suggestions(perPage = 5, excludeId?: number | null): Observable<UsersResponse> {
     const params: Record<string, number> = {
-      per_page: perPage
+      per_page: perPage,
     };
 
     if (excludeId) {
@@ -75,7 +78,7 @@ export class Users {
     }
 
     return this.http.get<UsersResponse>(`${environment.apiUrl}/users/suggestions`, {
-      params
+      params,
     });
   }
 }

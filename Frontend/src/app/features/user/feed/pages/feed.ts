@@ -3,12 +3,11 @@ import { RouterLink } from '@angular/router';
 import { profilePhotoUrl, userInitials } from '../../../../core/models/avatar';
 import { Auth, CurrentUser } from '../../../../core/services/auth';
 import { Feedback } from '../../../../core/services/feedback';
-import { ApiComment, ApiPost, Posts } from '../../../../core/services/posts';
+import { ApiComment, ApiPost, Posts, ReportReason } from '../../../../core/services/posts';
 import { Preferences } from '../../../../core/services/preferences';
 import { SocialState } from '../../../../core/services/social-state';
 import { ApiUser, Users } from '../../../../core/services/users';
 import { ProfileListItemViewModel } from '../../../../shared/components/profile-list-item-card';
-
 
 type FeedPost = {
   id: number;
@@ -38,10 +37,18 @@ type PostComment = {
   time: string;
 };
 
+const reportReasons: ReportReason[] = [
+  'Discurso de Ódio',
+  'Spam/Publicidade',
+  'Linguagem Imprópria',
+  'Assédio',
+  'Conteúdo Falso',
+];
+
 @Component({
   selector: 'app-feed',
   imports: [RouterLink],
-  templateUrl: './feed.html'
+  templateUrl: './feed.html',
 })
 export class Feed implements OnInit {
   protected readonly isComposerOpen = signal(false);
@@ -49,6 +56,8 @@ export class Feed implements OnInit {
   protected readonly isPublishingPost = signal(false);
   protected readonly isLoadingComments = signal(false);
   protected readonly isSubmittingComment = signal(false);
+  protected readonly reportingCommentIds = signal<Set<number>>(new Set());
+  protected readonly reportingPostIds = signal<Set<number>>(new Set());
   protected readonly postsError = signal<string | null>(null);
   protected readonly commentsError = signal<string | null>(null);
   protected readonly editingPostId = signal<number | null>(null);
@@ -69,27 +78,33 @@ export class Feed implements OnInit {
   protected readonly suggestionsError = signal<string | null>(null);
   protected readonly loadedCommentPostIds = signal<Set<number>>(new Set());
   protected readonly comments = signal<Record<number, PostComment[]>>({});
-
-  protected readonly visiblePosts = computed(() =>
-    this.posts().filter((post) => !this.hiddenPostIds().has(post.id))
+  protected readonly reportModalVisible = signal(false);
+  protected readonly openCommentMenuId = signal<number | null>(null);
+  protected readonly reportModalResolve = signal<((reason: ReportReason | null) => void) | null>(
+    null,
   );
-  protected readonly activeCommentPost = computed(() =>
-    this.visiblePosts().find((post) => post.id === this.activeCommentPostId()) ?? null
+  protected readonly visiblePosts = computed(() =>
+    this.posts().filter((post) => !this.hiddenPostIds().has(post.id)),
+  );
+  protected readonly activeCommentPost = computed(
+    () => this.visiblePosts().find((post) => post.id === this.activeCommentPostId()) ?? null,
   );
   protected readonly activePostComments = computed(() => {
     const postId = this.activeCommentPostId();
-    return postId ? this.comments()[postId] ?? [] : [];
+    return postId ? (this.comments()[postId] ?? []) : [];
   });
   protected readonly composerCharacterCount = computed(() => this.composerText().length);
   protected readonly composerProgress = computed(() =>
-    Math.min(100, (this.composerCharacterCount() / this.composerLimit) * 100)
+    Math.min(100, (this.composerCharacterCount() / this.composerLimit) * 100),
   );
-  protected readonly canPublishComposer = computed(() =>
-    this.composerText().trim().length > 0 || Boolean(this.selectedImage() || this.selectedVideo())
+  protected readonly canPublishComposer = computed(
+    () =>
+      this.composerText().trim().length > 0 ||
+      Boolean(this.selectedImage() || this.selectedVideo()),
   );
   protected readonly activeEditingPost = computed(() => {
     const postId = this.editingPostId();
-    return postId ? this.posts().find((post) => post.id === postId) ?? null : null;
+    return postId ? (this.posts().find((post) => post.id === postId) ?? null) : null;
   });
 
   constructor(
@@ -98,7 +113,7 @@ export class Feed implements OnInit {
     protected readonly auth: Auth,
     protected readonly socialState: SocialState,
     protected readonly prefs: Preferences,
-    private readonly users: Users
+    private readonly users: Users,
   ) {}
 
   ngOnInit(): void {
@@ -136,7 +151,7 @@ export class Feed implements OnInit {
       error: () => {
         this.postsError.set('Não foi possível carregar as publicações.');
         this.isLoadingPosts.set(false);
-      }
+      },
     });
   }
 
@@ -147,7 +162,6 @@ export class Feed implements OnInit {
   protected choosePostMedia(input: HTMLInputElement): void {
     input.click();
   }
-
 
   protected selectPostMediaAuto(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -185,10 +199,13 @@ export class Feed implements OnInit {
     this.selectedMediaName.set('');
   }
 
-
   protected saveComposerDraft(): void {
     this.savedDraft.set(this.composerText());
     this.feedback.show('Rascunho guardado.', 'success');
+  }
+
+  protected toggleCommentMenu(commentId: number): void {
+    this.openCommentMenuId.update((id) => (id === commentId ? null : commentId));
   }
 
   protected publishPost(): void {
@@ -204,9 +221,10 @@ export class Feed implements OnInit {
 
     const editingPostId = this.editingPostId();
     const payload = {
-      content: content || (this.selectedVideo() ? 'Novo vídeo partilhado.' : 'Nova imagem partilhada.'),
+      content:
+        content || (this.selectedVideo() ? 'Novo vídeo partilhado.' : 'Nova imagem partilhada.'),
       image: this.selectedImage(),
-      video: this.selectedVideo()
+      video: this.selectedVideo(),
     };
     const request = editingPostId
       ? this.postService.update(editingPostId, payload)
@@ -217,8 +235,8 @@ export class Feed implements OnInit {
         const post = this.mapPost(response.data);
         this.posts.update((posts) =>
           editingPostId
-            ? posts.map((currentPost) => currentPost.id === post.id ? post : currentPost)
-            : [post, ...posts]
+            ? posts.map((currentPost) => (currentPost.id === post.id ? post : currentPost))
+            : [post, ...posts],
         );
 
         if (!editingPostId) {
@@ -230,12 +248,17 @@ export class Feed implements OnInit {
         this.isComposerOpen.set(false);
         this.clearComposer();
         this.editingPostId.set(null);
-        this.feedback.show(editingPostId ? 'Publicação atualizada.' : 'Publicação criada.', 'success');
+        this.feedback.show(
+          editingPostId ? 'Publicação atualizada.' : 'Publicação criada.',
+          'success',
+        );
       },
       error: () => {
-        this.postsError.set(editingPostId ? 'Não foi possível atualizar.' : 'Não foi possível publicar.');
+        this.postsError.set(
+          editingPostId ? 'Não foi possível atualizar.' : 'Não foi possível publicar.',
+        );
         this.isPublishingPost.set(false);
-      }
+      },
     });
   }
 
@@ -301,14 +324,13 @@ export class Feed implements OnInit {
           return nextPostIds;
         });
         this.feedback.show('Não foi possível apagar a publicação.', 'info');
-      }
+      },
     });
   }
 
   protected openPostDetails(postId: number): void {
     this.openComments(postId);
   }
-
 
   protected isPostSaved(postId: number): boolean {
     return this.socialState.isPostFavorite(postId);
@@ -319,17 +341,20 @@ export class Feed implements OnInit {
 
     this.feedback.show(
       isFavorite ? 'Publicação guardada nos favoritos.' : 'Publicação removida dos favoritos.',
-      isFavorite ? 'success' : 'info'
+      isFavorite ? 'success' : 'info',
     );
   }
 
   protected sharePost(postId: number): void {
     const isShared = this.socialState.togglePostShare(postId);
-    this.feedback.show(isShared ? 'Publicação partilhada.' : 'Partilha removida.', isShared ? 'success' : 'info');
+    this.feedback.show(
+      isShared ? 'Publicação partilhada.' : 'Partilha removida.',
+      isShared ? 'success' : 'info',
+    );
   }
 
   protected togglePostMenu(postId: number): void {
-    this.openPostMenuId.update((currentPostId) => currentPostId === postId ? null : postId);
+    this.openPostMenuId.update((currentPostId) => (currentPostId === postId ? null : postId));
   }
 
   protected hidePost(postId: number): void {
@@ -343,8 +368,44 @@ export class Feed implements OnInit {
     this.feedback.show('Publicação ocultada.', 'info');
   }
 
+  protected async reportPost(post: FeedPost): Promise<void> {
+    if (this.canManagePost(post)) {
+      this.feedback.show('Não podes denunciar a tua própria publicação.', 'info');
+      return;
+    }
+    if (this.isPostReporting(post.id)) return;
+
+    const reason = await this.chooseReportReason();
+    if (!reason) return;
+
+    this.openPostMenuId.set(null);
+    this.reportingPostIds.update((ids) => new Set(ids).add(post.id));
+    this.postService.reportPost(post.id, reason).subscribe({
+      next: () => {
+        this.reportingPostIds.update((ids) => {
+          const s = new Set(ids);
+          s.delete(post.id);
+          return s;
+        });
+        this.feedback.show('Denúncia submetida com sucesso.', 'success');
+      },
+      error: () => {
+        this.reportingPostIds.update((ids) => {
+          const s = new Set(ids);
+          s.delete(post.id);
+          return s;
+        });
+        this.feedback.show('Não foi possível submeter a denúncia.', 'info');
+      },
+    });
+  }
+
   protected isPostDeleting(postId: number): boolean {
     return this.deletingPostIds().has(postId);
+  }
+
+  protected isPostReporting(postId: number): boolean {
+    return this.reportingPostIds().has(postId);
   }
 
   protected canManagePost(post: FeedPost): boolean {
@@ -361,7 +422,6 @@ export class Feed implements OnInit {
     this.commentsError.set(null);
   }
 
-
   protected loadComments(postId: number): void {
     if (this.loadedCommentPostIds().has(postId)) {
       return;
@@ -373,7 +433,7 @@ export class Feed implements OnInit {
       next: (response) => {
         this.comments.update((comments) => ({
           ...comments,
-          [postId]: response.data.map((comment) => this.mapComment(comment))
+          [postId]: response.data.map((comment) => this.mapComment(comment)),
         }));
         this.updatePostCountTo(postId, 'commentsCount', response.meta.total);
         this.loadedCommentPostIds.update((postIds) => new Set(postIds).add(postId));
@@ -382,7 +442,7 @@ export class Feed implements OnInit {
       error: () => {
         this.commentsError.set('Não foi possível carregar os comentários.');
         this.isLoadingComments.set(false);
-      }
+      },
     });
   }
 
@@ -401,7 +461,7 @@ export class Feed implements OnInit {
         const nextComment = this.mapComment(response.data);
         this.comments.update((comments) => ({
           ...comments,
-          [postId]: [...(comments[postId] ?? []), nextComment]
+          [postId]: [...(comments[postId] ?? []), nextComment],
         }));
         this.loadedCommentPostIds.update((postIds) => new Set(postIds).add(postId));
         this.incrementCommentCount(postId);
@@ -412,7 +472,7 @@ export class Feed implements OnInit {
       error: () => {
         this.commentsError.set('Não foi possível publicar o comentário.');
         this.isSubmittingComment.set(false);
-      }
+      },
     });
   }
 
@@ -426,21 +486,78 @@ export class Feed implements OnInit {
       next: () => {
         this.comments.update((comments) => ({
           ...comments,
-          [comment.postId]: (comments[comment.postId] ?? []).filter((currentComment) => currentComment.id !== comment.id)
+          [comment.postId]: (comments[comment.postId] ?? []).filter(
+            (currentComment) => currentComment.id !== comment.id,
+          ),
         }));
         this.updatePostCount(comment.postId, 'commentsCount', -1);
         this.feedback.show('Comentário apagado.', 'success');
       },
       error: () => {
         this.feedback.show('Não foi possível apagar o comentário.', 'info');
-      }
+      },
     });
   }
 
+  protected async reportComment(comment: PostComment): Promise<void> {
+    if (this.canManageComment(comment)) {
+      this.feedback.show('Não podes denunciar o teu próprio comentário.', 'info');
+      return;
+    }
+    if (this.isCommentReporting(comment.id)) return;
+
+    const reason = await this.chooseReportReason();
+    if (!reason) return;
+
+    this.reportingCommentIds.update((ids) => new Set(ids).add(comment.id));
+    this.postService.reportComment(comment.id, reason).subscribe({
+      next: () => {
+        this.reportingCommentIds.update((ids) => {
+          const s = new Set(ids);
+          s.delete(comment.id);
+          return s;
+        });
+        this.feedback.show('Denúncia submetida com sucesso.', 'success');
+      },
+      error: () => {
+        this.reportingCommentIds.update((ids) => {
+          const s = new Set(ids);
+          s.delete(comment.id);
+          return s;
+        });
+        this.feedback.show('Não foi possível submeter a denúncia.', 'info');
+      },
+    });
+  }
+
+  protected selectReportReason(reason: ReportReason): void {
+    const resolve = this.reportModalResolve();
+    if (resolve) {
+      resolve(reason);
+    }
+    this.reportModalVisible.set(false);
+    this.reportModalResolve.set(null);
+  }
+
+  protected cancelReportModal(): void {
+    const resolve = this.reportModalResolve();
+    if (resolve) {
+      resolve(null);
+    }
+    this.reportModalVisible.set(false);
+    this.reportModalResolve.set(null);
+  }
   protected canManageComment(comment: PostComment): boolean {
     return this.auth.currentUser()?.id === comment.userId;
   }
 
+  protected canReportComment(comment: PostComment): boolean {
+    return !this.canManageComment(comment);
+  }
+
+  protected isCommentReporting(commentId: number): boolean {
+    return this.reportingCommentIds().has(commentId);
+  }
 
   protected isPostLiked(postId: number): boolean {
     return this.likedPostIds().has(postId);
@@ -454,7 +571,10 @@ export class Feed implements OnInit {
       return nextPostIds;
     });
     this.updatePostCount(postId, 'likesCount', wasLiked ? -1 : 1);
-    this.feedback.show(this.isPostLiked(postId) ? 'Deste baze nesta publicação.' : 'Baze removido.', this.isPostLiked(postId) ? 'success' : 'info');
+    this.feedback.show(
+      this.isPostLiked(postId) ? 'Deste baze nesta publicação.' : 'Baze removido.',
+      this.isPostLiked(postId) ? 'success' : 'info',
+    );
   }
 
   protected toggleSuggestedFollow(profileId: number): void {
@@ -467,10 +587,15 @@ export class Feed implements OnInit {
     const onSuccess = (): void => {
       this.suggestedProfiles.update((profiles) =>
         profile.isFollowing
-          ? profiles.map((item) => item.id === profileId ? { ...item, isFollowing: false } : item)
-          : profiles.filter((item) => item.id !== profileId)
+          ? profiles.map((item) => (item.id === profileId ? { ...item, isFollowing: false } : item))
+          : profiles.filter((item) => item.id !== profileId),
       );
-      this.feedback.show(profile.isFollowing ? 'Deixaste de seguir este perfil.' : 'Agora estás a seguir este perfil.', profile.isFollowing ? 'info' : 'success');
+      this.feedback.show(
+        profile.isFollowing
+          ? 'Deixaste de seguir este perfil.'
+          : 'Agora estás a seguir este perfil.',
+        profile.isFollowing ? 'info' : 'success',
+      );
     };
     const onError = (): void => {
       this.suggestionsError.set('Não foi possível atualizar a sugestão.');
@@ -479,14 +604,14 @@ export class Feed implements OnInit {
     if (profile.isFollowing) {
       this.users.unfollow(profileId).subscribe({
         next: onSuccess,
-        error: onError
+        error: onError,
       });
       return;
     }
 
     this.users.follow(profileId).subscribe({
       next: onSuccess,
-      error: onError
+      error: onError,
     });
   }
 
@@ -497,7 +622,6 @@ export class Feed implements OnInit {
   protected currentUserInitials(user: CurrentUser | null = this.auth.currentUser()): string {
     return userInitials(user?.name, user?.email, user?.username);
   }
-
 
   private applyComposerFile(file: File, type: 'image' | 'video'): void {
     const isImage = type === 'image' && file.type.startsWith('image/');
@@ -518,18 +642,22 @@ export class Feed implements OnInit {
     this.selectedVideo.set(type === 'video' ? file : null);
     this.selectedMediaPreview.set(URL.createObjectURL(file));
     this.selectedMediaName.set(file.name);
-    this.feedback.show(type === 'image' ? 'Imagem pronta para publicar.' : 'Vídeo pronto para publicar.', 'success');
+    this.feedback.show(
+      type === 'image' ? 'Imagem pronta para publicar.' : 'Vídeo pronto para publicar.',
+      'success',
+    );
   }
 
   private loadSuggestions(): void {
     this.suggestionsError.set(null);
     this.users.suggestions(5).subscribe({
-      next: ({ data }) => this.suggestedProfiles.set(
-        data
-          .filter((user) => !user.is_followed_by_viewer)
-          .map((user) => this.mapSuggestedProfile(user))
-      ),
-      error: () => this.suggestionsError.set('Não foi possível carregar sugestões.')
+      next: ({ data }) =>
+        this.suggestedProfiles.set(
+          data
+            .filter((user) => !user.is_followed_by_viewer)
+            .map((user) => this.mapSuggestedProfile(user)),
+        ),
+      error: () => this.suggestionsError.set('Não foi possível carregar sugestões.'),
     });
   }
 
@@ -541,7 +669,7 @@ export class Feed implements OnInit {
       avatar: profilePhotoUrl(user.profile_photo),
       initials: userInitials(user.name, null, user.username),
       bio: user.bio ?? 'Ainda sem biografia.',
-      isFollowing: user.is_followed_by_viewer
+      isFollowing: user.is_followed_by_viewer,
     };
   }
 
@@ -560,7 +688,7 @@ export class Feed implements OnInit {
       imageAlt: `Imagem da publicação de ${post.author.name ?? 'utilizador'}`,
       videoAlt: `Vídeo da publicação de ${post.author.name ?? 'utilizador'}`,
       likesCount: post.likes_count,
-      commentsCount: post.comments_count
+      commentsCount: post.comments_count,
     };
   }
 
@@ -573,7 +701,7 @@ export class Feed implements OnInit {
       avatar: profilePhotoUrl(comment.author.profile_photo),
       initials: userInitials(comment.author.name, null, null),
       text: comment.content,
-      time: this.relativeTime(comment.created_at)
+      time: this.relativeTime(comment.created_at),
     };
   }
 
@@ -596,24 +724,36 @@ export class Feed implements OnInit {
     return 'Agora';
   }
 
-  private updatePostCount(postId: number, key: 'likesCount' | 'commentsCount', amount: number): void {
+  private updatePostCount(
+    postId: number,
+    key: 'likesCount' | 'commentsCount',
+    amount: number,
+  ): void {
     this.posts.update((posts) =>
       posts.map((post) =>
-        post.id === postId ? { ...post, [key]: Math.max(0, post[key] + amount) } : post
-      )
+        post.id === postId ? { ...post, [key]: Math.max(0, post[key] + amount) } : post,
+      ),
     );
   }
 
-  private updatePostCountTo(postId: number, key: 'likesCount' | 'commentsCount', value: number): void {
+  private updatePostCountTo(
+    postId: number,
+    key: 'likesCount' | 'commentsCount',
+    value: number,
+  ): void {
     this.posts.update((posts) =>
-      posts.map((post) =>
-        post.id === postId ? { ...post, [key]: Math.max(0, value) } : post
-      )
+      posts.map((post) => (post.id === postId ? { ...post, [key]: Math.max(0, value) } : post)),
     );
   }
 
   private incrementCommentCount(postId: number): void {
     this.updatePostCount(postId, 'commentsCount', 1);
+  }
+  private chooseReportReason(): Promise<ReportReason | null> {
+    return new Promise((resolve) => {
+      this.reportModalResolve.set(resolve);
+      this.reportModalVisible.set(true);
+    });
   }
 
   private clearComposer(): void {

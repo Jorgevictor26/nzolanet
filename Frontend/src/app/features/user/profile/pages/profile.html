@@ -127,6 +127,11 @@
                     <div class="flex items-center gap-2">
                       <h4 class="truncate text-[12px] font-bold text-[#111827]">{{ comment.author }}</h4>
                       <span class="text-[9px] text-[#8b95a7]">{{ comment.time }}</span>
+                      @if (canReportProfileComment(comment)) {
+                        <button class="ml-auto shrink-0 text-[10px] font-bold text-[#be123c] hover:text-[#9f1239] disabled:cursor-not-allowed disabled:opacity-60" type="button" [disabled]="isProfileCommentReporting(comment.id)" (click)="reportProfileComment(comment)">
+                          {{ isProfileCommentReporting(comment.id) ? 'A denunciar...' : 'Denunciar' }}
+                        </button>
+                      }
                     </div>
                     <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
                   </div>

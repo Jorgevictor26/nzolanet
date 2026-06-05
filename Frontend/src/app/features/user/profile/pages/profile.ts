@@ -2,7 +2,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Auth, CurrentUser } from '../../../../core/services/auth';
 import { Feedback } from '../../../../core/services/feedback';
-import { Posts } from '../../../../core/services/posts';
+import { Posts, ReportReason } from '../../../../core/services/posts';
 import { Preferences } from '../../../../core/services/preferences';
 import { SocialState } from '../../../../core/services/social-state';
 import { Users } from '../../../../core/services/users';
@@ -24,6 +24,14 @@ import {
   profileUsername
 } from '../../../../shared/profile/profile-presenters';
 import { ProfileComment, ProfileContentFilter, ProfileListModal, ProfileMediaItem } from '../../../../shared/profile/profile-view-models';
+
+const reportReasons: ReportReason[] = [
+  'Discurso de Ódio',
+  'Spam/Publicidade',
+  'Linguagem Imprópria',
+  'Assédio',
+  'Conteúdo Falso'
+];
 
 @Component({
   selector: 'app-profile',
@@ -62,6 +70,7 @@ export class Profile implements OnInit {
   protected readonly isLoadingPosts = signal(false);
   protected readonly isLoadingProfileComments = signal(false);
   protected readonly isSubmittingProfileComment = signal(false);
+  protected readonly reportingCommentIds = signal<Set<number>>(new Set());
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeMediaItemId = signal<number | null>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
@@ -286,6 +295,55 @@ export class Profile implements OnInit {
     });
   }
 
+  protected reportProfileComment(comment: ProfileComment): void {
+    if (this.canManageProfileComment(comment)) {
+      this.feedback.show('Não podes denunciar o teu próprio comentário.', 'info');
+      return;
+    }
+
+    if (this.isProfileCommentReporting(comment.id)) {
+      return;
+    }
+
+    const reason = this.chooseReportReason();
+
+    if (!reason) {
+      return;
+    }
+
+    this.reportingCommentIds.update((commentIds) => new Set(commentIds).add(comment.id));
+    this.postsService.reportComment(comment.id, reason).subscribe({
+      next: () => {
+        this.reportingCommentIds.update((commentIds) => {
+          const nextCommentIds = new Set(commentIds);
+          nextCommentIds.delete(comment.id);
+          return nextCommentIds;
+        });
+        this.feedback.show('Denúncia submetida com sucesso.', 'success');
+      },
+      error: (error: unknown) => {
+        this.reportingCommentIds.update((commentIds) => {
+          const nextCommentIds = new Set(commentIds);
+          nextCommentIds.delete(comment.id);
+          return nextCommentIds;
+        });
+        this.profileError.set(this.errorMessage(error));
+      }
+    });
+  }
+
+  protected canManageProfileComment(comment: ProfileComment): boolean {
+    return this.auth.currentUser()?.id === comment.userId;
+  }
+
+  protected canReportProfileComment(comment: ProfileComment): boolean {
+    return !this.canManageProfileComment(comment);
+  }
+
+  protected isProfileCommentReporting(commentId: number): boolean {
+    return this.reportingCommentIds().has(commentId);
+  }
+
   protected toggleFollowerFollow(profileId: number): void {
     this.toggleListProfileFollow(profileId, 'followers');
   }
@@ -409,6 +467,30 @@ export class Profile implements OnInit {
         item.id === postId ? { ...item, [key]: Math.max(0, value) } : item
       )
     );
+  }
+
+  private chooseReportReason(): ReportReason | null {
+    const options = reportReasons.map((reason, index) => `${index + 1}. ${reason}`).join('\n');
+    const selectedOption = window.prompt(`Escolhe o motivo da denúncia:\n${options}`);
+
+    if (!selectedOption) {
+      return null;
+    }
+
+    const selectedIndex = Number(selectedOption.trim()) - 1;
+
+    if (Number.isInteger(selectedIndex) && reportReasons[selectedIndex]) {
+      return reportReasons[selectedIndex];
+    }
+
+    const typedReason = reportReasons.find((reason) => reason.toLowerCase() === selectedOption.trim().toLowerCase());
+
+    if (typedReason) {
+      return typedReason;
+    }
+
+    this.feedback.show('Motivo de denúncia inválido.', 'info');
+    return null;
   }
 
   private syncEditor(user: CurrentUser): void {
