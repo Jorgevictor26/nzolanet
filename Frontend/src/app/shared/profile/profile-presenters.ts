@@ -62,6 +62,8 @@ export function mapPostToProfileMediaItem(post: ApiPost): ProfileMediaItem {
 export function mapCommentToProfileComment(comment: ApiComment): ProfileComment {
   return {
     id: comment.id,
+    userId: comment.user_id,
+    postId: comment.post_id,
     author: comment.author.name ?? 'Utilizador',
     avatar: profilePhotoUrl(comment.author.profile_photo),
     initials: userInitials(comment.author.name, null, null),

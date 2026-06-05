@@ -67,4 +67,9 @@ class UserController extends Controller
             'data' => $user->toArray(),
         ]);
     }
+
+    public function count(): JsonResponse
+    {
+        return response()->json(['data' => ['count' => \App\Models\User::count()]]);
+    }
 }

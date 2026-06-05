@@ -1,216 +1,489 @@
 @if (isLoginRoute()) {
   <router-outlet />
 } @else {
-<div class="min-h-screen bg-[#eef2f7] text-[#111827]" [class.dark-mode]="prefs.isDarkMode()">
-  <header class="fixed left-0 right-0 top-0 z-30 flex h-[56px] items-center justify-between border-b border-[#e2e8f0] bg-white px-4 sm:px-5">
-    <div class="flex min-w-0 items-center gap-4 sm:gap-6">
-      <a routerLink="/home" aria-label="NzolaNet início">
-        <img class="size-8 shrink-0 rounded-full object-cover shadow-sm" src="nzolanet_logo.png" alt="NzolaNet" />
-      </a>
+  <div class="min-h-screen bg-[#eef2f7] text-[#111827]" [class.dark-mode]="prefs.isDarkMode()">
+    <header
+      class="fixed left-0 right-0 top-0 z-30 flex h-[56px] items-center justify-between border-b border-[#e2e8f0] bg-white px-4 sm:px-5"
+    >
+      <div class="flex min-w-0 items-center gap-4 sm:gap-6">
+        <a routerLink="/home" aria-label="NzolaNet início">
+          <img
+            class="size-8 shrink-0 rounded-full object-cover shadow-sm"
+            src="nzolanet_logo.png"
+            alt="NzolaNet"
+          />
+        </a>
 
-      <label class="relative flex h-[34px] w-[min(260px,52vw)] items-center rounded-full bg-[#f4f7fb] pl-9 pr-4 text-[12px] text-[#9aa4b2] sm:w-[260px]">
-        <svg class="absolute left-4 size-4 text-[#a8b0be]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m21 21-4.35-4.35" />
-          <circle cx="11" cy="11" r="7" />
-        </svg>
-        <input class="w-full bg-transparent outline-none placeholder:text-[#b8c0cc]" [placeholder]="prefs.t('search')" />
-      </label>
-    </div>
-
-    <div class="flex items-center gap-4 sm:gap-5">
-      <div class="relative">
-        <button class="relative grid size-8 place-items-center text-[#1e2740]" type="button" [attr.aria-label]="prefs.t('notifications')" (click)="toggleNotifications()">
-          <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-            <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+        <label
+          class="relative flex h-[34px] w-[min(260px,52vw)] items-center rounded-full bg-[#f4f7fb] pl-9 pr-4 text-[12px] text-[#9aa4b2] sm:w-[260px]"
+        >
+          <svg
+            class="absolute left-4 size-4 text-[#a8b0be]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="m21 21-4.35-4.35" />
+            <circle cx="11" cy="11" r="7" />
           </svg>
-          @if (unreadNotifications() > 0) {
-            <span class="absolute right-0.5 top-0.5 grid min-w-4 place-items-center rounded-full bg-[#28334b] px-1 text-[9px] font-bold leading-4 text-white">{{ unreadNotifications() }}</span>
-          }
-        </button>
+          <input
+            class="w-full bg-transparent outline-none placeholder:text-[#b8c0cc]"
+            [placeholder]="prefs.t('search')"
+          />
+        </label>
+      </div>
 
-        @if (isNotificationsOpen()) {
-          <section class="absolute right-[-72px] top-11 w-[calc(100vw-24px)] max-w-[390px] overflow-hidden rounded-[8px] border border-[#e4eaf3] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] sm:right-0" [attr.aria-label]="prefs.t('notifications')">
-            <header class="border-b border-[#eef1f6] bg-[#fbfcff] px-4 py-4">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <h2 class="text-[15px] font-bold text-[#111827]">{{ prefs.t('notifications') }}</h2>
-                  <p class="mt-0.5 text-[11px] text-[#8b95a7]">{{ unreadNotifications() }} {{ prefs.t('newUpdates') }}</p>
+      <div class="flex items-center gap-4 sm:gap-5">
+        <div class="relative">
+          <button
+            class="relative grid size-8 place-items-center text-[#1e2740]"
+            type="button"
+            [attr.aria-label]="prefs.t('notifications')"
+            (click)="toggleNotifications()"
+          >
+            <svg
+              class="size-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+              <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+            </svg>
+            @if (unreadNotifications() > 0) {
+              <span
+                class="absolute right-0.5 top-0.5 grid min-w-4 place-items-center rounded-full bg-[#28334b] px-1 text-[9px] font-bold leading-4 text-white"
+                >{{ unreadNotifications() }}</span
+              >
+            }
+          </button>
+
+          @if (isNotificationsOpen()) {
+            <section
+              class="absolute right-[-72px] top-11 w-[calc(100vw-24px)] max-w-[390px] overflow-hidden rounded-[8px] border border-[#e4eaf3] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] sm:right-0"
+              [attr.aria-label]="prefs.t('notifications')"
+            >
+              <header class="border-b border-[#eef1f6] bg-[#fbfcff] px-4 py-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <h2 class="text-[15px] font-bold text-[#111827]">
+                      {{ prefs.t('notifications') }}
+                    </h2>
+                    <p class="mt-0.5 text-[11px] text-[#8b95a7]">
+                      {{ unreadNotifications() }} {{ prefs.t('newUpdates') }}
+                    </p>
+                  </div>
+                  @if (unreadNotifications() > 0) {
+                    <span
+                      class="rounded-full bg-[#28334b] px-2.5 py-1 text-[10px] font-bold text-white"
+                      >{{ unreadNotifications() }}</span
+                    >
+                  }
                 </div>
-                @if (unreadNotifications() > 0) {
-                  <span class="rounded-full bg-[#28334b] px-2.5 py-1 text-[10px] font-bold text-white">{{ unreadNotifications() }}</span>
-                }
-              </div>
-              <div class="mt-3 flex items-center gap-2">
-                <button class="h-8 rounded-[6px] bg-[#eef2f7] px-3 text-[10px] font-bold text-[#28334b]" type="button" (click)="markAllNotificationsAsRead()">{{ prefs.t('markRead') }}</button>
-                <button class="h-8 rounded-[6px] px-3 text-[10px] font-bold text-[#ef4444] hover:bg-[#fff1f2]" type="button" (click)="clearNotifications()">{{ prefs.t('clear') }}</button>
-              </div>
-            </header>
+                <div class="mt-3 flex items-center gap-2">
+                  <button
+                    class="h-8 rounded-[6px] bg-[#eef2f7] px-3 text-[10px] font-bold text-[#28334b]"
+                    type="button"
+                    (click)="markAllNotificationsAsRead()"
+                  >
+                    {{ prefs.t('markRead') }}
+                  </button>
+                  <button
+                    class="h-8 rounded-[6px] px-3 text-[10px] font-bold text-[#ef4444] hover:bg-[#fff1f2]"
+                    type="button"
+                    (click)="clearNotifications()"
+                  >
+                    {{ prefs.t('clear') }}
+                  </button>
+                </div>
+              </header>
 
-            <div class="max-h-[380px] overflow-y-auto p-2">
-              @if (notifications().length > 0) {
-                @for (notification of notifications(); track notification.id) {
-                  <article [class]="notification.isRead ? 'flex gap-3 rounded-[8px] px-3 py-3' : 'flex gap-3 rounded-[8px] bg-[#f4f7fb] px-3 py-3'">
-                    <span [class]="notification.isRead ? 'grid size-9 shrink-0 place-items-center rounded-full bg-[#eef2f7] text-[#8b95a7]' : 'grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-white'">
-                      @if (notification.title === 'Nova reação') {
-                        <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21 4.2 13.4a5.5 5.5 0 0 1 7.8-7.8l.1.1.1-.1a5.5 5.5 0 1 1 7.8 7.8L12 21Z" /></svg>
-                      } @else if (notification.title === 'Comentário recente') {
-                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /></svg>
-                      } @else {
-                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
-                      }
-                    </span>
-                    <div class="min-w-0 flex-1">
-                      <div class="flex items-start justify-between gap-3">
-                        <h3 class="truncate text-[12px] font-bold text-[#111827]">{{ notification.title }}</h3>
-                        <p class="shrink-0 text-[10px] font-semibold text-[#9aa4b2]">{{ notification.time }}</p>
+              <div class="max-h-[380px] overflow-y-auto p-2">
+                @if (notifications().length > 0) {
+                  @for (notification of notifications(); track notification.id) {
+                    <article
+                      [class]="
+                        notification.isRead
+                          ? 'flex gap-3 rounded-[8px] px-3 py-3'
+                          : 'flex gap-3 rounded-[8px] bg-[#f4f7fb] px-3 py-3'
+                      "
+                    >
+                      <span
+                        [class]="
+                          notification.isRead
+                            ? 'grid size-9 shrink-0 place-items-center rounded-full bg-[#eef2f7] text-[#8b95a7]'
+                            : 'grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-white'
+                        "
+                      >
+                        @if (notification.title === 'Nova reação') {
+                          <svg class="size-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                              d="M12 21 4.2 13.4a5.5 5.5 0 0 1 7.8-7.8l.1.1.1-.1a5.5 5.5 0 1 1 7.8 7.8L12 21Z"
+                            />
+                          </svg>
+                        } @else if (notification.title === 'Comentário recente') {
+                          <svg
+                            class="size-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                          >
+                            <path
+                              d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"
+                            />
+                          </svg>
+                        } @else {
+                          <svg
+                            class="size-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                          >
+                            <circle cx="12" cy="8" r="4" />
+                            <path d="M4 21a8 8 0 0 1 16 0" />
+                          </svg>
+                        }
+                      </span>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-start justify-between gap-3">
+                          <h3 class="truncate text-[12px] font-bold text-[#111827]">
+                            {{ notification.title }}
+                          </h3>
+                          <p class="shrink-0 text-[10px] font-semibold text-[#9aa4b2]">
+                            {{ notification.time }}
+                          </p>
+                        </div>
+                        <p class="mt-1 text-[11px] leading-4 text-[#667085]">
+                          {{ notification.body }}
+                        </p>
+                        @if (!notification.isRead) {
+                          <span
+                            class="mt-2 inline-flex h-5 items-center rounded-full bg-white px-2 text-[9px] font-bold text-[#28334b]"
+                            >{{ prefs.t('new') }}</span
+                          >
+                        }
                       </div>
-                      <p class="mt-1 text-[11px] leading-4 text-[#667085]">{{ notification.body }}</p>
-                      @if (!notification.isRead) {
-                        <span class="mt-2 inline-flex h-5 items-center rounded-full bg-white px-2 text-[9px] font-bold text-[#28334b]">{{ prefs.t('new') }}</span>
-                      }
-                    </div>
-                  </article>
+                    </article>
+                  }
+                } @else {
+                  <div class="px-4 py-8 text-center">
+                    <p class="text-[12px] font-bold text-[#111827]">
+                      {{ prefs.t('noNotifications') }}
+                    </p>
+                    <p class="mt-1 text-[11px] text-[#8b95a7]">{{ prefs.t('allClean') }}</p>
+                  </div>
                 }
-              } @else {
-                <div class="px-4 py-8 text-center">
-                  <p class="text-[12px] font-bold text-[#111827]">{{ prefs.t('noNotifications') }}</p>
-                  <p class="mt-1 text-[11px] text-[#8b95a7]">{{ prefs.t('allClean') }}</p>
-                </div>
-              }
-            </div>
-          </section>
-        }
-      </div>
-      <div class="relative">
-        <button class="flex items-center gap-2" type="button" aria-label="Abrir menu do perfil" (click)="toggleProfileMenu()">
-          @if (currentUserPhotoUrl()) {
-            <img class="size-8 rounded-full object-cover ring-2 ring-white" [src]="currentUserPhotoUrl()" [alt]="auth.currentUser()?.name || 'Perfil'" />
-          } @else {
-            <span class="grid size-8 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white ring-2 ring-white" aria-label="Perfil">{{ currentUserInitials() }}</span>
-          }
-          <svg class="hidden size-3.5 text-[#667085] sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
-        </button>
-
-        @if (isProfileMenuOpen()) {
-          <section class="absolute right-0 top-11 w-[230px] overflow-hidden rounded-[8px] border border-[#e4eaf3] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]" aria-label="Menu do perfil">
-            <div class="flex items-center gap-3 border-b border-[#eef1f6] bg-[#fbfcff] px-4 py-3">
-              @if (currentUserPhotoUrl()) {
-                <img class="size-10 rounded-full object-cover" [src]="currentUserPhotoUrl()" [alt]="auth.currentUser()?.name || 'Perfil'" />
-              } @else {
-                <span class="grid size-10 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white">{{ currentUserInitials() }}</span>
-              }
-              <div class="min-w-0">
-                <p class="truncate text-[12px] font-bold text-[#111827]">{{ auth.currentUser()?.name || 'Utilizador' }}</p>
-                <p class="truncate text-[10px] text-[#8b95a7]">{{ auth.currentUser()?.email || 'Sessão ativa' }}</p>
               </div>
-            </div>
-            <a class="flex h-11 items-center gap-3 px-4 text-[12px] font-bold text-[#28334b] hover:bg-[#f4f7fb]" routerLink="/profile" (click)="toggleProfileMenu()">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
-              {{ prefs.t('viewProfile') }}
-            </a>
-            <button class="flex h-11 w-full items-center gap-3 px-4 text-left text-[12px] font-bold text-[#ef4444] hover:bg-[#fff1f2]" type="button" (click)="logout()">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 17 15 12l-5-5" /><path d="M15 12H3" /><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5" /></svg>
-              {{ prefs.t('logout') }}
-            </button>
-          </section>
-        }
-      </div>
-    </div>
-  </header>
+            </section>
+          }
+        </div>
+        <div class="relative">
+          <button
+            class="flex items-center gap-2"
+            type="button"
+            aria-label="Abrir menu do perfil"
+            (click)="toggleProfileMenu()"
+          >
+            @if (currentUserPhotoUrl()) {
+              <img
+                class="size-8 rounded-full object-cover ring-2 ring-white"
+                [src]="currentUserPhotoUrl()"
+                [alt]="auth.currentUser()?.name || 'Perfil'"
+              />
+            } @else {
+              <span
+                class="grid size-8 place-items-center rounded-full bg-[#28334b] text-[11px] font-extrabold text-white ring-2 ring-white"
+                aria-label="Perfil"
+                >{{ currentUserInitials() }}</span
+              >
+            }
+            <svg
+              class="hidden size-3.5 text-[#667085] sm:block"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
 
-  <aside class="fixed bottom-0 left-0 top-[56px] z-20 hidden w-[250px] flex-col bg-[#28334b] text-[#d6dceb] lg:flex">
-    <nav class="mt-3 flex flex-1 flex-col gap-1 text-[15px] font-semibold">
+          @if (isProfileMenuOpen()) {
+            <section
+              class="absolute right-0 top-11 w-[230px] overflow-hidden rounded-[8px] border border-[#e4eaf3] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]"
+              aria-label="Menu do perfil"
+            >
+              <div class="flex items-center gap-3 border-b border-[#eef1f6] bg-[#fbfcff] px-4 py-3">
+                @if (currentUserPhotoUrl()) {
+                  <img
+                    class="size-10 rounded-full object-cover"
+                    [src]="currentUserPhotoUrl()"
+                    [alt]="auth.currentUser()?.name || 'Perfil'"
+                  />
+                } @else {
+                  <span
+                    class="grid size-10 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white"
+                    >{{ currentUserInitials() }}</span
+                  >
+                }
+                <div class="min-w-0">
+                  <p class="truncate text-[12px] font-bold text-[#111827]">
+                    {{ auth.currentUser()?.name || 'Utilizador' }}
+                  </p>
+                  <p class="truncate text-[10px] text-[#8b95a7]">
+                    {{ auth.currentUser()?.email || 'Sessão ativa' }}
+                  </p>
+                </div>
+              </div>
+              <a
+                class="flex h-11 items-center gap-3 px-4 text-[12px] font-bold text-[#28334b] hover:bg-[#f4f7fb]"
+                routerLink="/profile"
+                (click)="toggleProfileMenu()"
+              >
+                <svg
+                  class="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21a8 8 0 0 1 16 0" />
+                </svg>
+                {{ prefs.t('viewProfile') }}
+              </a>
+              <button
+                class="flex h-11 w-full items-center gap-3 px-4 text-left text-[12px] font-bold text-[#ef4444] hover:bg-[#fff1f2]"
+                type="button"
+                (click)="logout()"
+              >
+                <svg
+                  class="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M10 17 15 12l-5-5" />
+                  <path d="M15 12H3" />
+                  <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5" />
+                </svg>
+                {{ prefs.t('logout') }}
+              </button>
+            </section>
+          }
+        </div>
+      </div>
+    </header>
+
+    <aside
+      class="fixed bottom-0 left-0 top-[56px] z-20 hidden w-[250px] flex-col bg-[#28334b] text-[#d6dceb] lg:flex"
+    >
+      <nav class="mt-3 flex flex-1 flex-col gap-1 text-[15px] font-semibold">
+        <a
+          class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+          routerLink="/home"
+          routerLinkActive="bg-[#314061] text-white"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <svg class="size-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" />
+          </svg>
+          {{ prefs.t('home') }}
+        </a>
+        <a
+          class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+          routerLink="/favorites"
+          routerLinkActive="bg-[#314061] text-white"
+        >
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          >
+            <path d="M6 4h12v16l-6-3-6 3V4Z" />
+          </svg>
+          {{ prefs.t('favorites') }}
+        </a>
+        <a
+          class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+          routerLink="/settings"
+          routerLinkActive="bg-[#314061] text-white"
+        >
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          >
+            <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" />
+            <path
+              d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05-1.7 2.94-.07-.02a1.7 1.7 0 0 0-1.95.4l-.04.04-3.4-1.2-.01-.08a1.7 1.7 0 0 0-1.6-1.1h-.07l-3.4 1.2-.04-.04a1.7 1.7 0 0 0-1.95-.4l-.07.02-1.7-2.94.05-.05A1.7 1.7 0 0 0 4.6 15l-.02-.07L2.8 12l1.78-2.93.02-.07a1.7 1.7 0 0 0-.34-1.87l-.05-.05 1.7-2.94.07.02a1.7 1.7 0 0 0 1.95-.4l.04-.04 3.4 1.2.01.08a1.7 1.7 0 0 0 1.6 1.1h.07l3.4-1.2.04.04a1.7 1.7 0 0 0 1.95.4l.07-.02 1.7 2.94-.05.05A1.7 1.7 0 0 0 19.4 9l.02.07L21.2 12l-1.78 2.93-.02.07Z"
+            />
+          </svg>
+          {{ prefs.t('settings') }}
+        </a>
+        @if (auth.isAdmin()) {
+          <a
+            class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+            routerLink="/moderation"
+            routerLinkActive="bg-[#314061] text-white"
+          >
+            <svg
+              class="size-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12l4-3h5" />
+              <path d="M8 8h8M8 12h5" />
+              <path d="m17 21 4-4-2-2-4 4v2h2Z" />
+            </svg>
+            {{ prefs.t('moderation') }}
+          </a>
+        }
+      </nav>
+
+      <footer class="mx-5 mb-5 border-t border-[#3a455e] pt-4 text-[10px] leading-5 text-[#aab4c8]">
+        <div class="flex flex-wrap gap-x-3 gap-y-1">
+          <a class="hover:text-white" routerLink="/settings">{{ prefs.t('terms') }}</a>
+          <a class="hover:text-white" routerLink="/settings">{{ prefs.t('privacy') }}</a>
+        </div>
+        <p class="mt-2">© 2026 NzolaNet</p>
+      </footer>
+    </aside>
+
+    <nav
+      class="fixed bottom-0 left-0 right-0 z-20 grid h-16 border-t border-[#3a455e] bg-[#28334b] text-[10px] font-semibold text-[#d6dceb] lg:hidden"
+      [class.grid-cols-3]="!auth.isAdmin()"
+      [class.grid-cols-4]="auth.isAdmin()"
+    >
       <a
-        class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+        class="flex flex-col items-center justify-center gap-1"
         routerLink="/home"
         routerLinkActive="bg-[#314061] text-white"
         [routerLinkActiveOptions]="{ exact: true }"
       >
-        <svg class="size-5" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" /></svg>
+        <svg class="size-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" />
+        </svg>
         {{ prefs.t('home') }}
       </a>
       <a
-        class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+        class="flex flex-col items-center justify-center gap-1"
         routerLink="/favorites"
         routerLinkActive="bg-[#314061] text-white"
       >
-        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
+        <svg
+          class="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
+          <path d="M6 4h12v16l-6-3-6 3V4Z" />
+        </svg>
         {{ prefs.t('favorites') }}
       </a>
       <a
-        class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
-        routerLink="/settings"
+        class="flex flex-col items-center justify-center gap-1"
+        routerLink="/profile"
         routerLinkActive="bg-[#314061] text-white"
       >
-        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" /><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05-1.7 2.94-.07-.02a1.7 1.7 0 0 0-1.95.4l-.04.04-3.4-1.2-.01-.08a1.7 1.7 0 0 0-1.6-1.1h-.07l-3.4 1.2-.04-.04a1.7 1.7 0 0 0-1.95-.4l-.07.02-1.7-2.94.05-.05A1.7 1.7 0 0 0 4.6 15l-.02-.07L2.8 12l1.78-2.93.02-.07a1.7 1.7 0 0 0-.34-1.87l-.05-.05 1.7-2.94.07.02a1.7 1.7 0 0 0 1.95-.4l.04-.04 3.4 1.2.01.08a1.7 1.7 0 0 0 1.6 1.1h.07l3.4-1.2.04.04a1.7 1.7 0 0 0 1.95.4l.07-.02 1.7 2.94-.05.05A1.7 1.7 0 0 0 19.4 9l.02.07L21.2 12l-1.78 2.93-.02.07Z" /></svg>
-        {{ prefs.t('settings') }}
+        <svg
+          class="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </svg>
+        {{ prefs.t('profile') }}
       </a>
       @if (auth.isAdmin()) {
         <a
-          class="flex h-[52px] items-center gap-4 px-5 text-[#d6dceb]"
+          class="flex flex-col items-center justify-center gap-1"
           routerLink="/moderation"
           routerLinkActive="bg-[#314061] text-white"
         >
-          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12l4-3h5" /><path d="M8 8h8M8 12h5" /><path d="m17 21 4-4-2-2-4 4v2h2Z" /></svg>
+          <svg
+            class="size-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          >
+            <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12l4-3h5" />
+            <path d="M8 8h8M8 12h5" />
+            <path d="m17 21 4-4-2-2-4 4v2h2Z" />
+          </svg>
           {{ prefs.t('moderation') }}
         </a>
       }
     </nav>
 
-    <footer class="mx-5 mb-5 border-t border-[#3a455e] pt-4 text-[10px] leading-5 text-[#aab4c8]">
-      <div class="flex flex-wrap gap-x-3 gap-y-1">
-        <a class="hover:text-white" routerLink="/settings">{{ prefs.t('terms') }}</a>
-        <a class="hover:text-white" routerLink="/settings">{{ prefs.t('privacy') }}</a>
+    <main class="pb-20 pt-[56px] lg:ml-[250px] lg:pb-0">
+      <router-outlet />
+    </main>
+
+    @if (feedback.messages().length > 0) {
+      <div
+        class="fixed right-3 top-[68px] z-[70] flex w-[calc(100vw-24px)] max-w-[360px] flex-col gap-2 sm:right-5"
+      >
+        @for (message of feedback.messages(); track message.id) {
+          <button
+            [class]="
+              message.tone === 'success'
+                ? 'flex items-start gap-3 rounded-[8px] border border-[#d8e2f1] bg-white px-4 py-3 text-left text-[#1f2944] shadow-[0_16px_35px_rgba(15,23,42,0.16)]'
+                : 'flex items-start gap-3 rounded-[8px] border border-[#d8e2f1] bg-[#fbfcff] px-4 py-3 text-left text-[#1f2944] shadow-[0_16px_35px_rgba(15,23,42,0.16)]'
+            "
+            type="button"
+            (click)="feedback.dismiss(message.id)"
+          >
+            <span
+              [class]="
+                message.tone === 'success'
+                  ? 'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-[#eaf3ff] text-[#1f6fff]'
+                  : 'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-[#eef2f7] text-[#28334b]'
+              "
+            >
+              @if (message.tone === 'success') {
+                <svg
+                  class="size-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                >
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
+              } @else {
+                <svg
+                  class="size-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 8h.01M11 12h1v5h1" />
+                </svg>
+              }
+            </span>
+            <span class="min-w-0 flex-1 text-[12px] font-bold leading-5">{{ message.text }}</span>
+          </button>
+        }
       </div>
-      <p class="mt-2">© 2026 NzolaNet</p>
-    </footer>
-  </aside>
-
-  <nav class="fixed bottom-0 left-0 right-0 z-20 grid h-16 border-t border-[#3a455e] bg-[#28334b] text-[10px] font-semibold text-[#d6dceb] lg:hidden" [class.grid-cols-3]="!auth.isAdmin()" [class.grid-cols-4]="auth.isAdmin()">
-    <a class="flex flex-col items-center justify-center gap-1" routerLink="/home" routerLinkActive="bg-[#314061] text-white" [routerLinkActiveOptions]="{ exact: true }">
-      <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" /></svg>
-      {{ prefs.t('home') }}
-    </a>
-    <a class="flex flex-col items-center justify-center gap-1" routerLink="/favorites" routerLinkActive="bg-[#314061] text-white">
-      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3V4Z" /></svg>
-      {{ prefs.t('favorites') }}
-    </a>
-    <a class="flex flex-col items-center justify-center gap-1" routerLink="/profile" routerLinkActive="bg-[#314061] text-white">
-      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
-      {{ prefs.t('profile') }}
-    </a>
-    @if (auth.isAdmin()) {
-      <a class="flex flex-col items-center justify-center gap-1" routerLink="/moderation" routerLinkActive="bg-[#314061] text-white">
-        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12l4-3h5" /><path d="M8 8h8M8 12h5" /><path d="m17 21 4-4-2-2-4 4v2h2Z" /></svg>
-        {{ prefs.t('moderation') }}
-      </a>
     }
-  </nav>
-
-  <main class="pb-20 pt-[56px] lg:ml-[250px] lg:pb-0">
-    <router-outlet />
-  </main>
-
-  @if (feedback.messages().length > 0) {
-    <div class="fixed right-3 top-[68px] z-[70] flex w-[calc(100vw-24px)] max-w-[360px] flex-col gap-2 sm:right-5">
-      @for (message of feedback.messages(); track message.id) {
-        <button
-          [class]="message.tone === 'success' ? 'flex items-start gap-3 rounded-[8px] border border-[#d8e2f1] bg-white px-4 py-3 text-left text-[#1f2944] shadow-[0_16px_35px_rgba(15,23,42,0.16)]' : 'flex items-start gap-3 rounded-[8px] border border-[#d8e2f1] bg-[#fbfcff] px-4 py-3 text-left text-[#1f2944] shadow-[0_16px_35px_rgba(15,23,42,0.16)]'"
-          type="button"
-          (click)="feedback.dismiss(message.id)"
-        >
-          <span [class]="message.tone === 'success' ? 'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-[#eaf3ff] text-[#1f6fff]' : 'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-[#eef2f7] text-[#28334b]'">
-            @if (message.tone === 'success') {
-              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4 4L19 6" /></svg>
-            } @else {
-              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v5h1" /></svg>
-            }
-          </span>
-          <span class="min-w-0 flex-1 text-[12px] font-bold leading-5">{{ message.text }}</span>
-        </button>
-      }
-    </div>
-  }
-</div>
+  </div>
 }

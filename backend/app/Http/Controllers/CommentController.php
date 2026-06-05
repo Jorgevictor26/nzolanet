@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\DTOs\CreateCommentDTO;
 use App\DTOs\UpdateCommentDTO;
 use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\StoreReportRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Services\CommentService;
+use App\Services\ModerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,6 +16,7 @@ class CommentController extends Controller
 {
     public function __construct(
         private readonly CommentService $commentService,
+        private readonly ModerationService $moderationService,
     ) {}
 
     public function index(Request $request, int $postId): JsonResponse
@@ -60,5 +63,18 @@ class CommentController extends Controller
         return response()->json([
             'message' => 'Comentário eliminado com sucesso.',
         ]);
+    }
+
+    public function report(StoreReportRequest $request, int $id): JsonResponse
+    {
+        $this->moderationService->submitReport(
+            $request->user(),
+            $id,
+            $request->validated('reason'),
+        );
+
+        return response()->json([
+            'message' => 'Denúncia submetida com sucesso.',
+        ], 201);
     }
 }

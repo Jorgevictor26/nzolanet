@@ -16,6 +16,7 @@ readonly class CurrentUserDTO
         public ?string $profilePhoto,
         public ?string $coverPhoto,
         public string $privacy,
+        public bool $isAdmin,
     ) {}
 
     public static function fromModel(User $user): self
@@ -30,11 +31,12 @@ readonly class CurrentUserDTO
             profilePhoto: $user->profile_photo,
             coverPhoto: $user->cover_photo,
             privacy: $user->privacy,
+            isAdmin: (bool) $user->is_admin,
         );
     }
 
     /**
-     * @return array<string, int|string|null>
+     * @return array<string, bool|int|string|null>
      */
     public function toArray(): array
     {
@@ -48,6 +50,7 @@ readonly class CurrentUserDTO
             'profile_photo' => $this->profilePhoto,
             'cover_photo' => $this->coverPhoto,
             'privacy' => $this->privacy,
+            'is_admin' => $this->isAdmin,
         ];
     }
 }

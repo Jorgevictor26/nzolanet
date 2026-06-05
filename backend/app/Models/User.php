@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'username', 'email', 'phone_number', 'password', 'bio', 'profile_photo', 'cover_photo','privacy'])]
+#[Fillable(['name', 'username', 'email', 'phone_number', 'password', 'bio', 'profile_photo', 'cover_photo', 'privacy', 'is_admin'])]
 #[Hidden(['password', 'remember_token'])]
 
 class User extends Authenticatable
@@ -56,6 +56,7 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
             'privacy' => 'string',
+            'is_admin' => 'boolean',
         ];
     }
 }
