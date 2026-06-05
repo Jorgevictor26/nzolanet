@@ -37,8 +37,7 @@ class PostController extends Controller
             new CreatePostDTO(
                 content: $request->validated('content'),
                 image: $request->file('image'),
-                video: $request->file('video'),
-                media: $request->file('media', []),
+                video: $request->file('video')
             ),
         );
 
@@ -55,8 +54,7 @@ class PostController extends Controller
             new UpdatePostDTO(
                 content: $request->validated('content'),
                 image: $request->file('image'),
-                video: $request->file('video'),
-                media: $request->file('media', []),
+                video: $request->file('video')
             ),
         );
 
