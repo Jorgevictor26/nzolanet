@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('username')->nullable()->unique();
+            $table->string('phone_number')->nullable()->unique();
             $table->text('bio')->nullable();
-            $table->string('username')->nullable()->unique()->after('name');
-            $table->string('phone_number')->nullable()->unique()->after('email');
             $table->string('profile_photo')->nullable();
             $table->string('cover_photo')->nullable();
             $table->enum('privacy', ['public', 'private'])->default('public');

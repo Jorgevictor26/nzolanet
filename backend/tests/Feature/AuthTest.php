@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
@@ -80,5 +82,52 @@ class AuthTest extends TestCase
             ->assertJsonPath('message', 'Sessão terminada com sucesso.');
 
         $this->assertSame(0, PersonalAccessToken::count());
+    }
+
+    public function test_user_can_request_password_reset_token(): void
+    {
+        Mail::fake();
+
+        User::factory()->create([
+            'email' => 'jorge@example.com',
+        ]);
+
+        $response = $this->postJson('/api/auth/forgot-password', [
+            'email' => 'jorge@example.com',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('message', 'Se o email existir, enviaremos um token de recuperação.');
+
+        $this->assertDatabaseHas('password_reset_tokens', [
+            'email' => 'jorge@example.com',
+        ]);
+    }
+
+    public function test_user_can_reset_password_with_valid_token(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'jorge@example.com',
+            'password' => Hash::make('old-password'),
+        ]);
+
+        $token = Password::broker()->createToken($user);
+
+        $response = $this->postJson('/api/auth/reset-password', [
+            'email' => 'jorge@example.com',
+            'token' => $token,
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('message', 'Palavra passe alterada com sucesso.');
+
+        $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+        $this->assertDatabaseMissing('password_reset_tokens', [
+            'email' => 'jorge@example.com',
+        ]);
     }
 }

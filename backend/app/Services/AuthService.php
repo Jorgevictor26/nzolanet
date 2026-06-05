@@ -3,11 +3,17 @@
 namespace App\Services;
 
 use App\DTOs\CurrentUserDTO;
+use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
+use App\DTOs\ResetPasswordDTO;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -57,6 +63,52 @@ class AuthService
 
         if ($token && method_exists($token, 'delete')) {
             $token->delete();
+        }
+    }
+
+    public function sendPasswordResetToken(ForgotPasswordDTO $dto): void
+    {
+        $user = $this->users->findByEmail($dto->email);
+
+        if (! $user) {
+            return;
+        }
+
+        $token = Password::broker()->createToken($user);
+
+        Mail::raw(
+            "Olá {$user->name},\n\nUse este token para recuperar a sua palavra passe:\n\n{$token}\n\nEste token expira em 60 minutos.",
+            fn ($message) => $message
+                ->to($user->email)
+                ->subject('Recuperação de palavra passe - NzolaNet')
+        );
+    }
+
+    public function resetPassword(ResetPasswordDTO $dto): void
+    {
+        $status = Password::broker()->reset(
+            [
+                'email' => $dto->email,
+                'password' => $dto->password,
+                'password_confirmation' => $dto->password,
+                'token' => $dto->token,
+            ],
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                $user->tokens()->delete();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => ['Token inválido ou expirado.'],
+            ]);
         }
     }
 }

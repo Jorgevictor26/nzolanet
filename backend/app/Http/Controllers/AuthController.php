@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
+use App\DTOs\ResetPasswordDTO;
+use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -49,4 +53,25 @@ class AuthController extends Controller
         ]);
     }
 
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $this->authService->sendPasswordResetToken(
+            ForgotPasswordDTO::fromArray($request->validated())
+        );
+
+        return response()->json([
+            'message' => 'Se o email existir, enviaremos um token de recuperação.',
+        ]);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $this->authService->resetPassword(
+            ResetPasswordDTO::fromArray($request->validated())
+        );
+
+        return response()->json([
+            'message' => 'Palavra passe alterada com sucesso.',
+        ]);
+    }
 }
