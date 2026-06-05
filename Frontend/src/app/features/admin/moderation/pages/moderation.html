@@ -6,9 +6,20 @@
   <div class="grid w-full max-w-[520px] grid-cols-2 gap-6">
     <article class="h-[150px] rounded-[8px] bg-white p-6 shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
       <div class="flex items-start justify-between gap-4">
-        <p class="text-[12px] font-semibold leading-5 text-[#6b7484]">Comentários<br />Denunciados</p>
+        <p class="text-[12px] font-semibold leading-5 text-[#6b7484]">
+          Comentários<br />Denunciados
+        </p>
         <span class="grid size-7 place-items-center rounded-[6px] text-[#1f6fff]">
-          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" /><path d="M8 9h8M8 13h5" /></svg>
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+          >
+            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" />
+            <path d="M8 9h8M8 13h5" />
+          </svg>
         </span>
       </div>
       <p class="mt-6 text-[32px] font-medium leading-none text-[#1f2937]">{{ reportsCount() }}</p>
@@ -16,17 +27,34 @@
 
     <article class="h-[150px] rounded-[8px] bg-white p-6 shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
       <div class="flex items-start justify-between gap-4">
-        <p class="text-[12px] font-semibold leading-5 text-[#6b7484]">Utilizadores</p>
+        <p class="text-[12px] font-semibold leading-5 text-[#6b7484]">
+          Utilizadores<br />Registados
+        </p>
         <span class="grid size-7 place-items-center rounded-[6px] text-[#1f6fff]">
-          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="9" cy="8" r="3" /><path d="M3.5 19a5.5 5.5 0 0 1 11 0" /><circle cx="17" cy="9" r="2.4" /><path d="M15.5 15.5a4 4 0 0 1 5 3.5" /></svg>
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+          >
+            <circle cx="9" cy="8" r="3" />
+            <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
+            <circle cx="17" cy="9" r="2.4" />
+            <path d="M15.5 15.5a4 4 0 0 1 5 3.5" />
+          </svg>
         </span>
       </div>
-      <p class="mt-6 text-[32px] font-medium leading-none text-[#1f2937]">{{ reportedUsersCount() }}</p>
+      <p class="mt-6 text-[32px] font-medium leading-none text-[#1f2937]">
+        {{ totalUsersCount() }}
+      </p>
       <p class="mt-3 text-[10px] font-bold text-[#a35400]">Quantidade de utilizadores</p>
     </article>
   </div>
 
-  <section class="mt-8 overflow-hidden rounded-[8px] bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
+  <section
+    class="mt-8 overflow-hidden rounded-[8px] bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)]"
+  >
     <header class="flex h-[64px] items-center bg-[#f5f3ff] px-10">
       <h2 class="text-[16px] font-bold text-[#111827]">Denúncias</h2>
     </header>
@@ -58,25 +86,35 @@
               <td class="w-[36%] px-28">{{ report.user }}</td>
               <td class="w-[36%] px-8">
                 <span
-                  [class]="report.reason === 'Discurso de Ódio'
-                    ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
-                    : report.reason === 'Spam/Publicidade'
+                  [class]="
+                    report.reason === 'Discurso de Ódio'
                       ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
-                    : report.reason === 'Assédio'
-                      ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
-                      : 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'"
+                      : report.reason === 'Spam/Publicidade'
+                        ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
+                        : report.reason === 'Assédio'
+                          ? 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
+                          : 'rounded-full bg-[#fee2e2] px-3 py-1.5 text-[12px] font-bold uppercase text-[#dc2626]'
+                  "
                 >
                   {{ report.reason }}
                 </span>
               </td>
               <td class="w-[36%] px-8">
-                <span [class]="report.status === 'Pendente' ? 'text-[12px] font-bold text-[#b45309]' : 'text-[12px] font-bold text-[#6b7280]'">
+                <span
+                  [class]="
+                    report.status === 'Pendente'
+                      ? 'text-[12px] font-bold text-[#b45309]'
+                      : 'text-[12px] font-bold text-[#6b7280]'
+                  "
+                >
                   + {{ report.status }}
                 </span>
               </td>
             </tr>
           } @empty {
-            <tr class="h-[120px] border-b border-[#f1f4f8] text-center text-[13px] font-semibold text-[#6b7484]">
+            <tr
+              class="h-[120px] border-b border-[#f1f4f8] text-center text-[13px] font-semibold text-[#6b7484]"
+            >
               <td colspan="3" class="px-8">Sem denúncias para moderar.</td>
             </tr>
           }
@@ -96,11 +134,18 @@
       Voltar
     </button>
 
-    <section class="mx-auto mt-5 flex h-[640px] w-full max-w-[250px] flex-col overflow-hidden rounded-[2px] bg-[#f4f7fb]" aria-label="Detalhes do utilizador denunciado">
+    <section
+      class="mx-auto mt-5 flex h-[640px] w-full max-w-[250px] flex-col overflow-hidden rounded-[2px] bg-[#f4f7fb]"
+      aria-label="Detalhes do utilizador denunciado"
+    >
       <div class="h-[58px] shrink-0 bg-[#28334b]"></div>
 
       <div class="flex flex-1 flex-col px-[22px] pb-6">
-        <img class="mx-auto -mt-[40px] size-[78px] rounded-full border-[3px] border-white object-cover shadow-[0_3px_8px_rgba(15,23,42,0.22)]" [src]="report.avatar" [alt]="report.user" />
+        <img
+          class="mx-auto -mt-[40px] size-[78px] rounded-full border-[3px] border-white object-cover shadow-[0_3px_8px_rgba(15,23,42,0.22)]"
+          [src]="report.avatar"
+          [alt]="report.user"
+        />
 
         <div class="mt-[14px] text-center">
           <h2 class="text-[12px] font-extrabold leading-4 text-[#111827]">{{ report.user }}</h2>
@@ -108,23 +153,50 @@
 
         <article class="mt-[24px] rounded-[8px] bg-[#f0eefa] px-[14px] py-[14px]">
           <h3 class="text-[10px] font-semibold leading-4 text-[#596171]">Comentário</h3>
-          <p class="mt-[5px] text-[10px] font-semibold italic leading-[17px] text-[#4d5666]">{{ report.comment }}</p>
+          <p class="mt-[5px] text-[10px] font-semibold italic leading-[17px] text-[#4d5666]">
+            {{ report.comment }}
+          </p>
         </article>
 
-        <div class="mt-[24px] flex items-center justify-between text-[12px] font-semibold leading-4 text-[#6b7484]">
+        <div
+          class="mt-[24px] flex items-center justify-between text-[12px] font-semibold leading-4 text-[#6b7484]"
+        >
           <span>Total de Denuncias</span>
-          <span class="grid size-[24px] place-items-center rounded-full bg-[#fee2e2] text-[10px] font-bold text-[#dc2626]">{{ report.reportsCount }}</span>
+          <span
+            class="grid size-[24px] place-items-center rounded-full bg-[#fee2e2] text-[10px] font-bold text-[#dc2626]"
+            >{{ report.reportsCount }}</span
+          >
         </div>
 
         <div class="mt-[22px] flex items-center justify-between gap-3 text-[12px] leading-4">
           <span class="font-semibold text-[#6b7484]">Motivo</span>
-          <span class="max-w-[92px] text-right text-[10px] font-extrabold text-[#111827]">{{ report.reason }}</span>
+          <span class="max-w-[92px] text-right text-[10px] font-extrabold text-[#111827]">{{
+            report.reason
+          }}</span>
         </div>
 
         <div class="mt-[34px] space-y-[11px]">
-          <button class="h-[41px] w-full rounded-[4px] bg-[#28334b] text-[10px] font-extrabold text-white hover:bg-[#314061]" type="button">Aprovar Comentário</button>
-          <button class="h-[41px] w-full rounded-[4px] border border-[#ef4444] bg-white text-[10px] font-extrabold text-[#dc2626] hover:bg-[#fff1f2]" type="button">Remover Comentário</button>
-          <button class="h-[41px] w-full rounded-[4px] border border-[#9aa4b2] bg-white text-[10px] font-extrabold text-[#4b5565] hover:bg-[#eef2f7]" type="button">Avisar Utilizador</button>
+          <button
+            class="h-[41px] w-full rounded-[4px] bg-[#28334b] text-[10px] font-extrabold text-white hover:bg-[#314061]"
+            type="button"
+            (click)="approve(activeReport()!)"
+          >
+            Aprovar Comentário
+          </button>
+          <button
+            class="h-[41px] w-full rounded-[4px] border border-[#ef4444] bg-white text-[10px] font-extrabold text-[#dc2626] hover:bg-[#fff1f2]"
+            type="button"
+            (click)="remove(activeReport()!)"
+          >
+            Remover Comentário
+          </button>
+          <button
+            class="h-[41px] w-full rounded-[4px] border border-[#9aa4b2] bg-white text-[10px] font-extrabold text-[#4b5565] hover:bg-[#eef2f7]"
+            type="button"
+            (click)="warn(activeReport()!)"
+          >
+            Avisar Utilizador
+          </button>
         </div>
       </div>
     </section>
@@ -146,32 +218,67 @@
       <div class="h-[29px] shrink-0 bg-[#28334b]"></div>
 
       <div class="flex flex-1 flex-col px-5 pb-10">
-        <img class="mx-auto -mt-[12px] size-[78px] rounded-full border-[4px] border-white object-cover shadow-[0_2px_7px_rgba(15,23,42,0.25)]" [src]="report.avatar" [alt]="report.user" />
+        <img
+          class="mx-auto -mt-[12px] size-[78px] rounded-full border-[4px] border-white object-cover shadow-[0_2px_7px_rgba(15,23,42,0.25)]"
+          [src]="report.avatar"
+          [alt]="report.user"
+        />
 
         <div class="mt-[13px] text-center">
           <h2 class="text-[13px] font-extrabold leading-4 text-[#111827]">{{ report.user }}</h2>
-          <p class="mt-[2px] text-[10px] font-medium leading-3 text-[#4b5565]">ID: #{{ report.id }}</p>
+          <p class="mt-[2px] text-[10px] font-medium leading-3 text-[#4b5565]">
+            ID: #{{ report.id }}
+          </p>
         </div>
 
         <article class="mt-[21px] rounded-[8px] bg-[#f0eefa] px-[14px] py-[15px]">
           <h3 class="text-[13px] font-medium leading-4 text-[#4b5565]">Texto do Comentário</h3>
-          <p class="mt-[8px] text-[12px] font-medium italic leading-4 text-[#202637]">{{ report.comment }}</p>
+          <p class="mt-[8px] text-[12px] font-medium italic leading-4 text-[#202637]">
+            {{ report.comment }}
+          </p>
         </article>
 
-        <div class="mt-[20px] flex h-[31px] items-center justify-between border-b border-[#e8edf5] text-[11px] font-medium leading-4 text-[#4b5565]">
+        <div
+          class="mt-[20px] flex h-[31px] items-center justify-between border-b border-[#e8edf5] text-[11px] font-medium leading-4 text-[#4b5565]"
+        >
           <span>Total de Denúncias</span>
-          <span class="grid size-[22px] place-items-center rounded-full bg-[#fee2e2] text-[12px] font-bold text-[#dc2626]">{{ report.reportsCount }}</span>
+          <span
+            class="grid size-[22px] place-items-center rounded-full bg-[#fee2e2] text-[12px] font-bold text-[#dc2626]"
+            >{{ report.reportsCount }}</span
+          >
         </div>
 
-        <div class="flex h-[43px] items-center justify-between gap-3 border-b border-[#e8edf5] text-[11px] leading-4">
+        <div
+          class="flex h-[43px] items-center justify-between gap-3 border-b border-[#e8edf5] text-[11px] leading-4"
+        >
           <span class="font-medium text-[#4b5565]">Motivo Principal</span>
-          <span class="text-right text-[13px] font-extrabold text-[#111827]">{{ report.reason }}</span>
+          <span class="text-right text-[13px] font-extrabold text-[#111827]">{{
+            report.reason
+          }}</span>
         </div>
 
         <div class="mt-[24px] flex items-center justify-center gap-[13px]">
-          <button class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] bg-[#28334b] px-4 text-[12px] font-extrabold text-white shadow-[0_7px_14px_rgba(40,51,75,0.22)] hover:bg-[#314061]" type="button">Aprovar Comentário</button>
-          <button class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] border border-[#ef4444] bg-white px-4 text-[12px] font-extrabold text-[#dc2626] hover:bg-[#fff1f2]" type="button">Remover Comentário</button>
-          <button class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] border border-[#9aa4b2] bg-white px-4 text-[12px] font-extrabold text-[#4b5565] hover:bg-[#eef2f7]" type="button">Avisar Utilizador</button>
+          <button
+            class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] bg-[#28334b] px-4 text-[12px] font-extrabold text-white shadow-[0_7px_14px_rgba(40,51,75,0.22)] hover:bg-[#314061]"
+            type="button"
+            (click)="approve(activeReport()!)"
+          >
+            Aprovar Comentário
+          </button>
+          <button
+            class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] border border-[#ef4444] bg-white px-4 text-[12px] font-extrabold text-[#dc2626] hover:bg-[#fff1f2]"
+            type="button"
+            (click)="remove(activeReport()!)"
+          >
+            Remover Comentário
+          </button>
+          <button
+            class="h-[39px] min-w-[156px] whitespace-nowrap rounded-[4px] border border-[#9aa4b2] bg-white px-4 text-[12px] font-extrabold text-[#4b5565] hover:bg-[#eef2f7]"
+            type="button"
+            (click)="warn(activeReport()!)"
+          >
+            Avisar Utilizador
+          </button>
         </div>
       </div>
     </section>

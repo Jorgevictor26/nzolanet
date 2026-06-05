@@ -13,6 +13,8 @@ export type ProfileMediaItem = ProfileMediaGridItem & {
 
 export type ProfileComment = {
   id: number;
+  userId: number;
+  postId: number;
   author: string;
   avatar: string | null;
   initials: string;

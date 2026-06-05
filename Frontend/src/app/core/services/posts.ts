@@ -62,6 +62,13 @@ export type CommentResponse = {
   data: ApiComment;
 };
 
+export type ReportReason =
+  | 'Discurso de Ódio'
+  | 'Spam/Publicidade'
+  | 'Linguagem Imprópria'
+  | 'Assédio'
+  | 'Conteúdo Falso';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -119,6 +126,10 @@ export class Posts {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/posts/${id}`);
   }
 
+  reportPost(id: number, reason: ReportReason): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/posts/${id}/report`, { reason });
+  }
+
   comments(postId: number, perPage = 50): Observable<CommentsResponse> {
     return this.http.get<CommentsResponse>(`${environment.apiUrl}/posts/${postId}/comments`, {
       params: {
@@ -137,5 +148,9 @@ export class Posts {
 
   deleteComment(id: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/comments/${id}`);
+  }
+
+  reportComment(id: number, reason: ReportReason): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/comments/${id}/report`, { reason });
   }
 }

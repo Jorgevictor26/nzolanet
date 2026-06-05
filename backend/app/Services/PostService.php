@@ -66,7 +66,7 @@ class PostService
                 ->loadCount(['likes', 'comments'])
         );
     }
-
+    
     public function update(User $author, int $postId, UpdatePostDTO $dto): PostDTO
     {
         $post = $this->findPostOrFail($postId);
