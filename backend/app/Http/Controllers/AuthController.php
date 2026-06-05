@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
 use App\DTOs\ResetPasswordDTO;
@@ -56,7 +55,7 @@ class AuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $this->authService->sendPasswordResetToken(
-            ForgotPasswordDTO::fromArray($request->validated())
+            $request->validated('email')
         );
 
         return response()->json([

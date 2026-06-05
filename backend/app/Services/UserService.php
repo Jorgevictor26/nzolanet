@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\DTOs\ChangeProfilePhotoDTO;
 use App\DTOs\CurrentUserDTO;
 use App\DTOs\UpdateProfileDTO;
 use App\DTOs\UserDTO;
@@ -10,6 +9,7 @@ use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class UserService
@@ -74,9 +74,9 @@ class UserService
         return CurrentUserDTO::fromModel($updatedUser);
     }
 
-    public function changeProfilePhoto(User $user, ChangeProfilePhotoDTO $dto): CurrentUserDTO
+    public function changeProfilePhoto(User $user, UploadedFile $photo): CurrentUserDTO
     {
-        $path = $dto->photo->store('profile-photos', 'public');
+        $path = $photo->store('profile-photos', 'public');
         $previousPhoto = $user->profile_photo;
         $updatedUser = $this->users->updateProfilePhoto($user, $path);
 

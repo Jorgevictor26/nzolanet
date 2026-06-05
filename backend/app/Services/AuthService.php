@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\DTOs\CurrentUserDTO;
-use App\DTOs\ForgotPasswordDTO;
 use App\DTOs\LoginDTO;
 use App\DTOs\RegisterDTO;
 use App\DTOs\ResetPasswordDTO;
@@ -66,9 +65,9 @@ class AuthService
         }
     }
 
-    public function sendPasswordResetToken(ForgotPasswordDTO $dto): void
+    public function sendPasswordResetToken(string $email): void
     {
-        $user = $this->users->findByEmail($dto->email);
+        $user = $this->users->findByEmail($email);
 
         if (! $user) {
             return;

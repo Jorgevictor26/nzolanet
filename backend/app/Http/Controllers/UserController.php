@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\DTOs\ChangeProfilePhotoDTO;
 use App\DTOs\UpdateProfileDTO;
 use App\Http\Requests\ChangeProfilePhotoRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -61,7 +60,7 @@ class UserController extends Controller
     {
         $user = $this->userService->changeProfilePhoto(
             $request->user(),
-            ChangeProfilePhotoDTO::fromArray($request->validated()),
+            $request->file('photo'),
         );
 
         return response()->json([
