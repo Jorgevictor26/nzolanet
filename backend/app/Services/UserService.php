@@ -60,6 +60,7 @@ class UserService
         if ($dto->profilePhoto) {
             $data['profile_photo'] = $dto->profilePhoto->store('profile-photos', 'public');
         }
+        
 
         $updatedUser = $this->users->updateProfile($user, $data);
 

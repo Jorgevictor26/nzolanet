@@ -4,7 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -38,5 +37,4 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::put('comments/{id}', [CommentController::class, 'update'])->whereNumber('id');
     Route::delete('comments/{id}', [CommentController::class, 'destroy'])->whereNumber('id');
     Route::apiResource('likes', LikeController::class)->only(['store', 'destroy']);
-    Route::apiResource('notifications', NotificationController::class)->only(['index', 'show', 'update']);
 });
