@@ -3,8 +3,11 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
+<<<<<<< HEAD
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ModerationController;
+=======
+>>>>>>> main
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;

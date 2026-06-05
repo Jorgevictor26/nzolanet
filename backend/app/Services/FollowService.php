@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\DTOs\FollowUserDTO;
 use App\DTOs\UserDTO;
 use App\Models\User;
 use App\Repositories\FollowRepository;
@@ -21,21 +20,20 @@ class FollowService
     public function follow(User $follower, int $followingId): UserDTO
     {
         $following = $this->findUserOrFail($followingId);
-        $dto = new FollowUserDTO($follower->id, $following->id);
 
-        if ($dto->followerId === $dto->followingId) {
+        if ($follower->id === $following->id) {
             throw ValidationException::withMessages([
                 'user' => ['Não é possível seguir a si próprio.'],
             ]);
         }
 
-        if ($this->follows->exists($dto->followerId, $dto->followingId)) {
+        if ($this->follows->exists($follower->id, $following->id)) {
             throw ValidationException::withMessages([
                 'user' => ['Este utilizador já está a ser seguido.'],
             ]);
         }
 
-        $this->follows->create($dto->followerId, $dto->followingId);
+        $this->follows->create($follower->id, $following->id);
         $following->loadCount(['followers', 'following']);
 
         return UserDTO::fromModel($following, $follower);
@@ -44,9 +42,8 @@ class FollowService
     public function unfollow(User $follower, int $followingId): void
     {
         $following = $this->findUserOrFail($followingId);
-        $dto = new FollowUserDTO($follower->id, $following->id);
 
-        if (! $this->follows->delete($dto->followerId, $dto->followingId)) {
+        if (! $this->follows->delete($follower->id, $following->id)) {
             throw ValidationException::withMessages([
                 'user' => ['Este utilizador não está a ser seguido.'],
             ]);
