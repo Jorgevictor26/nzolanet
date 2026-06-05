@@ -32,6 +32,7 @@ export class Login {
   ) {
     const initialStep = this.route.snapshot.data['authStep'] as AuthStep | undefined;
     const email = this.route.snapshot.queryParamMap.get('email')?.trim();
+    const token = this.route.snapshot.queryParamMap.get('token')?.trim();
     const navigationMessage = this.router.getCurrentNavigation()?.extras.state?.['authMessage'];
 
     if (initialStep) {
@@ -40,6 +41,11 @@ export class Login {
 
     if (email) {
       this.forgotEmail.set(email);
+      this.loginEmail.set(email);
+    }
+
+    if (token) {
+      this.resetToken.set(token);
     }
 
     if (typeof navigationMessage === 'string') {
@@ -271,6 +277,7 @@ export class Login {
       this.auth.forgotPassword(email).subscribe({
         next: (response) => {
           this.forgotEmail.set(email);
+          this.loginEmail.set(email);
           this.goToStep('reset');
           this.authMessage.set(response.message || 'Enviamos um código de recuperação para o teu email.');
           this.finishRequest();
@@ -281,39 +288,52 @@ export class Login {
   }
 
   protected submitResetPassword(): void {
-    if (!this.forgotEmail().trim()) {
-      this.authError.set('Volta ao passo anterior e informa o email da conta.');
+    const email = this.forgotEmail().trim();
+    const token = this.resetToken().trim();
+    const password = this.resetPassword();
+    const passwordConfirmation = this.resetPasswordConfirmation();
+
+    if (!email) {
+      this.authError.set('Informa o email da conta para redefinir a senha.');
       return;
     }
 
-    if (!this.resetToken().trim()) {
+    if (!token) {
       this.authError.set('Informa o código de recuperação que recebeste por email.');
       return;
     }
 
-    if (this.resetPassword().length < 8) {
+    if (password.length < 8) {
       this.authError.set('A nova senha deve ter pelo menos 8 caracteres.');
       return;
     }
 
-    if (this.resetPassword() !== this.resetPasswordConfirmation()) {
+    if (password !== passwordConfirmation) {
       this.authError.set('A confirmação da senha deve ser igual à nova senha.');
       return;
     }
 
     this.runRequest(() =>
       this.auth.resetPassword({
-        email: this.forgotEmail().trim(),
-        token: this.resetToken().trim(),
-        password: this.resetPassword(),
-        password_confirmation: this.resetPasswordConfirmation()
+        email,
+        token,
+        password,
+        password_confirmation: passwordConfirmation
       }).subscribe({
         next: (response) => {
+          const message = response.message || 'Senha alterada com sucesso. Já podes entrar com a nova senha.';
+
           this.authError.set(null);
+          this.authMessage.set(message);
+          this.loginEmail.set(email);
+          this.loginPassword.set('');
+          this.resetToken.set('');
+          this.resetPassword.set('');
+          this.resetPasswordConfirmation.set('');
           this.authStep.set('login');
           this.router.navigateByUrl('/', {
             state: {
-              authMessage: response.message || 'Senha alterada com sucesso. Já podes entrar com a nova senha.'
+              authMessage: message
             }
           });
           this.finishRequest();

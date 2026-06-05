@@ -187,14 +187,15 @@
               Voltar
             </button>
             <h2 class="text-center font-['Poppins'] text-[28px] font-bold leading-tight">Redefinir senha</h2>
-            <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Cria uma nova senha para voltar a entrar na tua conta.</p>
+            <p class="mt-2 text-center text-[13px] leading-5 text-[#667085]">Usa o código recebido no email e cria uma nova senha.</p>
             @if (authMessage()) {
               <p class="mt-5 rounded-[8px] border border-[#bbf7d0] bg-[#f0fdf4] px-4 py-3 text-[12px] font-semibold text-[#166534]">{{ authMessage() }}</p>
             }
             @if (authError()) {
               <p class="mt-5 rounded-[8px] border border-[#fecdd3] bg-[#fff1f2] px-4 py-3 text-[12px] font-semibold text-[#be123c]">{{ authError() }}</p>
             }
-            <label class="mt-7 text-[12px] font-bold text-[#344054]">Código<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" name="resetToken" [ngModel]="resetToken()" (ngModelChange)="resetToken.set($event)" placeholder="Código recebido por email" required /></label>
+            <label class="mt-7 text-[12px] font-bold text-[#344054]">Email<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="email" name="resetEmail" [ngModel]="forgotEmail()" (ngModelChange)="forgotEmail.set($event)" placeholder="teuemail@exemplo.com" autocomplete="email" required /></label>
+            <label class="mt-4 text-[12px] font-bold text-[#344054]">Código<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="text" name="resetToken" [ngModel]="resetToken()" (ngModelChange)="resetToken.set($event)" placeholder="Código recebido por email" autocomplete="one-time-code" required /></label>
             <label class="mt-4 text-[12px] font-bold text-[#344054]">Nova senha<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="password" name="resetPassword" [ngModel]="resetPassword()" (ngModelChange)="resetPassword.set($event)" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required /></label>
             <label class="mt-4 text-[12px] font-bold text-[#344054]">Confirmar senha<input class="mt-2 h-11 w-full rounded-[8px] border border-[#d7deea] px-4 text-[14px] outline-none focus:border-[#28334b]" type="password" name="resetPasswordConfirmation" [ngModel]="resetPasswordConfirmation()" (ngModelChange)="resetPasswordConfirmation.set($event)" placeholder="Repete a senha" autocomplete="new-password" minlength="8" required /></label>
             <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[14px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60" type="submit" [disabled]="isSubmitting()">{{ isSubmitting() ? 'A redefinir...' : 'Redefinir senha' }}</button>
