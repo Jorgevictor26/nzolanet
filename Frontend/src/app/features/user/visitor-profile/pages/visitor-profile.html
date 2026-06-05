@@ -3,28 +3,35 @@
     <p class="mb-4 rounded-[8px] border border-[#fecdd3] bg-[#fff1f2] px-4 py-3 text-[12px] font-semibold text-[#be123c]">{{ profileError() }}</p>
   }
 
-  <app-profile-hero-card
-    [coverUrl]="coverPhotoUrl()"
-    coverAlt="Capa do perfil de visitante"
-    [avatarUrl]="profilePhotoUrl() || null"
-    [avatarAlt]="profile()?.name || 'Perfil'"
-    [initials]="profileInitials()"
-    [title]="profile()?.name || (isLoadingProfile() ? 'A carregar...' : 'Perfil')"
-    [username]="username()"
-    [privacyLabel]="profilePrivacyLabel()"
-    [privacyVariant]="profile()?.privacy || 'public'"
-    [bio]="profile()?.bio || 'Sem biografia.'"
-    [postsCount]="postsCount()"
-    [followersCount]="followersCount()"
-    [followingCount]="followingCount()"
-    [actionLabel]="isFollowInFlight() ? 'A processar...' : (isFollowing() ? prefs.t('following') : prefs.t('follow'))"
-    [actionVariant]="isFollowing() ? 'secondary' : 'primary'"
-    [actionDisabled]="!profile() || isFollowInFlight()"
-    (action)="toggleFollow()"
-    (followersClick)="openModal('followers')"
-    (followingClick)="openModal('following')"
-  />
+  @if (isLoadingProfile()) {
+    <section class="rounded-[8px] bg-white p-5 text-[13px] font-semibold text-[#667085] shadow-sm">
+      A carregar perfil...
+    </section>
+  } @else if (profile()) {
+    <app-profile-hero-card
+      [coverUrl]="coverPhotoUrl()"
+      coverAlt="Capa do perfil de visitante"
+      [avatarUrl]="profilePhotoUrl() || null"
+      [avatarAlt]="profile()?.name || 'Perfil'"
+      [initials]="profileInitials()"
+      [title]="profile()?.name || 'Perfil'"
+      [username]="username()"
+      [privacyLabel]="profilePrivacyLabel()"
+      [privacyVariant]="profile()?.privacy || 'public'"
+      [bio]="profile()?.bio || 'Sem biografia.'"
+      [postsCount]="postsCount()"
+      [followersCount]="followersCount()"
+      [followingCount]="followingCount()"
+      [actionLabel]="isFollowInFlight() ? 'A processar...' : (isFollowing() ? prefs.t('following') : prefs.t('follow'))"
+      [actionVariant]="isFollowing() ? 'secondary' : 'primary'"
+      [actionDisabled]="isFollowInFlight()"
+      (action)="toggleFollow()"
+      (followersClick)="openModal('followers')"
+      (followingClick)="openModal('following')"
+    />
+  }
 
+  @if (profile()) {
   <div class="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,704px)_312px]">
     <section class="min-w-0">
       <app-content-filter-tabs [activeFilter]="activeContentFilter()" [tabs]="contentTabs()" (filterChange)="setContentFilter($event)" />
@@ -48,6 +55,7 @@
       />
     </aside>
   </div>
+  }
 </div>
 
 @if (activeMediaItem(); as item) {

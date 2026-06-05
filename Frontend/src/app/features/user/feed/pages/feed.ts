@@ -115,6 +115,10 @@ export class Feed implements OnInit {
     this.isComposerOpen.set(true);
   }
 
+  protected profileLink(userId: number): unknown[] {
+    return userId === this.auth.currentUser()?.id ? ['/profile'] : ['/visitor-profile', userId];
+  }
+
   protected closeComposer(): void {
     this.isComposerOpen.set(false);
     this.clearComposer();

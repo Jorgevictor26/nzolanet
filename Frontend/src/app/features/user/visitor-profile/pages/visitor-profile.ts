@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { Auth } from '../../../../core/services/auth';
 import { Feedback } from '../../../../core/services/feedback';
 import { Posts } from '../../../../core/services/posts';
 import { Preferences } from '../../../../core/services/preferences';
@@ -72,10 +73,12 @@ export class VisitorProfile implements OnInit, OnDestroy {
   );
 
   constructor(
+    private readonly auth: Auth,
     private readonly feedback: Feedback,
     private readonly posts: Posts,
     protected readonly prefs: Preferences,
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly users: Users
   ) {}
 
@@ -86,7 +89,12 @@ export class VisitorProfile implements OnInit, OnDestroy {
       this.resetProfileState();
 
       if (!Number.isInteger(profileId) || profileId <= 0) {
-        this.profileError.set('Abre um perfil de utilizador válido para seguir ou deixar de seguir.');
+        this.router.navigateByUrl('/home');
+        return;
+      }
+
+      if (profileId === this.auth.currentUser()?.id) {
+        this.router.navigateByUrl('/profile');
         return;
       }
 
