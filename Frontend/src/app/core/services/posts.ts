@@ -16,6 +16,7 @@ export type ApiPost = {
   video: string | null;
   likes_count: number;
   comments_count: number;
+  is_liked_by_viewer: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -124,6 +125,14 @@ export class Posts {
 
   delete(id: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/posts/${id}`);
+  }
+
+  like(id: number): Observable<PostResponse> {
+    return this.http.post<PostResponse>(`${environment.apiUrl}/posts/${id}/like`, {});
+  }
+
+  unlike(id: number): Observable<PostResponse> {
+    return this.http.delete<PostResponse>(`${environment.apiUrl}/posts/${id}/like`);
   }
 
   reportPost(id: number, reason: ReportReason): Observable<{ message: string }> {

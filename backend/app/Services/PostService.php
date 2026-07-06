@@ -33,10 +33,10 @@ class PostService
     /**
      * @return array{data: array<int, array<string, mixed>>, meta: array<string, int>}
      */
-    public function feed(int $perPage): array
+    public function feed(User $viewer, int $perPage): array
     {
         return $this->formatPaginatedPosts(
-            $this->posts->paginateFeed($this->normalizePerPage($perPage))
+            $this->posts->paginateFeed($viewer, $this->normalizePerPage($perPage))
         );
     }
 
@@ -56,7 +56,7 @@ class PostService
         }
 
         return $this->formatPaginatedPosts(
-            $this->posts->paginateByUserId($userId, $this->normalizePerPage($perPage))
+            $this->posts->paginateByUserId($viewer, $userId, $this->normalizePerPage($perPage))
         );
     }
 
@@ -95,7 +95,7 @@ class PostService
         }
 
         return PostDTO::fromModel(
-            $this->posts->update($post, $data)
+            $this->posts->update($post, $data, $author)
         );
     }
 

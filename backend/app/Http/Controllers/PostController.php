@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\DTOs\CreatePostDTO;
 use App\DTOs\UpdatePostDTO;
-use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\StorePostReportRequest;
+use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Services\ModerationService;
 use App\Services\PostService;
@@ -22,7 +22,7 @@ class PostController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $this->postService->feed((int) $request->integer('per_page', 15))
+            $this->postService->feed($request->user(), (int) $request->integer('per_page', 15))
         );
     }
 

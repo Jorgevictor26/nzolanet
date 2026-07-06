@@ -54,6 +54,7 @@ export function mapPostToProfileMediaItem(post: ApiPost): ProfileMediaItem {
     video: post.video ? `/storage/${post.video}` : undefined,
     likesCount: post.likes_count,
     commentsCount: post.comments_count,
+    isLikedByViewer: post.is_liked_by_viewer,
     time: relativeTime(post.created_at),
     alt: `Publicação de ${post.author.name ?? 'utilizador'}`
   };

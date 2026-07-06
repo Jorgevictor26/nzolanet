@@ -24,6 +24,7 @@ type FeedPost = {
   videoAlt?: string;
   likesCount: number;
   commentsCount: number;
+  isLikedByViewer: boolean;
 };
 
 type PostComment = {
@@ -71,6 +72,7 @@ export class Feed implements OnInit {
   protected readonly composerLimit = 280;
   protected readonly activeCommentPostId = signal<number | null>(null);
   protected readonly likedPostIds = signal<Set<number>>(new Set());
+  protected readonly likingPostIds = signal<Set<number>>(new Set());
   protected readonly hiddenPostIds = signal<Set<number>>(new Set());
   protected readonly openPostMenuId = signal<number | null>(null);
   protected readonly posts = signal<FeedPost[]>([]);
@@ -146,6 +148,7 @@ export class Feed implements OnInit {
     this.postService.feed().subscribe({
       next: (response) => {
         this.posts.set(response.data.map((post) => this.mapPost(post)));
+        this.syncLikedPosts(response.data);
         this.isLoadingPosts.set(false);
       },
       error: () => {
@@ -244,6 +247,7 @@ export class Feed implements OnInit {
           this.savedDraft.set('');
         }
 
+        this.setPostLiked(post.id, post.isLikedByViewer);
         this.isPublishingPost.set(false);
         this.isComposerOpen.set(false);
         this.clearComposer();
@@ -301,6 +305,11 @@ export class Feed implements OnInit {
           return nextComments;
         });
         this.likedPostIds.update((postIds) => {
+          const nextPostIds = new Set(postIds);
+          nextPostIds.delete(postId);
+          return nextPostIds;
+        });
+        this.likingPostIds.update((postIds) => {
           const nextPostIds = new Set(postIds);
           nextPostIds.delete(postId);
           return nextPostIds;
@@ -564,17 +573,32 @@ export class Feed implements OnInit {
   }
 
   protected togglePostLike(postId: number): void {
+    if (this.likingPostIds().has(postId)) {
+      return;
+    }
+
     const wasLiked = this.isPostLiked(postId);
-    this.likedPostIds.update((postIds) => {
-      const nextPostIds = new Set(postIds);
-      nextPostIds.has(postId) ? nextPostIds.delete(postId) : nextPostIds.add(postId);
-      return nextPostIds;
+    this.likingPostIds.update((postIds) => new Set(postIds).add(postId));
+
+    const request = wasLiked ? this.postService.unlike(postId) : this.postService.like(postId);
+    request.subscribe({
+      next: ({ data }) => {
+        const updatedPost = this.mapPost(data);
+        this.posts.update((posts) =>
+          posts.map((post) => (post.id === postId ? updatedPost : post)),
+        );
+        this.setPostLiked(postId, updatedPost.isLikedByViewer);
+        this.removeLikingPost(postId);
+        this.feedback.show(
+          updatedPost.isLikedByViewer ? 'Deste baze nesta publicação.' : 'Baze removido.',
+          updatedPost.isLikedByViewer ? 'success' : 'info',
+        );
+      },
+      error: () => {
+        this.removeLikingPost(postId);
+        this.feedback.show('Não foi possível atualizar a baze.', 'info');
+      },
     });
-    this.updatePostCount(postId, 'likesCount', wasLiked ? -1 : 1);
-    this.feedback.show(
-      this.isPostLiked(postId) ? 'Deste baze nesta publicação.' : 'Baze removido.',
-      this.isPostLiked(postId) ? 'success' : 'info',
-    );
   }
 
   protected toggleSuggestedFollow(profileId: number): void {
@@ -689,6 +713,7 @@ export class Feed implements OnInit {
       videoAlt: `Vídeo da publicação de ${post.author.name ?? 'utilizador'}`,
       likesCount: post.likes_count,
       commentsCount: post.comments_count,
+      isLikedByViewer: post.is_liked_by_viewer,
     };
   }
 
@@ -749,6 +774,27 @@ export class Feed implements OnInit {
   private incrementCommentCount(postId: number): void {
     this.updatePostCount(postId, 'commentsCount', 1);
   }
+
+  private syncLikedPosts(posts: ApiPost[]): void {
+    this.likedPostIds.set(new Set(posts.filter((post) => post.is_liked_by_viewer).map((post) => post.id)));
+  }
+
+  private setPostLiked(postId: number, isLiked: boolean): void {
+    this.likedPostIds.update((postIds) => {
+      const nextPostIds = new Set(postIds);
+      isLiked ? nextPostIds.add(postId) : nextPostIds.delete(postId);
+      return nextPostIds;
+    });
+  }
+
+  private removeLikingPost(postId: number): void {
+    this.likingPostIds.update((postIds) => {
+      const nextPostIds = new Set(postIds);
+      nextPostIds.delete(postId);
+      return nextPostIds;
+    });
+  }
+
   private chooseReportReason(): Promise<ReportReason | null> {
     return new Promise((resolve) => {
       this.reportModalResolve.set(resolve);

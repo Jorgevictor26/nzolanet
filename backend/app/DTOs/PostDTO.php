@@ -17,6 +17,7 @@ readonly class PostDTO
         public ?string $video,
         public int $likesCount,
         public int $commentsCount,
+        public bool $isLikedByViewer,
         public string $createdAt,
         public string $updatedAt,
     ) {}
@@ -34,6 +35,7 @@ readonly class PostDTO
             video: $post->video,
             likesCount: (int) ($post->likes_count ?? 0),
             commentsCount: (int) ($post->comments_count ?? 0),
+            isLikedByViewer: (bool) ($post->is_liked_by_viewer ?? false),
             createdAt: $post->created_at?->toISOString() ?? '',
             updatedAt: $post->updated_at?->toISOString() ?? '',
         );
@@ -57,6 +59,7 @@ readonly class PostDTO
             'video' => $this->video,
             'likes_count' => $this->likesCount,
             'comments_count' => $this->commentsCount,
+            'is_liked_by_viewer' => $this->isLikedByViewer,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];

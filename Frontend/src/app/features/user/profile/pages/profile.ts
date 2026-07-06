@@ -75,6 +75,7 @@ export class Profile implements OnInit {
   protected readonly activeMediaItemId = signal<number | null>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
   protected readonly likedPostIds = signal<Set<number>>(new Set());
+  protected readonly likingPostIds = signal<Set<number>>(new Set());
   protected readonly loadedProfileCommentPostIds = signal<Set<number>>(new Set());
   protected readonly profileComments = signal<Record<number, ProfileComment[]>>({});
   protected readonly followers = signal<ProfileListItemViewModel[]>([]);
@@ -243,14 +244,32 @@ export class Profile implements OnInit {
   }
 
   protected togglePostLike(postId: number): void {
+    if (this.likingPostIds().has(postId)) {
+      return;
+    }
+
     const wasLiked = this.isPostLiked(postId);
-    this.likedPostIds.update((postIds) => {
-      const nextPostIds = new Set(postIds);
-      nextPostIds.has(postId) ? nextPostIds.delete(postId) : nextPostIds.add(postId);
-      return nextPostIds;
+    this.likingPostIds.update((postIds) => new Set(postIds).add(postId));
+
+    const request = wasLiked ? this.postsService.unlike(postId) : this.postsService.like(postId);
+    request.subscribe({
+      next: ({ data }) => {
+        const updatedItem = mapPostToProfileMediaItem(data);
+        this.mediaItems.update((items) =>
+          items.map((item) => (item.id === postId ? updatedItem : item))
+        );
+        this.setPostLiked(postId, updatedItem.isLikedByViewer);
+        this.removeLikingPost(postId);
+        this.feedback.show(
+          updatedItem.isLikedByViewer ? 'Deste baze nesta publicação.' : 'Baze removido.',
+          updatedItem.isLikedByViewer ? 'success' : 'info'
+        );
+      },
+      error: (error: unknown) => {
+        this.removeLikingPost(postId);
+        this.profileError.set(this.errorMessage(error));
+      }
     });
-    this.updateMediaItemCount(postId, 'likesCount', wasLiked ? -1 : 1);
-    this.feedback.show(this.isPostLiked(postId) ? 'Deste baze nesta publicação.' : 'Baze removido.', this.isPostLiked(postId) ? 'success' : 'info');
   }
 
   protected sharePost(postId: number): void {
@@ -420,6 +439,7 @@ export class Profile implements OnInit {
     this.postsService.byUser(userId, 50).subscribe({
       next: (response) => {
         this.mediaItems.set(response.data.map((post) => mapPostToProfileMediaItem(post)));
+        this.syncLikedPosts(response.data);
         this.isLoadingPosts.set(false);
       },
       error: (error: unknown) => {
@@ -467,6 +487,26 @@ export class Profile implements OnInit {
         item.id === postId ? { ...item, [key]: Math.max(0, value) } : item
       )
     );
+  }
+
+  private syncLikedPosts(posts: { id: number; is_liked_by_viewer: boolean }[]): void {
+    this.likedPostIds.set(new Set(posts.filter((post) => post.is_liked_by_viewer).map((post) => post.id)));
+  }
+
+  private setPostLiked(postId: number, isLiked: boolean): void {
+    this.likedPostIds.update((postIds) => {
+      const nextPostIds = new Set(postIds);
+      isLiked ? nextPostIds.add(postId) : nextPostIds.delete(postId);
+      return nextPostIds;
+    });
+  }
+
+  private removeLikingPost(postId: number): void {
+    this.likingPostIds.update((postIds) => {
+      const nextPostIds = new Set(postIds);
+      nextPostIds.delete(postId);
+      return nextPostIds;
+    });
   }
 
   private chooseReportReason(): ReportReason | null {
