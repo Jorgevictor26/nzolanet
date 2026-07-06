@@ -69,7 +69,7 @@ class ModerationTest extends TestCase
         ]);
     }
 
-    public function test_authenticated_user_can_submit_post_report(): void
+    public function test_authenticated_user_cannot_submit_post_report(): void
     {
         $reporter = User::factory()->create();
         $author = User::factory()->create();
@@ -84,18 +84,9 @@ class ModerationTest extends TestCase
                 'reason' => 'Conteúdo Falso',
             ]);
 
-        $response
-            ->assertCreated()
-            ->assertJsonPath('message', 'Denúncia submetida com sucesso.');
+        $response->assertNotFound();
 
-        $this->assertDatabaseHas('reports', [
-            'post_id' => $post->id,
-            'comment_id' => null,
-            'reported_user_id' => $author->id,
-            'reporter_id' => $reporter->id,
-            'reason' => 'Conteúdo Falso',
-            'status' => 'Pendente',
-        ]);
+        $this->assertDatabaseCount('reports', 0);
     }
 
     public function test_admin_can_approve_report_without_removing_comment(): void

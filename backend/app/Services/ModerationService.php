@@ -4,11 +4,9 @@ namespace App\Services;
 
 use App\DTOs\ReportDTO;
 use App\Models\Comment;
-use App\Models\Post;
 use App\Models\Report;
 use App\Models\User;
 use App\Repositories\CommentRepository;
-use App\Repositories\PostRepository;
 use App\Repositories\ReportRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,7 +16,6 @@ class ModerationService
     public function __construct(
         private readonly ReportRepository $reports,
         private readonly CommentRepository $comments,
-        private readonly PostRepository $posts,
     ) {}
 
     /**
@@ -40,14 +37,7 @@ class ModerationService
     {
         $report = $this->findReportOrFail($reportId);
 
-        if ($report->comment_id) {
-            $this->comments->delete($this->findCommentOrFail($report->comment_id));
-            return;
-        }
-
-        if ($report->post_id) {
-            $this->posts->delete($this->findPostOrFail($report->post_id));
-        }
+        $this->comments->delete($this->findCommentOrFail((int) $report->comment_id));
     }
 
     public function warnUser(int $reportId): ReportDTO
@@ -62,20 +52,6 @@ class ModerationService
         $report = $this->reports->create([
             'comment_id' => $comment->id,
             'reported_user_id' => $comment->user_id,
-            'reporter_id' => $reporter->id,
-            'reason' => $reason,
-        ]);
-
-        return ReportDTO::fromModel($this->withReportsCount($report));
-    }
-
-    public function submitPostReport(User $reporter, int $postId, string $reason): ReportDTO
-    {
-        $post = $this->findPostOrFail($postId);
-
-        $report = $this->reports->create([
-            'post_id' => $post->id,
-            'reported_user_id' => $post->user_id,
             'reporter_id' => $reporter->id,
             'reason' => $reason,
         ]);
@@ -112,24 +88,9 @@ class ModerationService
         return $comment;
     }
 
-    private function findPostOrFail(int $id): Post
-    {
-        $post = $this->posts->findById($id);
-
-        if (! $post) {
-            throw (new ModelNotFoundException)->setModel(Post::class, [$id]);
-        }
-
-        return $post;
-    }
-
     private function withReportsCount(Report $report): Report
     {
-        $reportsCount = $report->comment_id
-            ? $this->reports->countByCommentId($report->comment_id)
-            : ($report->post_id ? $this->reports->countByPostId($report->post_id) : 0);
-
-        $report->setAttribute('reports_count', $reportsCount);
+        $report->setAttribute('reports_count', $this->reports->countByCommentId((int) $report->comment_id));
 
         return $report;
     }

@@ -204,38 +204,6 @@
                   >
                 </span>
               </button>
-              @if (!canManagePost(post)) {
-                <button
-                  class="mt-1 flex w-full items-start gap-3 rounded-[6px] px-3 py-2 text-left hover:bg-[#f5f7fb] disabled:cursor-not-allowed disabled:opacity-60"
-                  type="button"
-                  [disabled]="isPostReporting(post.id)"
-                  (click)="$event.stopPropagation(); reportPost(post)"
-                >
-                  <span
-                    class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-[4px] bg-[#1f2944] text-white"
-                  >
-                    <svg
-                      class="size-3.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path d="M12 8v5" />
-                      <path d="M12 17h.01" />
-                      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" />
-                    </svg>
-                  </span>
-                  <span class="min-w-0">
-                    <span class="block text-[13px] font-bold leading-5 text-[#111827]">{{
-                      isPostReporting(post.id) ? 'A denunciar...' : 'Denunciar publicação'
-                    }}</span>
-                    <span class="block text-[11px] font-medium leading-4 text-[#667085]"
-                      >Informa-nos acerca de um problema com esta publicação.</span
-                    >
-                  </span>
-                </button>
-              }
             </div>
           }
         </header>

@@ -6,7 +6,6 @@ import { environment } from '../../../environments/environment';
 export type ApiReport = {
   id: number;
   comment_id: number | null;
-  post_id: number | null;
   comment: string;
   user: string;
   avatar: string | null;

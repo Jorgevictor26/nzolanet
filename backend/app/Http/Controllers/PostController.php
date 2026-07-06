@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\DTOs\CreatePostDTO;
 use App\DTOs\UpdatePostDTO;
-use App\Http\Requests\StorePostReportRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
-use App\Services\ModerationService;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +14,6 @@ class PostController extends Controller
 {
     public function __construct(
         private readonly PostService $postService,
-        private readonly ModerationService $moderationService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -73,18 +70,5 @@ class PostController extends Controller
         return response()->json([
             'message' => 'Publicação eliminada com sucesso.',
         ]);
-    }
-
-    public function report(StorePostReportRequest $request, int $id): JsonResponse
-    {
-        $this->moderationService->submitPostReport(
-            $request->user(),
-            $id,
-            $request->validated('reason'),
-        );
-
-        return response()->json([
-            'message' => 'Denúncia submetida com sucesso.',
-        ], 201);
     }
 }

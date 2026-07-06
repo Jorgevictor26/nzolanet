@@ -135,10 +135,6 @@ export class Posts {
     return this.http.delete<PostResponse>(`${environment.apiUrl}/posts/${id}/like`);
   }
 
-  reportPost(id: number, reason: ReportReason): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${environment.apiUrl}/posts/${id}/report`, { reason });
-  }
-
   comments(postId: number, perPage = 50): Observable<CommentsResponse> {
     return this.http.get<CommentsResponse>(`${environment.apiUrl}/posts/${postId}/comments`, {
       params: {

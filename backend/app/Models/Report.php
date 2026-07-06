@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['comment_id', 'post_id', 'reported_user_id', 'reporter_id', 'reason', 'status'])]
+#[Fillable(['comment_id', 'reported_user_id', 'reporter_id', 'reason', 'status'])]
 class Report extends Model
 {
     use HasFactory;

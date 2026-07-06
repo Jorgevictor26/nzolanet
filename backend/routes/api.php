@@ -49,7 +49,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('{id}', [PostController::class, 'destroy'])->whereNumber('id');
         Route::post('{id}/like', [LikeController::class, 'store'])->whereNumber('id');
         Route::delete('{id}/like', [LikeController::class, 'destroy'])->whereNumber('id');
-        Route::post('{id}/report', [PostController::class, 'report'])->whereNumber('id');
         Route::get('{postId}/comments', [CommentController::class, 'index'])->whereNumber('postId');
         Route::post('{postId}/comments', [CommentController::class, 'store'])->whereNumber('postId');
     });

@@ -58,7 +58,6 @@ export class Feed implements OnInit {
   protected readonly isLoadingComments = signal(false);
   protected readonly isSubmittingComment = signal(false);
   protected readonly reportingCommentIds = signal<Set<number>>(new Set());
-  protected readonly reportingPostIds = signal<Set<number>>(new Set());
   protected readonly postsError = signal<string | null>(null);
   protected readonly commentsError = signal<string | null>(null);
   protected readonly editingPostId = signal<number | null>(null);
@@ -377,44 +376,8 @@ export class Feed implements OnInit {
     this.feedback.show('Publicação ocultada.', 'info');
   }
 
-  protected async reportPost(post: FeedPost): Promise<void> {
-    if (this.canManagePost(post)) {
-      this.feedback.show('Não podes denunciar a tua própria publicação.', 'info');
-      return;
-    }
-    if (this.isPostReporting(post.id)) return;
-
-    const reason = await this.chooseReportReason();
-    if (!reason) return;
-
-    this.openPostMenuId.set(null);
-    this.reportingPostIds.update((ids) => new Set(ids).add(post.id));
-    this.postService.reportPost(post.id, reason).subscribe({
-      next: () => {
-        this.reportingPostIds.update((ids) => {
-          const s = new Set(ids);
-          s.delete(post.id);
-          return s;
-        });
-        this.feedback.show('Denúncia submetida com sucesso.', 'success');
-      },
-      error: () => {
-        this.reportingPostIds.update((ids) => {
-          const s = new Set(ids);
-          s.delete(post.id);
-          return s;
-        });
-        this.feedback.show('Não foi possível submeter a denúncia.', 'info');
-      },
-    });
-  }
-
   protected isPostDeleting(postId: number): boolean {
     return this.deletingPostIds().has(postId);
-  }
-
-  protected isPostReporting(postId: number): boolean {
-    return this.reportingPostIds().has(postId);
   }
 
   protected canManagePost(post: FeedPost): boolean {

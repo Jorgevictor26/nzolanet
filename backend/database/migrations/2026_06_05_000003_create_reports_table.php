@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('comment_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('post_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('reported_user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('reporter_id')->constrained('users')->cascadeOnDelete();
             $table->enum('reason', [
