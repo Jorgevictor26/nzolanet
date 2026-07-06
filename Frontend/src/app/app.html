@@ -86,6 +86,7 @@
                   <button
                     class="h-8 rounded-[6px] bg-[#eef2f7] px-3 text-[10px] font-bold text-[#28334b]"
                     type="button"
+                    [disabled]="unreadNotifications() === 0"
                     (click)="markAllNotificationsAsRead()"
                   >
                     {{ prefs.t('markRead') }}
@@ -93,6 +94,7 @@
                   <button
                     class="h-8 rounded-[6px] px-3 text-[10px] font-bold text-[#ef4444] hover:bg-[#fff1f2]"
                     type="button"
+                    [disabled]="notifications().length === 0"
                     (click)="clearNotifications()"
                   >
                     {{ prefs.t('clear') }}
@@ -117,13 +119,13 @@
                             : 'grid size-9 shrink-0 place-items-center rounded-full bg-[#28334b] text-white'
                         "
                       >
-                        @if (notification.title === 'Nova reação') {
+                        @if (notification.type === 'baze') {
                           <svg class="size-4" viewBox="0 0 24 24" fill="currentColor">
                             <path
                               d="M12 21 4.2 13.4a5.5 5.5 0 0 1 7.8-7.8l.1.1.1-.1a5.5 5.5 0 1 1 7.8 7.8L12 21Z"
                             />
                           </svg>
-                        } @else if (notification.title === 'Comentário recente') {
+                        } @else if (notification.type === 'comment') {
                           <svg
                             class="size-4"
                             viewBox="0 0 24 24"
@@ -168,6 +170,11 @@
                         }
                       </div>
                     </article>
+                  }
+                  @if (notificationsError()) {
+                    <p class="px-3 py-2 text-[11px] font-semibold text-[#ef4444]">
+                      {{ notificationsError() }}
+                    </p>
                   }
                 } @else {
                   <div class="px-4 py-8 text-center">

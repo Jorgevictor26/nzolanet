@@ -14,6 +14,7 @@ class FollowService
 {
     public function __construct(
         private readonly FollowRepository $follows,
+        private readonly NotificationService $notifications,
         private readonly UserRepository $users,
     ) {}
 
@@ -34,6 +35,7 @@ class FollowService
         }
 
         $this->follows->create($follower->id, $following->id);
+        $this->notifications->notifyNewFollower($follower, $following);
         $following->loadCount(['followers', 'following']);
 
         return UserDTO::fromModel($following, $follower);

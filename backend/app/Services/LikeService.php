@@ -14,6 +14,7 @@ class LikeService
 {
     public function __construct(
         private readonly LikeRepository $likes,
+        private readonly NotificationService $notifications,
         private readonly PostRepository $posts,
     ) {}
 
@@ -28,6 +29,7 @@ class LikeService
         }
 
         $this->likes->create($user->id, $postId);
+        $this->notifications->notifyNewBaze($user, $this->findPostOrFail($postId, $user));
 
         return PostDTO::fromModel($this->findPostOrFail($postId, $user));
     }

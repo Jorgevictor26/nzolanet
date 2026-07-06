@@ -18,6 +18,7 @@ class CommentService
 {
     public function __construct(
         private readonly CommentRepository $comments,
+        private readonly NotificationService $notifications,
         private readonly PostRepository $posts,
     ) {}
 
@@ -35,13 +36,15 @@ class CommentService
 
     public function create(User $author, CreateCommentDTO $dto): CommentDTO
     {
-        $this->findPostOrFail($dto->postId);
+        $post = $this->findPostOrFail($dto->postId);
 
         $comment = $this->comments->create([
             'user_id' => $author->id,
             'post_id' => $dto->postId,
             'content' => $dto->content,
         ]);
+
+        $this->notifications->notifyNewComment($author, $post, $comment);
 
         return CommentDTO::fromModel($comment);
     }
