@@ -15,6 +15,10 @@ type NotificationItem = {
   isRead: boolean;
 };
 
+const notificationPollingIntervalMs = 15000;
+
+const publicAuthRoutes = ['/', '/login', '/esqueci-senha', '/redefinir-senha'];
+
 @Component({
   selector: 'app-root',
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -42,7 +46,7 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadNotifications();
-    this.pollingId = setInterval(() => this.loadNotifications(), 15000);
+    this.pollingId = setInterval(() => this.loadNotifications(), notificationPollingIntervalMs);
   }
 
   ngOnDestroy(): void {
@@ -110,8 +114,6 @@ export class App implements OnInit, OnDestroy {
   }
 
   protected isLoginRoute(): boolean {
-    const publicAuthRoutes = ['/', '/login', '/esqueci-senha', '/redefinir-senha'];
-
     return publicAuthRoutes.some((route) => this.router.url === route || this.router.url.startsWith(`${route}?`));
   }
 

@@ -12,6 +12,12 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class NotificationService
 {
+    private const TYPE_BAZE = 'baze';
+
+    private const TYPE_COMMENT = 'comment';
+
+    private const TYPE_FOLLOW = 'follow';
+
     private const MIN_PER_PAGE = 1;
 
     private const MAX_PER_PAGE = 50;
@@ -32,15 +38,10 @@ class NotificationService
 
     public function notifyNewBaze(User $actor, Post $post): void
     {
-        if ($actor->id === $post->user_id) {
-            return;
-        }
-
-        $this->notifications->create([
-            'user_id' => $post->user_id,
+        $this->notifyPostOwner($actor, $post, [
             'actor_id' => $actor->id,
             'post_id' => $post->id,
-            'type' => 'baze',
+            'type' => self::TYPE_BAZE,
             'title' => 'Novo baze',
             'body' => "{$actor->name} deu baze na tua publicação.",
         ]);
@@ -48,16 +49,11 @@ class NotificationService
 
     public function notifyNewComment(User $actor, Post $post, Comment $comment): void
     {
-        if ($actor->id === $post->user_id) {
-            return;
-        }
-
-        $this->notifications->create([
-            'user_id' => $post->user_id,
+        $this->notifyPostOwner($actor, $post, [
             'actor_id' => $actor->id,
             'post_id' => $post->id,
             'comment_id' => $comment->id,
-            'type' => 'comment',
+            'type' => self::TYPE_COMMENT,
             'title' => 'Novo comentário',
             'body' => "{$actor->name} comentou na tua publicação.",
         ]);
@@ -72,7 +68,7 @@ class NotificationService
         $this->notifications->create([
             'user_id' => $followed->id,
             'actor_id' => $follower->id,
-            'type' => 'follow',
+            'type' => self::TYPE_FOLLOW,
             'title' => 'Novo seguidor',
             'body' => "{$follower->name} começou a seguir-te.",
         ]);
@@ -93,6 +89,21 @@ class NotificationService
     private function normalizePerPage(int $perPage): int
     {
         return max(self::MIN_PER_PAGE, min($perPage, self::MAX_PER_PAGE));
+    }
+
+    /**
+     * @param  array{actor_id: int, post_id: int, comment_id?: int, type: string, title: string, body: string}  $data
+     */
+    private function notifyPostOwner(User $actor, Post $post, array $data): void
+    {
+        if ($actor->id === $post->user_id) {
+            return;
+        }
+
+        $this->notifications->create([
+            ...$data,
+            'user_id' => $post->user_id,
+        ]);
     }
 
     /**
