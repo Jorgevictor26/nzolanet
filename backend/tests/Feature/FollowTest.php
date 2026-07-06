@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Follow;
+use App\Models\FollowRequest;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -26,11 +28,184 @@ class FollowTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('message', 'Utilizador seguido com sucesso.')
             ->assertJsonPath('data.id', $following->id)
-            ->assertJsonPath('data.name', 'Nzola User');
+            ->assertJsonPath('data.name', 'Nzola User')
+            ->assertJsonPath('data.follow_status', 'following')
+            ->assertJsonPath('data.can_view_content', true);
 
         $this->assertDatabaseHas('follows', [
             'follower_id' => $follower->id,
             'following_id' => $following->id,
+        ]);
+        $this->assertDatabaseCount('follow_requests', 0);
+    }
+
+    public function test_private_profile_follow_creates_pending_request_without_following(): void
+    {
+        $follower = User::factory()->create(['name' => 'Solicitante']);
+        $following = User::factory()->create([
+            'name' => 'Perfil Privado',
+            'privacy' => 'private',
+        ]);
+
+        $response = $this
+            ->actingAs($follower, 'sanctum')
+            ->postJson("/api/users/{$following->id}/follow");
+
+        $response
+            ->assertStatus(202)
+            ->assertJsonPath('message', 'Pedido de seguimento enviado.')
+            ->assertJsonPath('data.id', $following->id)
+            ->assertJsonPath('data.follow_status', 'pending')
+            ->assertJsonPath('data.is_followed_by_viewer', false)
+            ->assertJsonPath('data.can_view_content', false);
+
+        $this->assertDatabaseMissing('follows', [
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+        ]);
+        $this->assertDatabaseHas('follow_requests', [
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+            'status' => FollowRequest::STATUS_PENDING,
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $following->id,
+            'actor_id' => $follower->id,
+            'type' => 'follow_request',
+            'title' => 'Pedido de seguimento',
+            'body' => 'Solicitante quer seguir-te.',
+        ]);
+    }
+
+    public function test_accepting_private_follow_request_creates_follow_and_unlocks_content(): void
+    {
+        $follower = User::factory()->create();
+        $following = User::factory()->create([
+            'name' => 'Perfil Privado',
+            'privacy' => 'private',
+        ]);
+        Post::create([
+            'user_id' => $following->id,
+            'content' => 'Conteudo privado.',
+        ]);
+        $request = FollowRequest::create([
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+            'status' => FollowRequest::STATUS_PENDING,
+        ]);
+
+        $response = $this
+            ->actingAs($following, 'sanctum')
+            ->postJson("/api/follow-requests/{$request->id}/accept");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('message', 'Pedido de seguimento aceite.')
+            ->assertJsonPath('data.id', $request->id)
+            ->assertJsonPath('data.status', FollowRequest::STATUS_ACCEPTED);
+
+        $this->assertDatabaseHas('follows', [
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+        ]);
+        $this->assertDatabaseHas('follow_requests', [
+            'id' => $request->id,
+            'status' => FollowRequest::STATUS_ACCEPTED,
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $follower->id,
+            'actor_id' => $following->id,
+            'type' => 'follow_request_accepted',
+        ]);
+
+        $this
+            ->actingAs($follower, 'sanctum')
+            ->getJson("/api/users/{$following->id}")
+            ->assertOk()
+            ->assertJsonPath('data.can_view_content', true)
+            ->assertJsonPath('data.follow_status', 'following');
+
+        $this
+            ->actingAs($follower, 'sanctum')
+            ->getJson("/api/users/{$following->id}/posts")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_rejecting_private_follow_request_keeps_content_blocked(): void
+    {
+        $follower = User::factory()->create();
+        $following = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+        $request = FollowRequest::create([
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+            'status' => FollowRequest::STATUS_PENDING,
+        ]);
+
+        $response = $this
+            ->actingAs($following, 'sanctum')
+            ->postJson("/api/follow-requests/{$request->id}/reject");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('message', 'Pedido de seguimento rejeitado.')
+            ->assertJsonPath('data.id', $request->id)
+            ->assertJsonPath('data.status', FollowRequest::STATUS_REJECTED);
+
+        $this->assertDatabaseMissing('follows', [
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+        ]);
+        $this->assertDatabaseHas('follow_requests', [
+            'id' => $request->id,
+            'status' => FollowRequest::STATUS_REJECTED,
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $follower->id,
+            'actor_id' => $following->id,
+            'type' => 'follow_request_rejected',
+        ]);
+
+        $this
+            ->actingAs($follower, 'sanctum')
+            ->getJson("/api/users/{$following->id}")
+            ->assertOk()
+            ->assertJsonPath('data.can_view_content', false)
+            ->assertJsonPath('data.follow_status', 'none');
+    }
+
+    public function test_only_request_owner_can_accept_or_reject_follow_request(): void
+    {
+        $follower = User::factory()->create();
+        $following = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+        $otherUser = User::factory()->create();
+        $request = FollowRequest::create([
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+            'status' => FollowRequest::STATUS_PENDING,
+        ]);
+
+        $this
+            ->actingAs($otherUser, 'sanctum')
+            ->postJson("/api/follow-requests/{$request->id}/accept")
+            ->assertForbidden();
+
+        $this
+            ->actingAs($otherUser, 'sanctum')
+            ->postJson("/api/follow-requests/{$request->id}/reject")
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('follows', [
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+        ]);
+        $this->assertDatabaseHas('follow_requests', [
+            'id' => $request->id,
+            'status' => FollowRequest::STATUS_PENDING,
         ]);
     }
 

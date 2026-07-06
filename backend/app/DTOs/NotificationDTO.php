@@ -15,6 +15,8 @@ readonly class NotificationDTO
         public ?int $actorId,
         public ?int $postId,
         public ?int $commentId,
+        public ?int $followRequestId,
+        public ?string $followRequestStatus,
         public string $createdAt,
     ) {}
 
@@ -29,6 +31,8 @@ readonly class NotificationDTO
             actorId: $notification->actor_id,
             postId: $notification->post_id,
             commentId: $notification->comment_id,
+            followRequestId: $notification->follow_request_id,
+            followRequestStatus: $notification->followRequest?->status,
             createdAt: $notification->created_at?->toISOString() ?? '',
         );
     }
@@ -47,6 +51,8 @@ readonly class NotificationDTO
             'actor_id' => $this->actorId,
             'post_id' => $this->postId,
             'comment_id' => $this->commentId,
+            'follow_request_id' => $this->followRequestId,
+            'follow_request_status' => $this->followRequestStatus,
             'created_at' => $this->createdAt,
         ];
     }

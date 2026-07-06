@@ -62,24 +62,38 @@ class UserProfileTest extends TestCase
             ->assertJsonPath('data.username', 'public.user')
             ->assertJsonPath('data.cover_photo', null)
             ->assertJsonPath('data.posts_count', 1)
+            ->assertJsonPath('data.can_view_content', true)
             ->assertJsonMissing(['phone_number']);
     }
 
-    public function test_authenticated_user_cannot_view_private_profile_summary_from_another_user(): void
+    public function test_authenticated_user_can_view_private_profile_summary_without_content_access(): void
     {
         $viewer = User::factory()->create();
         $profile = User::factory()->create([
             'name' => 'Private User',
             'privacy' => 'private',
         ]);
+        Post::create([
+            'user_id' => $profile->id,
+            'content' => 'Publicação privada contada no resumo.',
+        ]);
+        $profile->followers()->attach(User::factory()->create()->id);
+        $profile->following()->attach(User::factory()->create()->id);
 
         $response = $this
             ->actingAs($viewer, 'sanctum')
             ->getJson("/api/users/{$profile->id}");
 
         $response
-            ->assertForbidden()
-            ->assertJsonPath('message', 'Este perfil é privado.');
+            ->assertOk()
+            ->assertJsonPath('data.id', $profile->id)
+            ->assertJsonPath('data.name', 'Private User')
+            ->assertJsonPath('data.privacy', 'private')
+            ->assertJsonPath('data.posts_count', 1)
+            ->assertJsonPath('data.followers_count', 1)
+            ->assertJsonPath('data.following_count', 1)
+            ->assertJsonPath('data.can_view_content', false)
+            ->assertJsonMissing(['phone_number']);
     }
 
     public function test_authenticated_follower_can_view_private_profile_summary(): void
@@ -101,6 +115,7 @@ class UserProfileTest extends TestCase
             ->assertJsonPath('data.id', $profile->id)
             ->assertJsonPath('data.name', 'Private User')
             ->assertJsonPath('data.privacy', 'private')
+            ->assertJsonPath('data.can_view_content', true)
             ->assertJsonMissing(['phone_number']);
     }
 
@@ -120,7 +135,8 @@ class UserProfileTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.id', $profile->id)
             ->assertJsonPath('data.name', 'Private User')
-            ->assertJsonPath('data.privacy', 'private');
+            ->assertJsonPath('data.privacy', 'private')
+            ->assertJsonPath('data.can_view_content', true);
     }
 
     public function test_authenticated_user_can_update_own_profile(): void

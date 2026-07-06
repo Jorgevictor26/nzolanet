@@ -38,6 +38,13 @@ import { ProfileContentFilter, ProfileListModal, ProfileMediaItem } from '../../
 })
 export class VisitorProfile implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
+  private readonly handleFollowRequestResolved = (event: Event): void => {
+    const detail = (event as CustomEvent<{ profileId: number }>).detail;
+
+    if (detail?.profileId && detail.profileId === this.profileId()) {
+      this.loadProfile(detail.profileId);
+    }
+  };
 
   protected readonly profile = signal<ApiUser | null>(null);
   protected readonly profileError = signal<string | null>(null);
@@ -68,7 +75,36 @@ export class VisitorProfile implements OnInit, OnDestroy {
     { value: 'videos' as const, label: this.prefs.t('videos') }
   ]);
   protected readonly profileId = computed(() => this.profile()?.id ?? null);
-  protected readonly isFollowing = computed(() => Boolean(this.profile()?.is_followed_by_viewer));
+  protected readonly isFollowing = computed(() => this.profile()?.follow_status === 'following');
+  protected readonly canViewProfileContent = computed(() => {
+    const currentProfile = this.profile();
+
+    return Boolean(currentProfile && this.canAccessProfileContent(currentProfile));
+  });
+  protected readonly followActionLabel = computed(() => {
+    const currentProfile = this.profile();
+
+    if (this.isFollowInFlight()) {
+      return 'A processar...';
+    }
+
+    if (!currentProfile) {
+      return this.prefs.t('follow');
+    }
+
+    if (currentProfile.privacy === 'private') {
+      if (currentProfile.follow_status === 'pending') {
+        return 'Pedido enviado';
+      }
+
+      return currentProfile.follow_status === 'following' ? this.prefs.t('following') : 'Solicitar';
+    }
+
+    return currentProfile.follow_status === 'following' ? this.prefs.t('following') : this.prefs.t('follow');
+  });
+  protected readonly isFollowActionDisabled = computed(() =>
+    this.isFollowInFlight() || this.profile()?.follow_status === 'pending'
+  );
   protected readonly profilePrivacyLabel = computed(() =>
     this.profile()?.privacy === 'private' ? this.prefs.t('privateProfile') : this.prefs.t('publicProfile')
   );
@@ -84,6 +120,8 @@ export class VisitorProfile implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    window.addEventListener('follow-request-resolved', this.handleFollowRequestResolved);
+
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const profileId = Number(params.get('id'));
 
@@ -104,30 +142,37 @@ export class VisitorProfile implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('follow-request-resolved', this.handleFollowRequestResolved);
     this.routeSubscription?.unsubscribe();
   }
 
   protected toggleFollow(): void {
     const profile = this.profile();
 
-    if (!profile || this.isFollowInFlight()) {
+    if (!profile || this.isFollowActionDisabled()) {
       return;
     }
 
     this.isFollowInFlight.set(true);
     const onSuccess = (): void => {
       const nextIsFollowing = !profile.is_followed_by_viewer;
+      const nextCanViewContent = profile.privacy === 'private' ? nextIsFollowing : true;
       this.profile.update((currentProfile) =>
         currentProfile
           ? {
               ...currentProfile,
               is_followed_by_viewer: nextIsFollowing,
+              can_view_content: nextCanViewContent,
+              follow_status: nextIsFollowing ? 'following' : 'none',
               followers_count: Math.max(0, currentProfile.followers_count + (nextIsFollowing ? 1 : -1))
             }
           : currentProfile
       );
       this.followersCount.update((count) => Math.max(0, count + (nextIsFollowing ? 1 : -1)));
       this.isFollowInFlight.set(false);
+      if (profile.privacy === 'private') {
+        nextCanViewContent ? this.loadProfileContent(profile.id) : this.clearProfileContent();
+      }
       this.feedback.show(nextIsFollowing ? 'Agora estás a seguir este perfil.' : 'Deixaste de seguir este perfil.', nextIsFollowing ? 'success' : 'info');
     };
     const onError = (error: unknown): void => {
@@ -135,12 +180,32 @@ export class VisitorProfile implements OnInit, OnDestroy {
       this.profileError.set(this.errorMessage(error));
     };
 
-    if (profile.is_followed_by_viewer) {
+    if (profile.follow_status === 'following') {
       this.users.unfollow(profile.id).subscribe({ next: onSuccess, error: onError });
       return;
     }
 
-    this.users.follow(profile.id).subscribe({ next: onSuccess, error: onError });
+    this.users.follow(profile.id).subscribe({
+      next: ({ data }) => {
+        this.profile.set(data);
+        this.followersCount.set(data.followers_count);
+        this.followingCount.set(data.following_count);
+        this.postsCount.set(data.posts_count);
+        this.isFollowInFlight.set(false);
+
+        if (this.canAccessProfileContent(data)) {
+          this.loadProfileContent(data.id);
+        } else {
+          this.clearProfileContent();
+        }
+
+        this.feedback.show(
+          data.follow_status === 'pending' ? 'Pedido de seguimento enviado.' : 'Agora estás a seguir este perfil.',
+          data.follow_status === 'pending' ? 'info' : 'success'
+        );
+      },
+      error: onError
+    });
   }
 
   protected setContentFilter(filter: ContentFilterValue): void {
@@ -150,6 +215,10 @@ export class VisitorProfile implements OnInit, OnDestroy {
   }
 
   protected openModal(modal: Exclude<ProfileListModal, null>): void {
+    if (!this.canViewProfileContent()) {
+      return;
+    }
+
     this.activeModal.set(modal);
     this.loadProfileList(modal);
   }
@@ -208,10 +277,12 @@ export class VisitorProfile implements OnInit, OnDestroy {
         this.followingCount.set(data.following_count);
         this.postsCount.set(data.posts_count);
         this.isLoadingProfile.set(false);
-        this.loadUserPosts(data.id);
-        this.loadProfileList('followers');
-        this.loadProfileList('following');
-        this.loadSuggestions(data.id);
+
+        if (this.canAccessProfileContent(data)) {
+          this.loadProfileContent(data.id);
+        } else {
+          this.clearProfileContent();
+        }
       },
       error: (error: unknown) => {
         this.profileError.set(this.errorMessage(error));
@@ -255,6 +326,27 @@ export class VisitorProfile implements OnInit, OnDestroy {
         this.isLoadingPosts.set(false);
       }
     });
+  }
+
+  private loadProfileContent(userId: number): void {
+    this.loadUserPosts(userId);
+    this.loadProfileList('followers');
+    this.loadProfileList('following');
+    this.loadSuggestions(userId);
+  }
+
+  private clearProfileContent(): void {
+    this.mediaItems.set([]);
+    this.followers.set([]);
+    this.following.set([]);
+    this.suggestedProfiles.set([]);
+    this.isLoadingPosts.set(false);
+    this.activeMediaItemId.set(null);
+    this.activeModal.set(null);
+  }
+
+  private canAccessProfileContent(profile: ApiUser): boolean {
+    return profile.privacy !== 'private' || profile.can_view_content;
   }
 
   private loadProfileList(list: Exclude<ProfileListModal, null>): void {

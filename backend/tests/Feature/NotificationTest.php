@@ -3,10 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\Comment;
+use App\Models\FollowRequest;
 use App\Models\Notification;
 use App\Models\Post;
 use App\Models\User;
+use App\Repositories\NotificationRepository;
+use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
 use Tests\TestCase;
 
 class NotificationTest extends TestCase
@@ -83,6 +87,59 @@ class NotificationTest extends TestCase
             'title' => 'Novo seguidor',
             'body' => 'Seguidor começou a seguir-te.',
         ]);
+    }
+
+    public function test_notification_payloads_include_required_message_field(): void
+    {
+        $payloads = [];
+        $repository = Mockery::mock(NotificationRepository::class);
+        $repository
+            ->shouldReceive('create')
+            ->times(6)
+            ->with(Mockery::on(function (array $data) use (&$payloads): bool {
+                $payloads[] = $data;
+
+                return true;
+            }))
+            ->andReturnUsing(fn (array $data): Notification => new Notification($data));
+
+        $service = new NotificationService($repository);
+        $postAuthor = User::factory()->create();
+        $post = Post::create([
+            'user_id' => $postAuthor->id,
+            'content' => 'Publicação com notificações.',
+        ]);
+
+        $bazeActor = User::factory()->create(['name' => 'Bazeador']);
+        $commentActor = User::factory()->create(['name' => 'Comentador']);
+        $comment = Comment::create([
+            'user_id' => $commentActor->id,
+            'post_id' => $post->id,
+            'content' => 'Comentário real.',
+        ]);
+        $followed = User::factory()->create();
+        $follower = User::factory()->create(['name' => 'Seguidor']);
+        $requestOwner = User::factory()->create(['name' => 'Dono Privado']);
+        $requester = User::factory()->create(['name' => 'Solicitante']);
+        $followRequest = FollowRequest::create([
+            'follower_id' => $requester->id,
+            'following_id' => $requestOwner->id,
+            'status' => FollowRequest::STATUS_PENDING,
+        ]);
+
+        $service->notifyNewBaze($bazeActor, $post);
+        $service->notifyNewComment($commentActor, $post, $comment);
+        $service->notifyNewFollower($follower, $followed);
+        $service->notifyNewFollowRequest($requester, $requestOwner, $followRequest);
+        $service->notifyFollowRequestAccepted($requestOwner, $requester);
+        $service->notifyFollowRequestRejected($requestOwner, $requester);
+
+        $this->assertContains('Bazeador deu baze na tua publicação.', array_column($payloads, 'message'));
+        $this->assertContains('Comentador comentou na tua publicação.', array_column($payloads, 'message'));
+        $this->assertContains('Seguidor começou a seguir-te.', array_column($payloads, 'message'));
+        $this->assertContains('Solicitante quer seguir-te.', array_column($payloads, 'message'));
+        $this->assertContains('Dono Privado aceitou o teu pedido de seguimento.', array_column($payloads, 'message'));
+        $this->assertContains('Dono Privado rejeitou o teu pedido de seguimento.', array_column($payloads, 'message'));
     }
 
     public function test_user_can_poll_own_notifications(): void

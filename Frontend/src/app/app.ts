@@ -13,6 +13,9 @@ type NotificationItem = {
   body: string;
   time: string;
   isRead: boolean;
+  actorId: number | null;
+  followRequestId: number | null;
+  followRequestStatus: ApiNotification['follow_request_status'];
 };
 
 const notificationPollingIntervalMs = 15000;
@@ -27,6 +30,7 @@ const publicAuthRoutes = ['/', '/login', '/esqueci-senha', '/redefinir-senha'];
 })
 export class App implements OnInit, OnDestroy {
   private pollingId: ReturnType<typeof setInterval> | null = null;
+  private readonly seenResolvedFollowRequestNotificationIds = new Set<number>();
 
   constructor(
     private readonly router: Router,
@@ -40,6 +44,7 @@ export class App implements OnInit, OnDestroy {
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly notifications = signal<NotificationItem[]>([]);
   protected readonly notificationsError = signal<string | null>(null);
+  protected readonly respondingFollowRequestIds = signal<Set<number>>(new Set());
   protected readonly unreadNotifications = computed(
     () => this.notifications().filter((notification) => !notification.isRead).length
   );
@@ -96,6 +101,24 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
+  protected canRespondToFollowRequest(notification: NotificationItem): boolean {
+    return notification.type === 'follow_request'
+      && notification.followRequestId !== null
+      && notification.followRequestStatus === 'pending';
+  }
+
+  protected isRespondingToFollowRequest(notification: NotificationItem): boolean {
+    return notification.followRequestId !== null && this.respondingFollowRequestIds().has(notification.followRequestId);
+  }
+
+  protected acceptFollowRequest(notification: NotificationItem): void {
+    this.respondToFollowRequest(notification, 'accepted');
+  }
+
+  protected rejectFollowRequest(notification: NotificationItem): void {
+    this.respondToFollowRequest(notification, 'rejected');
+  }
+
   protected logout(): void {
     this.isProfileMenuOpen.set(false);
     this.auth.logout().subscribe({
@@ -133,6 +156,7 @@ export class App implements OnInit, OnDestroy {
 
     this.notificationService.list().subscribe({
       next: ({ data }) => {
+        this.emitResolvedFollowRequestEvents(data);
         this.notifications.set(data.map((notification) => this.mapNotification(notification)));
         this.notificationsError.set(null);
       },
@@ -147,8 +171,74 @@ export class App implements OnInit, OnDestroy {
       title: notification.title,
       body: notification.body,
       time: this.relativeTime(notification.created_at),
-      isRead: notification.is_read
+      isRead: notification.is_read,
+      actorId: notification.actor_id,
+      followRequestId: notification.follow_request_id,
+      followRequestStatus: notification.follow_request_status
     };
+  }
+
+  private respondToFollowRequest(notification: NotificationItem, status: 'accepted' | 'rejected'): void {
+    const requestId = notification.followRequestId;
+
+    if (!requestId || this.respondingFollowRequestIds().has(requestId)) {
+      return;
+    }
+
+    this.respondingFollowRequestIds.update((requestIds) => new Set(requestIds).add(requestId));
+    const request = status === 'accepted'
+      ? this.notificationService.acceptFollowRequest(requestId)
+      : this.notificationService.rejectFollowRequest(requestId);
+
+    request.subscribe({
+      next: ({ data }) => {
+        this.updateFollowRequestNotification(data.id, data.status);
+        this.removeRespondingFollowRequest(data.id);
+        this.feedback.show(
+          data.status === 'accepted' ? 'Pedido de seguimento aceite.' : 'Pedido de seguimento rejeitado.',
+          data.status === 'accepted' ? 'success' : 'info'
+        );
+      },
+      error: () => {
+        this.removeRespondingFollowRequest(requestId);
+        this.notificationsError.set('Nao foi possivel responder ao pedido de seguimento.');
+      }
+    });
+  }
+
+  private updateFollowRequestNotification(requestId: number, status: NonNullable<ApiNotification['follow_request_status']>): void {
+    this.notifications.update((notifications) =>
+      notifications.map((notification) =>
+        notification.followRequestId === requestId
+          ? { ...notification, followRequestStatus: status, isRead: true }
+          : notification
+      )
+    );
+  }
+
+  private removeRespondingFollowRequest(requestId: number): void {
+    this.respondingFollowRequestIds.update((requestIds) => {
+      const nextRequestIds = new Set(requestIds);
+      nextRequestIds.delete(requestId);
+      return nextRequestIds;
+    });
+  }
+
+  private emitResolvedFollowRequestEvents(notifications: ApiNotification[]): void {
+    notifications
+      .filter((notification) =>
+        (notification.type === 'follow_request_accepted' || notification.type === 'follow_request_rejected')
+        && notification.actor_id !== null
+        && !this.seenResolvedFollowRequestNotificationIds.has(notification.id)
+      )
+      .forEach((notification) => {
+        this.seenResolvedFollowRequestNotificationIds.add(notification.id);
+        window.dispatchEvent(new CustomEvent('follow-request-resolved', {
+          detail: {
+            profileId: notification.actor_id
+          }
+        }));
+      });
   }
 
   private relativeTime(value: string): string {

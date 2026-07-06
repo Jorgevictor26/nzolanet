@@ -14,12 +14,12 @@ class FollowController extends Controller
 
     public function follow(Request $request, int $id): JsonResponse
     {
-        $user = $this->followService->follow($request->user(), $id);
+        $result = $this->followService->follow($request->user(), $id);
 
         return response()->json([
-            'message' => 'Utilizador seguido com sucesso.',
-            'data' => $user->toArray(),
-        ], 201);
+            'message' => $result['message'],
+            'data' => $result['user']->toArray(),
+        ], $result['status']);
     }
 
     public function unfollow(Request $request, int $id): JsonResponse
@@ -43,5 +43,21 @@ class FollowController extends Controller
         return response()->json(
             $this->followService->following($id, (int) $request->integer('per_page', 15), $request->user())
         );
+    }
+
+    public function acceptRequest(Request $request, int $id): JsonResponse
+    {
+        return response()->json([
+            'message' => 'Pedido de seguimento aceite.',
+            'data' => $this->followService->acceptRequest($request->user(), $id),
+        ]);
+    }
+
+    public function rejectRequest(Request $request, int $id): JsonResponse
+    {
+        return response()->json([
+            'message' => 'Pedido de seguimento rejeitado.',
+            'data' => $this->followService->rejectRequest($request->user(), $id),
+        ]);
     }
 }

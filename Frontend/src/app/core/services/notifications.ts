@@ -5,14 +5,24 @@ import { environment } from '../../../environments/environment';
 
 export type ApiNotification = {
   id: number;
-  type: 'baze' | 'comment' | 'follow';
+  type: 'baze' | 'comment' | 'follow' | 'follow_request' | 'follow_request_accepted' | 'follow_request_rejected';
   title: string;
   body: string;
   is_read: boolean;
   actor_id: number | null;
   post_id: number | null;
   comment_id: number | null;
+  follow_request_id: number | null;
+  follow_request_status: 'pending' | 'accepted' | 'rejected' | null;
   created_at: string;
+};
+
+export type FollowRequestResponse = {
+  message: string;
+  data: {
+    id: number;
+    status: 'pending' | 'accepted' | 'rejected';
+  };
 };
 
 export type NotificationsResponse = {
@@ -49,5 +59,13 @@ export class Notifications {
 
   clear(): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/notifications`);
+  }
+
+  acceptFollowRequest(id: number): Observable<FollowRequestResponse> {
+    return this.http.post<FollowRequestResponse>(`${environment.apiUrl}/follow-requests/${id}/accept`, {});
+  }
+
+  rejectFollowRequest(id: number): Observable<FollowRequestResponse> {
+    return this.http.post<FollowRequestResponse>(`${environment.apiUrl}/follow-requests/${id}/reject`, {});
   }
 }

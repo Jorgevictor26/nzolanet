@@ -15,9 +15,11 @@ class Notification extends Model
         'actor_id',
         'post_id',
         'comment_id',
+        'follow_request_id',
         'type',
         'title',
         'body',
+        'message',
         'read_at',
     ];
 
@@ -39,6 +41,11 @@ class Notification extends Model
     public function comment(): BelongsTo
     {
         return $this->belongsTo(Comment::class);
+    }
+
+    public function followRequest(): BelongsTo
+    {
+        return $this->belongsTo(FollowRequest::class);
     }
 
     /**

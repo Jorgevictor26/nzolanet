@@ -26,6 +26,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('/', [NotificationController::class, 'clear']);
     });
 
+    Route::prefix('follow-requests')->group(function (): void {
+        Route::post('{id}/accept', [FollowController::class, 'acceptRequest'])->whereNumber('id');
+        Route::post('{id}/reject', [FollowController::class, 'rejectRequest'])->whereNumber('id');
+    });
+
     Route::prefix('users')->group(function (): void {
         Route::get('me', [UserController::class, 'me']);
         Route::get('count', [UserController::class, 'count']);

@@ -27,11 +27,11 @@ class UserService
             throw (new ModelNotFoundException)->setModel(User::class, [$id]);
         }
 
-        $this->profilePrivacy->ensureCanViewProfile($viewer, $profile);
+        $canViewContent = $this->profilePrivacy->canViewProfile($viewer, $profile);
 
         $profile->loadCount(['posts', 'followers', 'following']);
 
-        return UserDTO::fromModel($profile, $viewer);
+        return UserDTO::fromModel($profile, $viewer, $canViewContent);
     }
 
     public function getAuthenticatedProfile(User $user): CurrentUserDTO
@@ -103,7 +103,11 @@ class UserService
     {
         return [
             'data' => $paginator->getCollection()
-                ->map(fn (User $user): array => UserDTO::fromModel($user, $viewer)->toArray())
+                ->map(fn (User $user): array => UserDTO::fromModel(
+                    $user,
+                    $viewer,
+                    $this->profilePrivacy->canViewProfile($viewer, $user),
+                )->toArray())
                 ->values()
                 ->all(),
             'meta' => [

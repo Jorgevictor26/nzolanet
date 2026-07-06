@@ -162,6 +162,26 @@
                         <p class="mt-1 text-[11px] leading-4 text-[#667085]">
                           {{ notification.body }}
                         </p>
+                        @if (canRespondToFollowRequest(notification)) {
+                          <div class="mt-2 flex items-center gap-2">
+                            <button
+                              class="h-7 rounded-[6px] bg-[#28334b] px-3 text-[10px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                              type="button"
+                              [disabled]="isRespondingToFollowRequest(notification)"
+                              (click)="acceptFollowRequest(notification)"
+                            >
+                              {{ isRespondingToFollowRequest(notification) ? 'A responder...' : 'Aceitar' }}
+                            </button>
+                            <button
+                              class="h-7 rounded-[6px] bg-[#fff1f2] px-3 text-[10px] font-bold text-[#be123c] disabled:cursor-not-allowed disabled:opacity-60"
+                              type="button"
+                              [disabled]="isRespondingToFollowRequest(notification)"
+                              (click)="rejectFollowRequest(notification)"
+                            >
+                              Rejeitar
+                            </button>
+                          </div>
+                        }
                         @if (!notification.isRead) {
                           <span
                             class="mt-2 inline-flex h-5 items-center rounded-full bg-white px-2 text-[9px] font-bold text-[#28334b]"

@@ -15,6 +15,8 @@ export type ApiUser = {
   followers_count: number;
   following_count: number;
   is_followed_by_viewer: boolean;
+  can_view_content: boolean;
+  follow_status: 'none' | 'pending' | 'following';
 };
 
 export type UserResponse = {

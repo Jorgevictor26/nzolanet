@@ -22,16 +22,16 @@
       [postsCount]="postsCount()"
       [followersCount]="followersCount()"
       [followingCount]="followingCount()"
-      [actionLabel]="isFollowInFlight() ? 'A processar...' : (isFollowing() ? prefs.t('following') : prefs.t('follow'))"
+      [actionLabel]="followActionLabel()"
       [actionVariant]="isFollowing() ? 'secondary' : 'primary'"
-      [actionDisabled]="isFollowInFlight()"
+      [actionDisabled]="isFollowActionDisabled()"
       (action)="toggleFollow()"
       (followersClick)="openModal('followers')"
       (followingClick)="openModal('following')"
     />
   }
 
-  @if (profile()) {
+  @if (profile() && canViewProfileContent()) {
   <div class="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,704px)_312px]">
     <section class="min-w-0">
       <app-content-filter-tabs [activeFilter]="activeContentFilter()" [tabs]="contentTabs()" (filterChange)="setContentFilter($event)" />

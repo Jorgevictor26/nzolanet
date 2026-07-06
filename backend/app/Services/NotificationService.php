@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\NotificationDTO;
 use App\Models\Comment;
+use App\Models\FollowRequest;
 use App\Models\Notification;
 use App\Models\Post;
 use App\Models\User;
@@ -17,6 +18,12 @@ class NotificationService
     private const TYPE_COMMENT = 'comment';
 
     private const TYPE_FOLLOW = 'follow';
+
+    private const TYPE_FOLLOW_REQUEST = 'follow_request';
+
+    private const TYPE_FOLLOW_REQUEST_ACCEPTED = 'follow_request_accepted';
+
+    private const TYPE_FOLLOW_REQUEST_REJECTED = 'follow_request_rejected';
 
     private const MIN_PER_PAGE = 1;
 
@@ -38,24 +45,30 @@ class NotificationService
 
     public function notifyNewBaze(User $actor, Post $post): void
     {
+        $message = "{$actor->name} deu baze na tua publicação.";
+
         $this->notifyPostOwner($actor, $post, [
             'actor_id' => $actor->id,
             'post_id' => $post->id,
             'type' => self::TYPE_BAZE,
             'title' => 'Novo baze',
-            'body' => "{$actor->name} deu baze na tua publicação.",
+            'body' => $message,
+            'message' => $message,
         ]);
     }
 
     public function notifyNewComment(User $actor, Post $post, Comment $comment): void
     {
+        $message = "{$actor->name} comentou na tua publicação.";
+
         $this->notifyPostOwner($actor, $post, [
             'actor_id' => $actor->id,
             'post_id' => $post->id,
             'comment_id' => $comment->id,
             'type' => self::TYPE_COMMENT,
             'title' => 'Novo comentário',
-            'body' => "{$actor->name} comentou na tua publicação.",
+            'body' => $message,
+            'message' => $message,
         ]);
     }
 
@@ -65,12 +78,62 @@ class NotificationService
             return;
         }
 
+        $message = "{$follower->name} começou a seguir-te.";
+
         $this->notifications->create([
             'user_id' => $followed->id,
             'actor_id' => $follower->id,
             'type' => self::TYPE_FOLLOW,
             'title' => 'Novo seguidor',
-            'body' => "{$follower->name} começou a seguir-te.",
+            'body' => $message,
+            'message' => $message,
+        ]);
+    }
+
+    public function notifyNewFollowRequest(User $follower, User $followed, FollowRequest $request): void
+    {
+        if ($follower->id === $followed->id) {
+            return;
+        }
+
+        $message = "{$follower->name} quer seguir-te.";
+
+        $this->notifications->create([
+            'user_id' => $followed->id,
+            'actor_id' => $follower->id,
+            'follow_request_id' => $request->id,
+            'type' => self::TYPE_FOLLOW_REQUEST,
+            'title' => 'Pedido de seguimento',
+            'body' => $message,
+            'message' => $message,
+        ]);
+    }
+
+    public function notifyFollowRequestAccepted(User $owner, User $requester): void
+    {
+        $message = "{$owner->name} aceitou o teu pedido de seguimento.";
+
+        $this->notifications->create([
+            'user_id' => $requester->id,
+            'actor_id' => $owner->id,
+            'type' => self::TYPE_FOLLOW_REQUEST_ACCEPTED,
+            'title' => 'Pedido aceite',
+            'body' => $message,
+            'message' => $message,
+        ]);
+    }
+
+    public function notifyFollowRequestRejected(User $owner, User $requester): void
+    {
+        $message = "{$owner->name} rejeitou o teu pedido de seguimento.";
+
+        $this->notifications->create([
+            'user_id' => $requester->id,
+            'actor_id' => $owner->id,
+            'type' => self::TYPE_FOLLOW_REQUEST_REJECTED,
+            'title' => 'Pedido rejeitado',
+            'body' => $message,
+            'message' => $message,
         ]);
     }
 
@@ -92,7 +155,7 @@ class NotificationService
     }
 
     /**
-     * @param  array{actor_id: int, post_id: int, comment_id?: int, type: string, title: string, body: string}  $data
+     * @param  array{actor_id: int, post_id: int, comment_id?: int, type: string, title: string, body: string, message: string}  $data
      */
     private function notifyPostOwner(User $actor, Post $post, array $data): void
     {
