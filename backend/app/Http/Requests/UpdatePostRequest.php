@@ -17,8 +17,6 @@ class UpdatePostRequest extends FormRequest
             'content' => ['required', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'video' => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/webm', 'max:51200'],
-            'media' => ['nullable', 'array', 'max:10'],
-            'media.*' => ['file', 'mimetypes:image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/x-msvideo,video/webm', 'max:51200'],
         ];
     }
 }

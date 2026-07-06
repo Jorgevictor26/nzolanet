@@ -7,26 +7,27 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PostRepository
 {
+    private const AUTHOR_FIELDS = 'user:id,name,username,profile_photo';
+
     /**
      * @return LengthAwarePaginator<int, Post>
      */
     public function paginateFeed(int $perPage): LengthAwarePaginator
     {
         return Post::query()
-            ->with('user:id,name,username,profile_photo')
+            ->with(self::AUTHOR_FIELDS)
             ->withCount(['likes', 'comments'])
             ->latest()
             ->paginate($perPage);
     }
 
     /**
-     * @param  array{user_id: int, content: string, image?: ?string, video?: ?string, media?: array<int, array{type: string, path: string}>}  $data
      * @return LengthAwarePaginator<int, Post>
      */
     public function paginateByUserId(int $userId, int $perPage): LengthAwarePaginator
     {
         return Post::query()
-            ->with('user:id,name,username,profile_photo')
+            ->with(self::AUTHOR_FIELDS)
             ->withCount(['likes', 'comments'])
             ->where('user_id', $userId)
             ->latest()
@@ -44,20 +45,20 @@ class PostRepository
     public function findById(int $id): ?Post
     {
         return Post::query()
-            ->with('user:id,name,username,profile_photo')
+            ->with(self::AUTHOR_FIELDS)
             ->withCount(['likes', 'comments'])
             ->find($id);
     }
 
     /**
-     * @param  array{content: string, image?: ?string, video?: ?string, media?: array<int, array{type: string, path: string}>}  $data
+     * @param  array{content: string, image?: ?string, video?: ?string}  $data
      */
     public function update(Post $post, array $data): Post
     {
         $post->fill($data)->save();
 
         return $post->refresh()
-            ->load('user:id,name,username,profile_photo')
+            ->load(self::AUTHOR_FIELDS)
             ->loadCount(['likes', 'comments']);
     }
 

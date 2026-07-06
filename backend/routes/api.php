@@ -3,7 +3,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
-use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
@@ -18,29 +17,39 @@ Route::prefix('auth')->group(function (): void {
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('auth/logout', [AuthController::class, 'logout']);
-    Route::get('users/me', [UserController::class, 'me']);
-    Route::get('users/count', [UserController::class, 'count']);
-    Route::get('users/suggestions', [UserController::class, 'suggestions']);
-    Route::post('users/{id}/follow', [FollowController::class, 'follow'])->whereNumber('id');
-    Route::delete('users/{id}/follow', [FollowController::class, 'unfollow'])->whereNumber('id');
-    Route::get('users/{id}/followers', [FollowController::class, 'followers'])->whereNumber('id');
-    Route::get('users/{id}/following', [FollowController::class, 'following'])->whereNumber('id');
-    Route::get('users/{id}/posts', [PostController::class, 'userPosts'])->whereNumber('id');
-    Route::get('users/{id}', [UserController::class, 'show'])->whereNumber('id');
-    Route::put('users/profile', [UserController::class, 'updateProfile']);
-    Route::post('users/profile', [UserController::class, 'updateProfile']);
-    Route::post('users/profile-photo', [UserController::class, 'changeProfilePhoto']);
-    Route::get('posts', [PostController::class, 'index']);
-    Route::post('posts', [PostController::class, 'store']);
-    Route::put('posts/{id}', [PostController::class, 'update'])->whereNumber('id');
-    Route::delete('posts/{id}', [PostController::class, 'destroy'])->whereNumber('id');
-    Route::post('posts/{id}/report', [PostController::class, 'report'])->whereNumber('id');
-    Route::get('posts/{postId}/comments', [CommentController::class, 'index'])->whereNumber('postId');
-    Route::post('posts/{postId}/comments', [CommentController::class, 'store'])->whereNumber('postId');
-    Route::put('comments/{id}', [CommentController::class, 'update'])->whereNumber('id');
-    Route::delete('comments/{id}', [CommentController::class, 'destroy'])->whereNumber('id');
-    Route::post('comments/{id}/report', [CommentController::class, 'report'])->whereNumber('id');
-    Route::apiResource('likes', LikeController::class)->only(['store', 'destroy']);
+
+    Route::prefix('users')->group(function (): void {
+        Route::get('me', [UserController::class, 'me']);
+        Route::get('count', [UserController::class, 'count']);
+        Route::get('suggestions', [UserController::class, 'suggestions']);
+        Route::put('profile', [UserController::class, 'updateProfile']);
+        Route::post('profile', [UserController::class, 'updateProfile']);
+        Route::post('profile-photo', [UserController::class, 'changeProfilePhoto']);
+
+        Route::post('{id}/follow', [FollowController::class, 'follow'])->whereNumber('id');
+        Route::delete('{id}/follow', [FollowController::class, 'unfollow'])->whereNumber('id');
+        Route::get('{id}/followers', [FollowController::class, 'followers'])->whereNumber('id');
+        Route::get('{id}/following', [FollowController::class, 'following'])->whereNumber('id');
+        Route::get('{id}/posts', [PostController::class, 'userPosts'])->whereNumber('id');
+        Route::get('{id}', [UserController::class, 'show'])->whereNumber('id');
+    });
+
+    Route::prefix('posts')->group(function (): void {
+        Route::get('/', [PostController::class, 'index']);
+        Route::post('/', [PostController::class, 'store']);
+        Route::put('{id}', [PostController::class, 'update'])->whereNumber('id');
+        Route::delete('{id}', [PostController::class, 'destroy'])->whereNumber('id');
+        Route::post('{id}/report', [PostController::class, 'report'])->whereNumber('id');
+        Route::get('{postId}/comments', [CommentController::class, 'index'])->whereNumber('postId');
+        Route::post('{postId}/comments', [CommentController::class, 'store'])->whereNumber('postId');
+    });
+
+    Route::prefix('comments')->group(function (): void {
+        Route::put('{id}', [CommentController::class, 'update'])->whereNumber('id');
+        Route::delete('{id}', [CommentController::class, 'destroy'])->whereNumber('id');
+        Route::post('{id}/report', [CommentController::class, 'report'])->whereNumber('id');
+    });
+
     Route::middleware('admin')->prefix('moderation')->group(function (): void {
         Route::get('reports', [ModerationController::class, 'index']);
         Route::post('reports/{id}/approve', [ModerationController::class, 'approve'])->whereNumber('id');

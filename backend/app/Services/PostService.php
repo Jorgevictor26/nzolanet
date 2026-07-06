@@ -17,6 +17,14 @@ use Illuminate\Support\Facades\Storage;
 
 class PostService
 {
+    private const IMAGE_DIRECTORY = 'post-images';
+
+    private const VIDEO_DIRECTORY = 'post-videos';
+
+    private const MIN_PER_PAGE = 1;
+
+    private const MAX_PER_PAGE = 50;
+
     public function __construct(
         private readonly PostRepository $posts,
         private readonly UserRepository $users,
@@ -57,8 +65,8 @@ class PostService
         $post = $this->posts->create([
             'user_id' => $author->id,
             'content' => $dto->content,
-            'image' => $this->storeFile($dto->image, 'post-images'),
-            'video' => $this->storeFile($dto->video, 'post-videos'),
+            'image' => $this->storeFile($dto->image, self::IMAGE_DIRECTORY),
+            'video' => $this->storeFile($dto->video, self::VIDEO_DIRECTORY),
         ]);
 
         return PostDTO::fromModel(
@@ -66,7 +74,7 @@ class PostService
                 ->loadCount(['likes', 'comments'])
         );
     }
-    
+
     public function update(User $author, int $postId, UpdatePostDTO $dto): PostDTO
     {
         $post = $this->findPostOrFail($postId);
@@ -78,12 +86,12 @@ class PostService
 
         if ($dto->image) {
             $this->deleteFile($post->image);
-            $data['image'] = $this->storeFile($dto->image, 'post-images');
+            $data['image'] = $this->storeFile($dto->image, self::IMAGE_DIRECTORY);
         }
 
         if ($dto->video) {
             $this->deleteFile($post->video);
-            $data['video'] = $this->storeFile($dto->video, 'post-videos');
+            $data['video'] = $this->storeFile($dto->video, self::VIDEO_DIRECTORY);
         }
 
         return PostDTO::fromModel(
@@ -141,7 +149,7 @@ class PostService
 
     private function normalizePerPage(int $perPage): int
     {
-        return max(1, min($perPage, 50));
+        return max(self::MIN_PER_PAGE, min($perPage, self::MAX_PER_PAGE));
     }
 
     /**
