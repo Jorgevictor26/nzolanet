@@ -127,13 +127,29 @@
                     <div class="flex items-center gap-2">
                       <h4 class="truncate text-[12px] font-bold text-[#111827]">{{ comment.author }}</h4>
                       <span class="text-[9px] text-[#8b95a7]">{{ comment.time }}</span>
-                      @if (canReportProfileComment(comment)) {
+                      @if (canManageProfileComment(comment)) {
+                        <button class="ml-auto shrink-0 text-[10px] font-bold text-[#1f6fff] hover:text-[#052977] disabled:cursor-not-allowed disabled:opacity-60" type="button" [disabled]="isProfileCommentUpdating(comment.id)" (click)="editProfileComment(comment)">
+                          Editar
+                        </button>
+                      } @else if (canReportProfileComment(comment)) {
                         <button class="ml-auto shrink-0 text-[10px] font-bold text-[#be123c] hover:text-[#9f1239] disabled:cursor-not-allowed disabled:opacity-60" type="button" [disabled]="isProfileCommentReporting(comment.id)" (click)="reportProfileComment(comment)">
                           {{ isProfileCommentReporting(comment.id) ? 'A denunciar...' : 'Denunciar' }}
                         </button>
                       }
                     </div>
-                    <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
+                    @if (isEditingProfileComment(comment.id)) {
+                      <div class="mt-2">
+                        <textarea class="min-h-20 w-full resize-none rounded-[8px] border border-[#d7deea] bg-white px-3 py-2 text-[12px] leading-5 text-[#1f2944] outline-none focus:border-[#1f6fff]" [value]="editingProfileCommentText()" (input)="updateEditingProfileCommentText($any($event.target).value)"></textarea>
+                        <div class="mt-2 flex items-center justify-end gap-2">
+                          <button class="h-8 rounded-[6px] px-3 text-[11px] font-semibold text-[#667085] hover:bg-[#e8ecf2]" type="button" [disabled]="isProfileCommentUpdating(comment.id)" (click)="cancelProfileCommentEdit()">Cancelar</button>
+                          <button class="h-8 rounded-[6px] bg-[#1f2944] px-3 text-[11px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60" type="button" [disabled]="isProfileCommentUpdating(comment.id)" (click)="saveProfileCommentEdit(comment)">
+                            {{ isProfileCommentUpdating(comment.id) ? 'A guardar...' : 'Guardar' }}
+                          </button>
+                        </div>
+                      </div>
+                    } @else {
+                      <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
+                    }
                   </div>
                 </article>
               } @empty {

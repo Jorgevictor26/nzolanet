@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 class UserService
 {
     public function __construct(
+        private readonly ProfilePrivacyService $profilePrivacy,
         private readonly UserRepository $users,
     ) {}
 
@@ -25,6 +26,8 @@ class UserService
         if (! $profile) {
             throw (new ModelNotFoundException)->setModel(User::class, [$id]);
         }
+
+        $this->profilePrivacy->ensureCanViewProfile($viewer, $profile);
 
         $profile->loadCount(['posts', 'followers', 'following']);
 

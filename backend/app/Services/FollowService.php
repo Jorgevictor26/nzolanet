@@ -15,6 +15,7 @@ class FollowService
     public function __construct(
         private readonly FollowRepository $follows,
         private readonly NotificationService $notifications,
+        private readonly ProfilePrivacyService $profilePrivacy,
         private readonly UserRepository $users,
     ) {}
 
@@ -58,6 +59,7 @@ class FollowService
     public function followers(int $userId, int $perPage, User $viewer): array
     {
         $user = $this->findUserOrFail($userId);
+        $this->profilePrivacy->ensureCanViewProfile($viewer, $user);
 
         return $this->formatPaginatedUsers(
             $this->follows->paginateFollowers($user, $this->normalizePerPage($perPage)),
@@ -71,6 +73,7 @@ class FollowService
     public function following(int $userId, int $perPage, User $viewer): array
     {
         $user = $this->findUserOrFail($userId);
+        $this->profilePrivacy->ensureCanViewProfile($viewer, $user);
 
         return $this->formatPaginatedUsers(
             $this->follows->paginateFollowing($user, $this->normalizePerPage($perPage)),

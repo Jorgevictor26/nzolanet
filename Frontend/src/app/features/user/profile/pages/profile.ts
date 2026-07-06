@@ -71,6 +71,9 @@ export class Profile implements OnInit {
   protected readonly isLoadingProfileComments = signal(false);
   protected readonly isSubmittingProfileComment = signal(false);
   protected readonly reportingCommentIds = signal<Set<number>>(new Set());
+  protected readonly editingProfileCommentId = signal<number | null>(null);
+  protected readonly editingProfileCommentText = signal('');
+  protected readonly updatingProfileCommentIds = signal<Set<number>>(new Set());
   protected readonly activeModal = signal<ProfileListModal>(null);
   protected readonly activeMediaItemId = signal<number | null>(null);
   protected readonly activeContentFilter = signal<ProfileContentFilter>('posts');
@@ -314,6 +317,58 @@ export class Profile implements OnInit {
     });
   }
 
+  protected editProfileComment(comment: ProfileComment): void {
+    if (!this.canManageProfileComment(comment)) {
+      this.feedback.show('Não tens permissão para editar este comentário.', 'info');
+      return;
+    }
+
+    this.editingProfileCommentId.set(comment.id);
+    this.editingProfileCommentText.set(comment.text);
+  }
+
+  protected updateEditingProfileCommentText(text: string): void {
+    this.editingProfileCommentText.set(text);
+  }
+
+  protected cancelProfileCommentEdit(): void {
+    this.editingProfileCommentId.set(null);
+    this.editingProfileCommentText.set('');
+  }
+
+  protected saveProfileCommentEdit(comment: ProfileComment): void {
+    const content = this.editingProfileCommentText().trim();
+
+    if (!content) {
+      this.feedback.show('Escreve algum texto para atualizar o comentário.', 'info');
+      return;
+    }
+
+    if (this.isProfileCommentUpdating(comment.id)) {
+      return;
+    }
+
+    this.updatingProfileCommentIds.update((commentIds) => new Set(commentIds).add(comment.id));
+    this.postsService.updateComment(comment.id, content).subscribe({
+      next: ({ data }) => {
+        const updatedComment = mapCommentToProfileComment(data);
+        this.profileComments.update((comments) => ({
+          ...comments,
+          [updatedComment.postId]: (comments[updatedComment.postId] ?? []).map((currentComment) =>
+            currentComment.id === updatedComment.id ? updatedComment : currentComment
+          )
+        }));
+        this.removeUpdatingProfileComment(comment.id);
+        this.cancelProfileCommentEdit();
+        this.feedback.show('Comentário atualizado.', 'success');
+      },
+      error: (error: unknown) => {
+        this.removeUpdatingProfileComment(comment.id);
+        this.profileError.set(this.errorMessage(error));
+      }
+    });
+  }
+
   protected reportProfileComment(comment: ProfileComment): void {
     if (this.canManageProfileComment(comment)) {
       this.feedback.show('Não podes denunciar o teu próprio comentário.', 'info');
@@ -361,6 +416,14 @@ export class Profile implements OnInit {
 
   protected isProfileCommentReporting(commentId: number): boolean {
     return this.reportingCommentIds().has(commentId);
+  }
+
+  protected isEditingProfileComment(commentId: number): boolean {
+    return this.editingProfileCommentId() === commentId;
+  }
+
+  protected isProfileCommentUpdating(commentId: number): boolean {
+    return this.updatingProfileCommentIds().has(commentId);
   }
 
   protected toggleFollowerFollow(profileId: number): void {
@@ -506,6 +569,14 @@ export class Profile implements OnInit {
       const nextPostIds = new Set(postIds);
       nextPostIds.delete(postId);
       return nextPostIds;
+    });
+  }
+
+  private removeUpdatingProfileComment(commentId: number): void {
+    this.updatingProfileCommentIds.update((commentIds) => {
+      const nextCommentIds = new Set(commentIds);
+      nextCommentIds.delete(commentId);
+      return nextCommentIds;
     });
   }
 

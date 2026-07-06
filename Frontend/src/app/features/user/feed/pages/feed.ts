@@ -81,6 +81,9 @@ export class Feed implements OnInit {
   protected readonly comments = signal<Record<number, PostComment[]>>({});
   protected readonly reportModalVisible = signal(false);
   protected readonly openCommentMenuId = signal<number | null>(null);
+  protected readonly editingCommentId = signal<number | null>(null);
+  protected readonly editingCommentText = signal('');
+  protected readonly updatingCommentIds = signal<Set<number>>(new Set());
   protected readonly reportModalResolve = signal<((reason: ReportReason | null) => void) | null>(
     null,
   );
@@ -471,6 +474,59 @@ export class Feed implements OnInit {
     });
   }
 
+  protected editComment(comment: PostComment): void {
+    if (!this.canManageComment(comment)) {
+      this.feedback.show('Não tens permissão para editar este comentário.', 'info');
+      return;
+    }
+
+    this.openCommentMenuId.set(null);
+    this.editingCommentId.set(comment.id);
+    this.editingCommentText.set(comment.text);
+  }
+
+  protected updateEditingCommentText(text: string): void {
+    this.editingCommentText.set(text);
+  }
+
+  protected cancelEditComment(): void {
+    this.editingCommentId.set(null);
+    this.editingCommentText.set('');
+  }
+
+  protected saveCommentEdit(comment: PostComment): void {
+    const content = this.editingCommentText().trim();
+
+    if (!content) {
+      this.feedback.show('Escreve algum texto para atualizar o comentário.', 'info');
+      return;
+    }
+
+    if (this.isCommentUpdating(comment.id)) {
+      return;
+    }
+
+    this.updatingCommentIds.update((commentIds) => new Set(commentIds).add(comment.id));
+    this.postService.updateComment(comment.id, content).subscribe({
+      next: ({ data }) => {
+        const updatedComment = this.mapComment(data);
+        this.comments.update((comments) => ({
+          ...comments,
+          [updatedComment.postId]: (comments[updatedComment.postId] ?? []).map((currentComment) =>
+            currentComment.id === updatedComment.id ? updatedComment : currentComment,
+          ),
+        }));
+        this.removeUpdatingComment(comment.id);
+        this.cancelEditComment();
+        this.feedback.show('Comentário atualizado.', 'success');
+      },
+      error: () => {
+        this.removeUpdatingComment(comment.id);
+        this.feedback.show('Não foi possível atualizar o comentário.', 'info');
+      },
+    });
+  }
+
   protected async reportComment(comment: PostComment): Promise<void> {
     if (this.canManageComment(comment)) {
       this.feedback.show('Não podes denunciar o teu próprio comentário.', 'info');
@@ -529,6 +585,14 @@ export class Feed implements OnInit {
 
   protected isCommentReporting(commentId: number): boolean {
     return this.reportingCommentIds().has(commentId);
+  }
+
+  protected isEditingComment(commentId: number): boolean {
+    return this.editingCommentId() === commentId;
+  }
+
+  protected isCommentUpdating(commentId: number): boolean {
+    return this.updatingCommentIds().has(commentId);
   }
 
   protected isPostLiked(postId: number): boolean {
@@ -755,6 +819,14 @@ export class Feed implements OnInit {
       const nextPostIds = new Set(postIds);
       nextPostIds.delete(postId);
       return nextPostIds;
+    });
+  }
+
+  private removeUpdatingComment(commentId: number): void {
+    this.updatingCommentIds.update((commentIds) => {
+      const nextCommentIds = new Set(commentIds);
+      nextCommentIds.delete(commentId);
+      return nextCommentIds;
     });
   }
 

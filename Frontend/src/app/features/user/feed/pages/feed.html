@@ -608,7 +608,35 @@
                     </h4>
                     <span class="shrink-0 text-[9px] text-[#8b95a7]">{{ comment.time }}</span>
                   </div>
-                  <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
+                  @if (isEditingComment(comment.id)) {
+                    <div class="mt-2">
+                      <textarea
+                        class="min-h-20 w-full resize-none rounded-[8px] border border-[#d7deea] bg-white px-3 py-2 text-[12px] leading-5 text-[#1f2944] outline-none focus:border-[#1f6fff]"
+                        [value]="editingCommentText()"
+                        (input)="updateEditingCommentText($any($event.target).value)"
+                      ></textarea>
+                      <div class="mt-2 flex items-center justify-end gap-2">
+                        <button
+                          class="h-8 rounded-[6px] px-3 text-[11px] font-semibold text-[#667085] hover:bg-[#e8ecf2]"
+                          type="button"
+                          [disabled]="isCommentUpdating(comment.id)"
+                          (click)="cancelEditComment()"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          class="h-8 rounded-[6px] bg-[#1f2944] px-3 text-[11px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                          type="button"
+                          [disabled]="isCommentUpdating(comment.id)"
+                          (click)="saveCommentEdit(comment)"
+                        >
+                          {{ isCommentUpdating(comment.id) ? 'A guardar...' : 'Guardar' }}
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <p class="mt-1 text-[12px] leading-5 text-[#344054]">{{ comment.text }}</p>
+                  }
 
                   <button
                     class="absolute right-2 top-2 grid size-6 place-items-center rounded-full text-[#8b95a7] hover:bg-[#e8ecf2] hover:text-[#1f2944]"
@@ -628,6 +656,23 @@
                       class="absolute right-0 top-8 z-50 w-50 rounded-[8px] border border-[#edf1f6] bg-white py-1 shadow-xl"
                     >
                       @if (canManageComment(comment)) {
+                        <button
+                          class="flex h-8 w-full items-center gap-1.5 px-2 text-left text-[11px] font-semibold whitespace-nowrap text-[#1f2944] hover:bg-[#f5f7fb]"
+                          type="button"
+                          (click)="editComment(comment)"
+                        >
+                          <svg
+                            class="size-3.5 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                          >
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+                          </svg>
+                          Editar comentário
+                        </button>
                         <button
                           class="flex h-8 w-full items-center gap-1.5 px-2 text-left text-[11px] font-semibold whitespace-nowrap text-[#be123c] hover:bg-[#fff1f2]"
                           type="button"

@@ -7,17 +7,17 @@
   </section>
 
   <div class="relative z-10 grid min-h-screen place-items-center px-4 py-8">
-    <section class="grid w-full max-w-[960px] overflow-hidden rounded-[8px] border border-[#e3e9f3] bg-white shadow-xl lg:grid-cols-[0.95fr_1.05fr]">
-      <aside class="hidden min-h-[620px] flex-col justify-between bg-[#28334b] p-8 text-white lg:flex">
+    <section class="grid w-full min-w-0 max-w-[960px] overflow-hidden rounded-[8px] border border-[#e3e9f3] bg-white shadow-xl lg:grid-cols-[0.95fr_1.05fr]">
+      <aside class="flex min-h-[220px] flex-col justify-between bg-[#28334b] p-5 text-white sm:min-h-[260px] sm:p-6 lg:min-h-[620px] lg:p-8">
         <div>
           <img class="size-12 rounded-full object-cover ring-2 ring-white/20" src="nzolanet_logo.png" alt="NzolaNet" />
-          <h1 class="mt-8 max-w-[360px] text-[30px] font-normal leading-[1.1]">NzolaNet</h1>
+          <h1 class="mt-6 max-w-[360px] text-[26px] font-normal leading-[1.1] lg:mt-8 lg:text-[30px]">NzolaNet</h1>
           <p class="mt-4 max-w-[360px] text-[14px] leading-6 text-[#d8e0ef]">
             Entra, cria o teu perfil e encontra pessoas com ideias, projetos e conversas que combinam contigo.
           </p>
         </div>
 
-        <div class="grid gap-3">
+        <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
           <article class="rounded-[8px] bg-white/10 p-4">
             <p class="text-[12px] font-semibold text-[#eef4ff]">Comunidade ativa</p>
             <p class="mt-1 text-[12px] leading-5 text-[#c9d4e8]">Segue perfis, guarda favoritos e acompanha novidades.</p>
@@ -29,7 +29,7 @@
         </div>
       </aside>
 
-      <div class="min-h-[620px] px-5 py-7 sm:px-8">
+      <div class="min-h-[560px] min-w-0 overflow-x-hidden px-5 py-7 sm:px-8 lg:min-h-[620px]">
         @if (authStep() === 'login') {
           <form class="mx-auto flex h-full max-w-[410px] flex-col justify-center" (submit)="$event.preventDefault(); submitLogin()">
             <p class="text-center text-[12px] font-bold uppercase tracking-[0.16em] text-[#28334b]">Bem-vindo</p>
@@ -136,23 +136,23 @@
         }
 
         @if (authStep() === 'follow') {
-          <section class="mx-auto flex h-full max-w-[460px] flex-col justify-center">
+          <section class="mx-auto flex h-full min-h-0 w-full max-w-[460px] flex-col justify-center overflow-hidden">
             <h2 class="text-[28px] font-bold leading-tight">Segue alguns perfis</h2>
             <p class="mt-2 text-[13px] leading-5 text-[#667085]">Como a tua conta é nova, escolhe pessoas para deixar o feed mais vivo desde o início.</p>
-            <div class="mt-7 grid gap-3">
+            <div class="mt-7 grid max-h-[min(46vh,320px)] gap-3 overflow-y-auto overflow-x-hidden pr-1">
               @for (profile of suggestedProfiles(); track profile.id) {
-                <article class="flex items-center gap-3 rounded-[8px] border border-[#e3e9f3] bg-white p-3">
+                <article class="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[8px] border border-[#e3e9f3] bg-white p-3">
                   @if (profile.avatar) {
-                    <img class="size-10 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
+                    <img class="size-10 shrink-0 rounded-full object-cover" [src]="profile.avatar" [alt]="profile.name" />
                   } @else {
                     <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#28334b] text-[12px] font-extrabold text-white">{{ profile.initials }}</span>
                   }
-                  <div class="min-w-0 flex-1">
+                  <div class="min-w-0 overflow-hidden">
                     <h3 class="truncate text-[12px] font-bold leading-4 text-[#101828]">{{ profile.name }}</h3>
                     <p class="truncate text-[10px] text-[#667085]">{{ profile.username }}</p>
                     <p class="truncate text-[10px] text-[#98a2b3]">{{ profile.role }}</p>
                   </div>
-                  <button [class]="profile.isFollowing ? 'h-8 rounded-full bg-[#eef3ff] px-5 text-[12px] font-bold text-[#1f6fff]' : 'h-8 rounded-full bg-[#1f2944] px-5 text-[12px] font-bold text-white'" type="button" (click)="toggleFollow(profile.id)">
+                  <button [class]="profile.isFollowing ? 'h-8 min-w-[86px] shrink-0 whitespace-nowrap rounded-full bg-[#eef3ff] px-4 text-[12px] font-bold text-[#1f6fff] sm:px-5' : 'h-8 min-w-[86px] shrink-0 whitespace-nowrap rounded-full bg-[#1f2944] px-4 text-[12px] font-bold text-white sm:px-5'" type="button" (click)="toggleFollow(profile.id)">
                     {{ profile.isFollowing ? 'Seguindo' : 'Seguir' }}
                   </button>
                 </article>
@@ -160,7 +160,7 @@
                 <p class="rounded-[8px] bg-white px-4 py-3 text-center text-[12px] font-semibold text-[#667085]">Sem sugestões disponíveis.</p>
               }
             </div>
-            <button class="mt-6 h-11 rounded-[8px] bg-[#28334b] text-[13px] font-bold text-white" type="button" (click)="finishOnboarding()">Concluir</button>
+            <button class="mt-6 h-11 shrink-0 rounded-[8px] bg-[#28334b] text-[13px] font-bold text-white" type="button" (click)="finishOnboarding()">Concluir</button>
           </section>
         }
 

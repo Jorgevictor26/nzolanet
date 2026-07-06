@@ -148,6 +148,28 @@ class PostTest extends TestCase
             ->assertJsonPath('data.0.content', 'Publicação privada para seguidores.');
     }
 
+    public function test_admin_can_list_posts_from_a_private_profile(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $profile = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+
+        $profilePost = Post::create([
+            'user_id' => $profile->id,
+            'content' => 'Publicação privada para admin.',
+        ]);
+
+        $response = $this
+            ->actingAs($admin, 'sanctum')
+            ->getJson("/api/users/{$profile->id}/posts");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $profilePost->id)
+            ->assertJsonPath('data.0.content', 'Publicação privada para admin.');
+    }
+
     public function test_authenticated_user_can_create_post(): void
     {
         $user = User::factory()->create();

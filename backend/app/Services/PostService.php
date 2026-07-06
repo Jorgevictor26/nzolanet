@@ -27,6 +27,7 @@ class PostService
 
     public function __construct(
         private readonly PostRepository $posts,
+        private readonly ProfilePrivacyService $profilePrivacy,
         private readonly UserRepository $users,
     ) {}
 
@@ -51,9 +52,7 @@ class PostService
             throw (new ModelNotFoundException)->setModel(User::class, [$userId]);
         }
 
-        if ($profile->id !== $viewer->id && $profile->privacy === 'private' && ! $this->viewerFollowsProfile($viewer, $profile)) {
-            throw new AuthorizationException('Este perfil é privado.');
-        }
+        $this->profilePrivacy->ensureCanViewProfile($viewer, $profile);
 
         return $this->formatPaginatedPosts(
             $this->posts->paginateByUserId($viewer, $userId, $this->normalizePerPage($perPage))
@@ -126,13 +125,6 @@ class PostService
         if ($post->user_id !== $author->id) {
             throw new AuthorizationException('Não tem permissão para alterar esta publicação.');
         }
-    }
-
-    private function viewerFollowsProfile(User $viewer, User $profile): bool
-    {
-        return $profile->followers()
-            ->where('users.id', $viewer->id)
-            ->exists();
     }
 
     private function storeFile(?UploadedFile $file, string $directory): ?string

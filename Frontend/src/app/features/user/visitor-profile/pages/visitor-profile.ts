@@ -314,6 +314,14 @@ export class VisitorProfile implements OnInit, OnDestroy {
   }
 
   private errorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse && error.status === 403) {
+      const message = typeof error.error?.message === 'string' ? error.error.message : '';
+
+      if (message.toLowerCase().includes('perfil') && message.toLowerCase().includes('privado')) {
+        return 'Este perfil é privado.';
+      }
+    }
+
     return httpErrorMessage(error);
   }
 }

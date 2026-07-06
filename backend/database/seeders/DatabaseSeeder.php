@@ -28,24 +28,24 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $author = User::factory()->create([
-            'name' => 'Utilizador Reportado',
-            'username' => 'reportado',
+            'name' => 'David Manuel',
+            'username' => 'Manuel',
         ]);
 
         $reporter = User::factory()->create([
-            'name' => 'Utilizador Moderador',
-            'username' => 'denunciante',
+            'name' => 'Maria Panzo',
+            'username' => 'panzo',
         ]);
 
         $post = Post::create([
             'user_id' => $author->id,
-            'content' => 'Publicação de exemplo para moderação.',
+            'content' => 'Hoje está um dia muito nublado.',
         ]);
 
         $comment = Comment::create([
             'user_id' => $author->id,
             'post_id' => $post->id,
-            'content' => 'Comentário de exemplo denunciado pela comunidade.',
+            'content' => 'Todo mundo sabe que o surto de Ébola está matando muita gente, mas ninguém fala disso.',
         ]);
 
         Report::create([

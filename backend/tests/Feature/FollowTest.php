@@ -117,6 +117,53 @@ class FollowTest extends TestCase
             ->assertJsonPath('meta.total', 3);
     }
 
+    public function test_cannot_list_private_profile_followers_without_access(): void
+    {
+        $viewer = User::factory()->create();
+        $target = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+
+        Follow::create([
+            'follower_id' => User::factory()->create()->id,
+            'following_id' => $target->id,
+        ]);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$target->id}/followers");
+
+        $response
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Este perfil é privado.');
+    }
+
+    public function test_follower_can_list_private_profile_followers(): void
+    {
+        $viewer = User::factory()->create();
+        $target = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+        $otherFollower = User::factory()->create();
+
+        Follow::create([
+            'follower_id' => $viewer->id,
+            'following_id' => $target->id,
+        ]);
+        Follow::create([
+            'follower_id' => $otherFollower->id,
+            'following_id' => $target->id,
+        ]);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$target->id}/followers");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('meta.total', 2);
+    }
+
     public function test_can_list_users_followed_by_user_paginated(): void
     {
         $viewer = User::factory()->create();
@@ -138,5 +185,47 @@ class FollowTest extends TestCase
             ->assertJsonPath('meta.current_page', 1)
             ->assertJsonPath('meta.per_page', 2)
             ->assertJsonPath('meta.total', 3);
+    }
+
+    public function test_cannot_list_private_profile_following_without_access(): void
+    {
+        $viewer = User::factory()->create();
+        $target = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+
+        Follow::create([
+            'follower_id' => $target->id,
+            'following_id' => User::factory()->create()->id,
+        ]);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$target->id}/following");
+
+        $response
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Este perfil é privado.');
+    }
+
+    public function test_admin_can_list_private_profile_following(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $target = User::factory()->create([
+            'privacy' => 'private',
+        ]);
+
+        Follow::create([
+            'follower_id' => $target->id,
+            'following_id' => User::factory()->create()->id,
+        ]);
+
+        $response = $this
+            ->actingAs($admin, 'sanctum')
+            ->getJson("/api/users/{$target->id}/following");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
     }
 }

@@ -65,7 +65,7 @@ class UserProfileTest extends TestCase
             ->assertJsonMissing(['phone_number']);
     }
 
-    public function test_authenticated_user_can_view_private_profile_summary_from_another_user(): void
+    public function test_authenticated_user_cannot_view_private_profile_summary_from_another_user(): void
     {
         $viewer = User::factory()->create();
         $profile = User::factory()->create([
@@ -78,11 +78,49 @@ class UserProfileTest extends TestCase
             ->getJson("/api/users/{$profile->id}");
 
         $response
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Este perfil é privado.');
+    }
+
+    public function test_authenticated_follower_can_view_private_profile_summary(): void
+    {
+        $viewer = User::factory()->create();
+        $profile = User::factory()->create([
+            'name' => 'Private User',
+            'privacy' => 'private',
+        ]);
+
+        $profile->followers()->attach($viewer->id);
+
+        $response = $this
+            ->actingAs($viewer, 'sanctum')
+            ->getJson("/api/users/{$profile->id}");
+
+        $response
             ->assertOk()
             ->assertJsonPath('data.id', $profile->id)
             ->assertJsonPath('data.name', 'Private User')
             ->assertJsonPath('data.privacy', 'private')
             ->assertJsonMissing(['phone_number']);
+    }
+
+    public function test_admin_can_view_private_profile_summary(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $profile = User::factory()->create([
+            'name' => 'Private User',
+            'privacy' => 'private',
+        ]);
+
+        $response = $this
+            ->actingAs($admin, 'sanctum')
+            ->getJson("/api/users/{$profile->id}");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.id', $profile->id)
+            ->assertJsonPath('data.name', 'Private User')
+            ->assertJsonPath('data.privacy', 'private');
     }
 
     public function test_authenticated_user_can_update_own_profile(): void
